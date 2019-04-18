@@ -211,11 +211,11 @@ class Wrapper extends React.Component<{}, MyState>{
             const mat = this.state.matrix;
 
             if (id == 'right' && !this.state.matrix[shape.top / 40][shape.left / 40 +2]) {
-                shape.moveRight(320);
+                shape.moveRight();
 
             }
             else if (id == 'left' && !this.state.matrix[shape.top / 40][shape.left / 40 -1]) {
-                shape.moveLeft(0);
+                shape.moveLeft();
 
             }
 
@@ -228,8 +228,8 @@ class Wrapper extends React.Component<{}, MyState>{
         return (
             <div>
                 <div className='canvasBlock'>
-                    <canvas ref={this.canvasFront}></canvas>
-                    <canvas ref={this.canvasBack}></canvas>
+                    <canvas className='FrontCanvas'ref={this.canvasFront}></canvas>
+                    <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
 
                 </div>
                 <div className='buttonsBlock'>

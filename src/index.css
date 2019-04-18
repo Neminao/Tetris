@@ -30,3 +30,12 @@ button {
 .buttonsBlock {
   position: relative;
 }
+
+.BackCanvas {
+  position: relative;
+}
+.FrontCanvas {
+  position: absolute;
+  z-index: 2000;
+  background: none;
+}

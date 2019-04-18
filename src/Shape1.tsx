@@ -23,8 +23,8 @@ class Shape1 {
         this.top += 40;
         }
     }
-    moveRight(bounds: number) {
-        if(this.left<bounds){
+    moveRight() {
+        if(this.left<320){
         this.shape1.left += 40;
         this.shape2.left += 40;
         this.shape3.left += 40;
@@ -33,8 +33,8 @@ class Shape1 {
         this.right += 40;
         }
     }
-    moveLeft(bounds: number) {
-        if(this.left>bounds){
+    moveLeft() {
+        if(this.left>0){
         this.shape1.left -= 40;
         this.shape2.left -= 40;
         this.shape3.left -= 40;
@@ -51,6 +51,7 @@ class Shape1 {
         arr.push(this.shape4);
         return arr;
     }
+    
 }
 
 export default Shape1
