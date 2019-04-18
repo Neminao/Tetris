@@ -16,8 +16,9 @@ code {
 canvas {
   width: 400px;
   height: 800px;
-  background-color: black;
+  background-color: white;
   position: relative;
+  border: 1px solid black;
 }
 button {
   position: relative;

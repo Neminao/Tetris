@@ -13,8 +13,20 @@ class BaseBuildingSquare {
     updateCanvas(ctx: any){
         ctx.beginPath();
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.left, this.top, 36, 36);
-
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.fillRect(this.left, this.top, 40, 40);
+        ctx.rect(this.left, this.top, 40, 40);
+        ctx.stroke();
+    }
+    draw(left: number, top: number, ctx: any){
+        ctx.beginPath();
+        ctx.fillStyle = 'blue';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.fillRect(left, top, 40, 40);
+        ctx.rect(left, top, 40, 40);
+        ctx.stroke();
     }
 }
 
