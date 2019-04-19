@@ -242,6 +242,13 @@ class Wrapper extends React.Component<{}, MyState>{
         }
     }
 
+    handleRotate =() => {
+        let shape = this.state.currentShape;
+        shape.rotate();
+        this.setState({
+            currentShape: shape
+        })
+    }
     render() {
         return (
             <div>
@@ -254,6 +261,7 @@ class Wrapper extends React.Component<{}, MyState>{
                     <button onClick={this.startGame}>Start</button><br></br>
                     <button id='left' onClick={this.handleMove}>{'<-'}</button>
                     <button id='right' onClick={this.handleMove}>-></button>
+                    <button id='rotate' onClick={this.handleRotate}>rotate</button>
                 </div>
             </div>
         )
