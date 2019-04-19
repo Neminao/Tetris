@@ -1,6 +1,12 @@
 import React from 'react'
 import BaseBuildingSquare from './BaseBuildingSquare';
 import Shape1 from './Shape1';
+import Shape2 from './Shape2';
+import Shape3 from './Shape3';
+import Shape4 from './Shape4';
+import Shape5 from './Shape5';
+import Shape6 from './Shape6';
+import Shape7 from './Shape7';
 
 interface MyState {
     currentShape: any;
@@ -9,16 +15,12 @@ interface MyState {
     running: boolean;
     matrix: any[];
 }
-interface Map {
-    [key: number]: number
-}
+
 class Wrapper extends React.Component<{}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
-    map: Map = {};
     constructor(props: {}) {
         super(props);
-
         this.state = {
             currentShape: null,
             nextShape: null,
@@ -27,33 +29,7 @@ class Wrapper extends React.Component<{}, MyState>{
             matrix: []
         }
     }
-    createMap = () => {
-        let i = 0;
-        let map: Map = {
-            0: i,
-            1: i = i + 40,
-            2: i = i + 40,
-            3: i = i + 40,
-            4: i = i + 40,
-            5: i = i + 40,
-            6: i = i + 40,
-            7: i = i + 40,
-            8: i = i + 40,
-            9: i = i + 40,
-            10: i = i + 40,
-            11: i = i + 40,
-            12: i = i + 40,
-            13: i = i + 40,
-            14: i = i + 40,
-            15: i = i + 40,
-            16: i = i + 40,
-            17: i = i + 40,
-            18: i = i + 40,
-            19: i = i + 40,
-        };
 
-        return map;
-    }
     createEmptyMatrix = (): any[] => {
         let arr: any[] = [];
         function sub(): boolean[] {
@@ -74,9 +50,9 @@ class Wrapper extends React.Component<{}, MyState>{
             return sub;
         }
         arr.push(x())
-
         return arr;
     }
+
     componentDidMount() {
         let c2: any = this.canvasBack.current;
         let c1: any = this.canvasFront.current;
@@ -88,11 +64,8 @@ class Wrapper extends React.Component<{}, MyState>{
             matrix: this.createEmptyMatrix()
         })
         this.createGrid(c2.getContext('2d'));
-        this.map = this.createMap();
-        let i = 2;
-        this.map[i];
-        console.log(this.map[i])
     }
+
     createGrid = (ctx: any) => {
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#ccc';
@@ -109,9 +82,19 @@ class Wrapper extends React.Component<{}, MyState>{
             ctx.stroke();
         }
     }
-    randomShape = () => {
 
+    randomShape = () => {
+        switch(Math.floor(Math.random() * Math.floor(7))){
+            case 0: return new Shape1();
+            case 1: return new Shape2();
+            case 2: return new Shape3();
+            case 3: return new Shape4();
+            case 4: return new Shape5();
+            case 5: return new Shape6();
+            case 6: return new Shape7();
+        }
     }
+
     startGame = () => {
         this.setState({
             running: true
@@ -119,27 +102,35 @@ class Wrapper extends React.Component<{}, MyState>{
         this.run();
 
     }
+
     run = () => {
         let c1: any = this.canvasFront.current;
         const ctx1: any = c1.getContext('2d');
-        const shape = new Shape1();
+        const shape = this.randomShape();
         ctx1.clearRect(0, 0, 400, 800);
+        if(shape!=null)
         shape.updateCanvas(ctx1);
         this.setState({
             currentShape: shape
         })
-        console.log(this.isRowComplete())
-        let inter: any = setInterval(() => this.moveShape(shape, inter), 400);
+        if(this.isRowComplete().length>0){
+            this.isRowComplete().forEach(index => {
+                this.clearRow(index);
+            });
+        }
+        let inter: any = setInterval(() => this.moveShape(shape, inter), 200);
     }
+
     moveShape = (shape: any, inter: any) => { // temp
         let c1: any = this.canvasFront.current;
+        
         const ctx1: any = c1.getContext('2d');
         ctx1.clearRect(0, 0, 400, 800);
-        shape.moveDown(this.getBorder());
+        shape.moveDown();
         shape.updateCanvas(ctx1);
-        if (this.state.matrix[shape.top / 40 + 1][shape.left / 40] || this.state.matrix[shape.top / 40 + 1][shape.right / 40]) {
-
-            let arr = this.state.matrix;
+        console.log(shape.left + ',' + shape.right)
+        let arr = this.state.matrix;
+        if (!shape.areBlocksFreeToMoveDown(arr)) { 
             this.state.currentShape.getAllSquares().forEach((element: any) => {
                 arr[element.top / 40][element.left / 40] = true;
             });
@@ -148,16 +139,23 @@ class Wrapper extends React.Component<{}, MyState>{
             })
             this.updateStateOfTheGame(shape);
             console.log(arr);
-            console.log(this.isRowComplete());
+           
             clearInterval(inter);
             this.run();
         }
-
     }
+
     updateStateOfTheGame = (shape: any) => { // temp
         let c1: any = this.canvasBack.current;
         const ctx1: any = c1.getContext('2d');
-        //this.state.currentShape.updateCanvas(ctx1);
+        if(this.isRowComplete().length>0){
+            this.isRowComplete().forEach(index => {
+                this.clearRow(index);
+            });
+            ctx1.clearRect(0, 0, 400, 800);
+            this.createGrid(ctx1);
+        }
+        
         const shape1 = new BaseBuildingSquare(0, 0, 'blue')
         const mat = this.state.matrix;
         for (let i = 0; i < 20; i++) {
@@ -168,25 +166,46 @@ class Wrapper extends React.Component<{}, MyState>{
             }
         }
         let arr = this.state.allBlocks;
-
         arr.push(shape);
-        console.log(arr);
     }
+
     delay = (ms: number) => {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+    clearRow = (index: number) => {
+        let mat = this.state.matrix;
+        console.log(mat);
+        function x() {
+            let sub: boolean[] = [];
+            for (let j = 0; j < 10; j++) {
+                sub.push(false);
+            }
+            return sub;
+        }
+        mat[index] = x();
+        for(let i = index; i>0 ;i--){
+            mat[i] = mat[i-1];
+        }
+        console.log(mat)
+        this.setState({
+            matrix: mat
+        })
+    }
+
     isRowComplete = () => {
         const arr = this.state.matrix;
+        let numArr = []
         for (let i = 0; i < 20; i++) {
             let counter = 0;
             arr[i].forEach((subEl: any) => {
                 if (subEl) counter++;
             })
             if (counter == 10) {
-                return i;
+                numArr.push(i);
             }
         }
-        return -1;
+        return numArr;
     }
     getBorder = () => { //temp
         let min = 800;
@@ -207,28 +226,27 @@ class Wrapper extends React.Component<{}, MyState>{
             let c1: any = this.canvasFront.current;
             const ctx1: any = c1.getContext('2d');
             let shape = this.state.currentShape;
-            console.log(shape)
             const mat = this.state.matrix;
 
-            if (id == 'right' && !this.state.matrix[shape.top / 40][shape.left / 40 +2]) {
+            if (id == 'right' && shape.areBlocksFreeToMoveRight(mat)) {
+                console.log(shape.areBlocksFreeToMoveRight(mat));
                 shape.moveRight();
 
             }
-            else if (id == 'left' && !this.state.matrix[shape.top / 40][shape.left / 40 -1]) {
+            else if (id == 'left' && shape.areBlocksFreeToMoveLeft(mat)) {
                 shape.moveLeft();
 
             }
-
-
             ctx1.clearRect(0, 0, 400, 800);
             shape.updateCanvas(ctx1);
         }
     }
+
     render() {
         return (
             <div>
                 <div className='canvasBlock'>
-                    <canvas className='FrontCanvas'ref={this.canvasFront}></canvas>
+                    <canvas className='FrontCanvas' ref={this.canvasFront}></canvas>
                     <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
 
                 </div>
