@@ -6,8 +6,6 @@ interface Shape {
     shape3: BaseBuildingSquare;
     shape4: BaseBuildingSquare;
     top: number;
-    left: number;
-    right: number;
     updateCanvas(ctx: any): void;
     moveDown(): void;  
     moveRight(): void;

@@ -2,13 +2,12 @@ import BaseBuildingSquare from "./BaseBuildingSquare";
 import Shape from "./Shape";
 
 class Shape3 implements Shape {
-    shape1 = new BaseBuildingSquare(200, 0, 'blue');
-    shape2 = new BaseBuildingSquare(240, 0, 'blue');
-    shape3 = new BaseBuildingSquare(160, 40, 'blue');
-    shape4 = new BaseBuildingSquare(200, 40, 'blue');
+    shape2 = new BaseBuildingSquare(200, 0, 'blue');
+    shape4 = new BaseBuildingSquare(240, 0, 'blue');
+    shape1 = new BaseBuildingSquare(160, 40, 'blue');
+    shape3 = new BaseBuildingSquare(200, 40, 'blue');
     top = 40;
-    left = 160;
-    right = 240;
+    
     updateCanvas(ctx: any) {
         this.shape1.updateCanvas(ctx);
         this.shape2.updateCanvas(ctx);
@@ -25,25 +24,46 @@ class Shape3 implements Shape {
         }
     }
     moveRight() {
-        if(this.left<280){
+        if(!this.isShapeOutOfBoundsRight()){
         this.shape1.left += 40;
         this.shape2.left += 40;
         this.shape3.left += 40;
         this.shape4.left += 40;
-        this.left += 40;
-        this.right += 40;
         }
     }
     moveLeft() {
-        if(this.left>0){
+        if(!this.isShapeOutOfBoundsLeft()){
         this.shape1.left -= 40;
         this.shape2.left -= 40;
         this.shape3.left -= 40;
         this.shape4.left -= 40;
-        this.left -= 40;
-        this.right -= 40;
         }
     }
+    isShapeOutOfBoundsLeft(){
+        return this.shape1.left == 0 || this.shape1.left == 0 || this.shape3.left == 0 || this.shape4.left == 0
+    }
+    isShapeOutOfBoundsRight(){
+        return this.shape1.left == 360 || this.shape1.left == 360 || this.shape3.left == 360 || this.shape4.left == 360
+    }
+    rotate() {
+        if(this.shape2.top == this.shape1.top){
+        this.shape1.top = this.shape3.top;
+        this.shape4.top = this.shape2.top;
+        this.shape4.left += 80;
+        }
+        else {
+        this.shape1.top = this.shape2.top;
+        this.shape4.left = this.shape1.left;
+        this.shape4.top -= 40;
+        }
+        if(this.shape4.left > 360){
+            this.shape4.left = 360;
+            this.shape2.left = 320;
+            this.shape3.left = 320;
+            this.shape1.left = 280;           
+        }
+    }
+
     getAllSquares(): BaseBuildingSquare[] {
         let arr = [];
         arr.push(this.shape1);

@@ -84,7 +84,7 @@ class Wrapper extends React.Component<{}, MyState>{
     }
 
     randomShape = () => {
-        switch(Math.floor(Math.random() * Math.floor(7))){
+        switch (Math.floor(Math.random() * Math.floor(7))) {
             case 0: return new Shape1();
             case 1: return new Shape2();
             case 2: return new Shape3();
@@ -108,29 +108,28 @@ class Wrapper extends React.Component<{}, MyState>{
         const ctx1: any = c1.getContext('2d');
         const shape = this.randomShape();
         ctx1.clearRect(0, 0, 400, 800);
-        if(shape!=null)
-        shape.updateCanvas(ctx1);
+        if (shape != null)
+            shape.updateCanvas(ctx1);
         this.setState({
             currentShape: shape
         })
-        if(this.isRowComplete().length>0){
+        if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
             });
         }
-        let inter: any = setInterval(() => this.moveShape(shape, inter), 200);
+        let inter: any = setInterval(() => this.moveShape(shape, inter), 600);
     }
 
     moveShape = (shape: any, inter: any) => { // temp
         let c1: any = this.canvasFront.current;
-        
+
         const ctx1: any = c1.getContext('2d');
         ctx1.clearRect(0, 0, 400, 800);
         shape.moveDown();
         shape.updateCanvas(ctx1);
-        console.log(shape.left + ',' + shape.right)
         let arr = this.state.matrix;
-        if (!shape.areBlocksFreeToMoveDown(arr)) { 
+        if (!shape.areBlocksFreeToMoveDown(arr)) {
             this.state.currentShape.getAllSquares().forEach((element: any) => {
                 arr[element.top / 40][element.left / 40] = true;
             });
@@ -139,7 +138,7 @@ class Wrapper extends React.Component<{}, MyState>{
             })
             this.updateStateOfTheGame(shape);
             console.log(arr);
-           
+
             clearInterval(inter);
             this.run();
         }
@@ -148,14 +147,14 @@ class Wrapper extends React.Component<{}, MyState>{
     updateStateOfTheGame = (shape: any) => { // temp
         let c1: any = this.canvasBack.current;
         const ctx1: any = c1.getContext('2d');
-        if(this.isRowComplete().length>0){
+        if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
             });
             ctx1.clearRect(0, 0, 400, 800);
             this.createGrid(ctx1);
         }
-        
+
         const shape1 = new BaseBuildingSquare(0, 0, 'blue')
         const mat = this.state.matrix;
         for (let i = 0; i < 20; i++) {
@@ -184,8 +183,8 @@ class Wrapper extends React.Component<{}, MyState>{
             return sub;
         }
         mat[index] = x();
-        for(let i = index; i>0 ;i--){
-            mat[i] = mat[i-1];
+        for (let i = index; i > 0; i--) {
+            mat[i] = mat[i - 1];
         }
         console.log(mat)
         this.setState({
@@ -206,19 +205,6 @@ class Wrapper extends React.Component<{}, MyState>{
             }
         }
         return numArr;
-    }
-    getBorder = () => { //temp
-        let min = 800;
-
-        if (this.state.allBlocks.length == 1) {
-            min = this.state.allBlocks[0].top - 40
-        } else
-            for (let i = 0; i < this.state.allBlocks.length - 1; i++) {
-                if (this.state.currentShape.left == this.state.allBlocks[i].left)
-                    min = Math.min(this.state.allBlocks[i].top, this.state.allBlocks[i + 1].top) - 40;
-                console.log(min)
-            }
-        return min;
     }
     handleMove = (event: any) => {
         if (this.state.running) {
@@ -242,12 +228,16 @@ class Wrapper extends React.Component<{}, MyState>{
         }
     }
 
-    handleRotate =() => {
+    handleRotate = () => {
         let shape = this.state.currentShape;
         shape.rotate();
         this.setState({
             currentShape: shape
         })
+        let c1: any = this.canvasFront.current;
+        const ctx1: any = c1.getContext('2d');
+        ctx1.clearRect(0, 0, 400, 800);
+        shape.updateCanvas(ctx1);
     }
     render() {
         return (

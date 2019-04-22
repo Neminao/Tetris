@@ -1,5 +1,6 @@
 import BaseBuildingSquare from "./BaseBuildingSquare";
 import Shape from "./Shape";
+import Shape1 from "./Shape1";
 
 class Shape2 implements Shape {
     shape1 = new BaseBuildingSquare(120, 0, 'blue');
@@ -25,7 +26,7 @@ class Shape2 implements Shape {
         }
     }
     moveRight() {
-        if (this.left < 240) {
+        if (!this.isShapeOutOfBoundsRight()) {
             this.shape1.left += 40;
             this.shape2.left += 40;
             this.shape3.left += 40;
@@ -34,8 +35,14 @@ class Shape2 implements Shape {
             this.right += 40;
         }
     }
+    isShapeOutOfBoundsLeft(){
+        return this.shape1.left == 0;
+    }
+    isShapeOutOfBoundsRight(){
+        return this.shape4.left == 360;
+    }
     moveLeft() {
-        if (this.left > 0) {
+        if (!this.isShapeOutOfBoundsLeft()) {
             this.shape1.left -= 40;
             this.shape2.left -= 40;
             this.shape3.left -= 40;
@@ -52,6 +59,8 @@ class Shape2 implements Shape {
         this.shape1.top -= 80;
         this.shape2.top -= 40;
         this.shape4.top += 40;
+        this.left -=40;
+        this.right -=40;
         }
         else {
         this.shape1.top = this.shape3.top;
@@ -60,6 +69,20 @@ class Shape2 implements Shape {
         this.shape1.left -= 80;
         this.shape2.left -= 40;
         this.shape4.left += 40;
+        this.left +=40;
+        this.right +=40;
+        }
+        if(this.shape1.left < 0 || this.shape2.left< 0){
+            this.shape1.left = 0;
+            this.shape2.left = 40;
+            this.shape3.left = 80;
+            this.shape4.left = 120;
+        }
+        else if (this.shape4.left > 360) {
+            this.shape1.left = 240;
+            this.shape2.left = 280;
+            this.shape3.left = 320;
+            this.shape4.left = 360;
         }
     }
     getAllSquares(): BaseBuildingSquare[] {
