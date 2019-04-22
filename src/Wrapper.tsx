@@ -98,9 +98,9 @@ class Wrapper extends React.Component<{}, MyState>{
     startGame = () => {
         this.setState({
             running: true
-        })
+        })   
+        if(!this.state.running)    
         this.run();
-
     }
 
     run = () => {
@@ -118,7 +118,7 @@ class Wrapper extends React.Component<{}, MyState>{
                 this.clearRow(index);
             });
         }
-        let inter: any = setInterval(() => this.moveShape(shape, inter), 600);
+        let inter: any = setInterval(() => this.moveShape(shape, inter), 700);
     }
 
     moveShape = (shape: any, inter: any) => { // temp
@@ -229,6 +229,7 @@ class Wrapper extends React.Component<{}, MyState>{
     }
 
     handleRotate = () => {
+        if(this.state.running){
         let shape = this.state.currentShape;
         shape.rotate();
         this.setState({
@@ -238,6 +239,7 @@ class Wrapper extends React.Component<{}, MyState>{
         const ctx1: any = c1.getContext('2d');
         ctx1.clearRect(0, 0, 400, 800);
         shape.updateCanvas(ctx1);
+    }
     }
     render() {
         return (
