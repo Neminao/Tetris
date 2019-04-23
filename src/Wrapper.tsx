@@ -17,6 +17,7 @@ interface MyState {
     matrix: any[];
     score: number;
     speed: number;
+    counterId: number;
 }
 
 class Wrapper extends React.Component<{}, MyState>{
@@ -32,7 +33,8 @@ class Wrapper extends React.Component<{}, MyState>{
             running: false,
             matrix: [],
             score: 0,
-            speed: 900
+            speed: 900,
+            counterId: -1
         }
     }
 
@@ -58,45 +60,16 @@ class Wrapper extends React.Component<{}, MyState>{
         arr.push(x())
         return arr;
     }
-    /*  clone(obj: Shape): Shape {
-          let copy: Shape = this.deepCopyShape(obj);
-          copy.shape1 = this.deepCopy(obj.shape1);
-          copy.shape2 = this.deepCopy(obj.shape2);
-          copy.shape3 = this.deepCopy(obj.shape3);
-          copy.shape4 = this.deepCopy(obj.shape4);
-          return copy;
-       }
-       deepCopy(obj: any):any {
-          var copy: any = new BaseBuildingSquare(0,0,'blue');
-      
-          // Handle the 3 simple types, and null or undefined
-          if (null == obj || "object" != typeof obj) return obj;
-      
-          // Handle Object
-          if (obj instanceof Object) {
-              for (var attr in obj) {
-                  if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopy(obj[attr]);
-              }
-              return copy;
-          }
-      
-          throw new Error("Unable to copy obj! Its type isn't supported.");
-      }*/
+
     deepCopyShape(obj: any): any {
         var copy: any = obj;
-
-        // Handle the 3 simple types, and null or undefined
         if (null == obj || "object" != typeof obj) return obj;
-
-        // Handle Object
         if (obj instanceof Object) {
             for (var attr in obj) {
                 if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopyShape(obj[attr]);
             }
             return copy;
         }
-
-        throw new Error("Unable to copy obj! Its type isn't supported.");
     }
     componentDidMount() {
         let c2: any = this.canvasBack.current;
@@ -112,7 +85,7 @@ class Wrapper extends React.Component<{}, MyState>{
             matrix: this.createEmptyMatrix()
         })
         this.createGrid(c2.getContext('2d'));
-        document.addEventListener('onkeydown', this.handleKeyDown.bind(this));
+        document.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
     handleKeyDown = (event: any) => {
         if (this.state.running) {
@@ -132,16 +105,22 @@ class Wrapper extends React.Component<{}, MyState>{
             }
             ctx1.clearRect(0, 0, 400, 800);
             shape.updateCanvas(ctx1);
-        }
+        
         if (event.keyCode == 38) {
             this.handleRotate();
         }
         if (event.keyCode == 40) {
             this.setState({
-                speed: 300
+                speed: 50
             })
-            console.log(this.state.speed)
+            console.log(this.state.speed);
+            clearInterval(this.state.counterId);
+            let inter: any = setInterval(() => this.moveShape(shape, inter), this.state.speed);
+        this.setState({
+            counterId: inter
+        })
         }
+    }
     }
     onKeyUp = () => {
         this.setState({
@@ -211,6 +190,9 @@ class Wrapper extends React.Component<{}, MyState>{
             });
         }
         let inter: any = setInterval(() => this.moveShape(next, inter), this.state.speed);
+        this.setState({
+            counterId: inter
+        })
     }
 
     moveShape = (shape: any, inter: any) => { // temp
@@ -336,7 +318,7 @@ class Wrapper extends React.Component<{}, MyState>{
     }
     render() {
         return (
-            <div onKeyUp={this.onKeyUp} onKeyDown={this.handleKeyDown}>
+            <div onKeyUp={this.onKeyUp} >
                 <div>
                     <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
                 </div>
