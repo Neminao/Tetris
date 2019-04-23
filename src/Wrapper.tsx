@@ -7,26 +7,32 @@ import Shape4 from './Shape4';
 import Shape5 from './Shape5';
 import Shape6 from './Shape6';
 import Shape7 from './Shape7';
+import Shape from './Shape';
 
 interface MyState {
-    currentShape: any;
-    nextShape: any;
-    allBlocks: Shape1[];
+    currentShape: Shape;
+    nextShape: Shape;
+    allBlocks: Shape[];
     running: boolean;
     matrix: any[];
+    score: number;
+    speed: number;
 }
 
 class Wrapper extends React.Component<{}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
+    canvasSide = React.createRef<HTMLCanvasElement>();
     constructor(props: {}) {
         super(props);
         this.state = {
-            currentShape: null,
-            nextShape: null,
+            currentShape: this.randomShape(),
+            nextShape: this.randomShape(),
             allBlocks: [],
             running: false,
-            matrix: []
+            matrix: [],
+            score: 0,
+            speed: 900
         }
     }
 
@@ -52,20 +58,96 @@ class Wrapper extends React.Component<{}, MyState>{
         arr.push(x())
         return arr;
     }
+    /*  clone(obj: Shape): Shape {
+          let copy: Shape = this.deepCopyShape(obj);
+          copy.shape1 = this.deepCopy(obj.shape1);
+          copy.shape2 = this.deepCopy(obj.shape2);
+          copy.shape3 = this.deepCopy(obj.shape3);
+          copy.shape4 = this.deepCopy(obj.shape4);
+          return copy;
+       }
+       deepCopy(obj: any):any {
+          var copy: any = new BaseBuildingSquare(0,0,'blue');
+      
+          // Handle the 3 simple types, and null or undefined
+          if (null == obj || "object" != typeof obj) return obj;
+      
+          // Handle Object
+          if (obj instanceof Object) {
+              for (var attr in obj) {
+                  if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopy(obj[attr]);
+              }
+              return copy;
+          }
+      
+          throw new Error("Unable to copy obj! Its type isn't supported.");
+      }*/
+    deepCopyShape(obj: any): any {
+        var copy: any = obj;
 
+        // Handle the 3 simple types, and null or undefined
+        if (null == obj || "object" != typeof obj) return obj;
+
+        // Handle Object
+        if (obj instanceof Object) {
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) copy[attr] = this.deepCopyShape(obj[attr]);
+            }
+            return copy;
+        }
+
+        throw new Error("Unable to copy obj! Its type isn't supported.");
+    }
     componentDidMount() {
         let c2: any = this.canvasBack.current;
         let c1: any = this.canvasFront.current;
+        let c3: any = this.canvasSide.current;
         c1.width = 400;
         c1.height = 800;
         c2.width = 400;
         c2.height = 800;
+        c3.width = 400;
+        c3.height = 80;
         this.setState({
             matrix: this.createEmptyMatrix()
         })
         this.createGrid(c2.getContext('2d'));
+        document.addEventListener('onkeydown', this.handleKeyDown.bind(this));
     }
+    handleKeyDown = (event: any) => {
+        if (this.state.running) {
+            let c1: any = this.canvasFront.current;
+            const ctx1: any = c1.getContext('2d');
+            let shape = this.state.currentShape;
+            const mat = this.state.matrix;
 
+            if (event.keyCode == 39 && shape.areBlocksFreeToMoveRight(mat)) {
+                console.log(shape.areBlocksFreeToMoveRight(mat));
+                shape.moveRight();
+
+            }
+            else if (event.keyCode == 37 && shape.areBlocksFreeToMoveLeft(mat)) {
+                shape.moveLeft();
+
+            }
+            ctx1.clearRect(0, 0, 400, 800);
+            shape.updateCanvas(ctx1);
+        }
+        if (event.keyCode == 38) {
+            this.handleRotate();
+        }
+        if (event.keyCode == 40) {
+            this.setState({
+                speed: 300
+            })
+            console.log(this.state.speed)
+        }
+    }
+    onKeyUp = () => {
+        this.setState({
+            speed: 900
+        })
+    }
     createGrid = (ctx: any) => {
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#ccc';
@@ -83,7 +165,7 @@ class Wrapper extends React.Component<{}, MyState>{
         }
     }
 
-    randomShape = () => {
+    randomShape = (): Shape => {
         switch (Math.floor(Math.random() * Math.floor(7))) {
             case 0: return new Shape1();
             case 1: return new Shape2();
@@ -93,32 +175,42 @@ class Wrapper extends React.Component<{}, MyState>{
             case 5: return new Shape6();
             case 6: return new Shape7();
         }
+        return new Shape1()
     }
 
     startGame = () => {
         this.setState({
             running: true
-        })   
-        if(!this.state.running)    
-        this.run();
+        })
+        if (!this.state.running)
+            this.run();
     }
 
     run = () => {
         let c1: any = this.canvasFront.current;
         const ctx1: any = c1.getContext('2d');
         const shape = this.randomShape();
+        const next: Shape = this.deepCopyShape(this.state.nextShape);
         ctx1.clearRect(0, 0, 400, 800);
-        if (shape != null)
-            shape.updateCanvas(ctx1);
+        const sidec: any = this.canvasSide.current;
+        const sidectx = sidec.getContext('2d');
+        sidectx.clearRect(0, 0, 400, 800);
+        console.log(this.state.nextShape);
+        console.log(next);
+        if (next != null)
+            next.updateCanvas(ctx1);
+        shape.updateCanvas(sidectx);
         this.setState({
-            currentShape: shape
+            currentShape: next,
+            nextShape: shape
         })
+
         if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
             });
         }
-        let inter: any = setInterval(() => this.moveShape(shape, inter), 700);
+        let inter: any = setInterval(() => this.moveShape(next, inter), this.state.speed);
     }
 
     moveShape = (shape: any, inter: any) => { // temp
@@ -186,9 +278,11 @@ class Wrapper extends React.Component<{}, MyState>{
         for (let i = index; i > 0; i--) {
             mat[i] = mat[i - 1];
         }
-        console.log(mat)
+        let score = this.state.score;
+        score += 1
         this.setState({
-            matrix: mat
+            matrix: mat,
+            score: score
         })
     }
 
@@ -217,7 +311,6 @@ class Wrapper extends React.Component<{}, MyState>{
             if (id == 'right' && shape.areBlocksFreeToMoveRight(mat)) {
                 console.log(shape.areBlocksFreeToMoveRight(mat));
                 shape.moveRight();
-
             }
             else if (id == 'left' && shape.areBlocksFreeToMoveLeft(mat)) {
                 shape.moveLeft();
@@ -229,26 +322,31 @@ class Wrapper extends React.Component<{}, MyState>{
     }
 
     handleRotate = () => {
-        if(this.state.running){
-        let shape = this.state.currentShape;
-        shape.rotate();
-        this.setState({
-            currentShape: shape
-        })
-        let c1: any = this.canvasFront.current;
-        const ctx1: any = c1.getContext('2d');
-        ctx1.clearRect(0, 0, 400, 800);
-        shape.updateCanvas(ctx1);
-    }
+        if (this.state.running) {
+            let shape = this.state.currentShape;
+            shape.rotate();
+            this.setState({
+                currentShape: shape
+            })
+            let c1: any = this.canvasFront.current;
+            const ctx1: any = c1.getContext('2d');
+            ctx1.clearRect(0, 0, 400, 800);
+            shape.updateCanvas(ctx1);
+        }
     }
     render() {
         return (
-            <div>
+            <div onKeyUp={this.onKeyUp} onKeyDown={this.handleKeyDown}>
+                <div>
+                    <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
+                </div>
+                <div>{this.state.score}</div>
                 <div className='canvasBlock'>
                     <canvas className='FrontCanvas' ref={this.canvasFront}></canvas>
                     <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
 
                 </div>
+
                 <div className='buttonsBlock'>
                     <button onClick={this.startGame}>Start</button><br></br>
                     <button id='left' onClick={this.handleMove}>{'<-'}</button>

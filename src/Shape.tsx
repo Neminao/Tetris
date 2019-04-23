@@ -11,9 +11,11 @@ interface Shape {
     moveRight(): void;
     moveLeft(): void;
     getAllSquares(): BaseBuildingSquare[];
-    areBlocksFreeToMoveLeft(matrix: any[]): boolean
-    areBlocksFreeToMoveRight(matrix: any[]): boolean
-    areBlocksFreeToMoveDown(matrix: any[]): boolean
+    areBlocksFreeToMoveLeft(matrix: any[]): boolean;
+    areBlocksFreeToMoveRight(matrix: any[]): boolean;
+    areBlocksFreeToMoveDown(matrix: any[]): boolean;
+    rotate(): void;
+    [key: string]: any;
 }
 
 export default Shape

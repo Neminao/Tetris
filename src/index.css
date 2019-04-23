@@ -39,3 +39,8 @@ button {
   z-index: 2000;
   background: none;
 }
+.SideCanvas {
+  float: center;
+  height: 80px;
+  width: 400px;
+}

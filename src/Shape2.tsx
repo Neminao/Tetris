@@ -94,12 +94,10 @@ class Shape2 implements Shape {
         return arr;
     }
     areBlocksFreeToMoveLeft(matrix: any) {
-        return this.shape1.isBlockFreeToMoveLeft(matrix) && this.shape2.isBlockFreeToMoveLeft(matrix) &&
-            this.shape3.isBlockFreeToMoveLeft(matrix) && this.shape4.isBlockFreeToMoveLeft(matrix)
+        return this.shape1.isBlockFreeToMoveLeft(matrix) 
     }
     areBlocksFreeToMoveRight(matrix: any) {
-        return this.shape1.isBlockFreeToMoveRight(matrix) && this.shape2.isBlockFreeToMoveRight(matrix) &&
-            this.shape3.isBlockFreeToMoveRight(matrix) && this.shape4.isBlockFreeToMoveRight(matrix)
+        return this.shape4.isBlockFreeToMoveRight(matrix)
     }
     areBlocksFreeToMoveDown(matrix: any) {
         return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) &&
