@@ -64,6 +64,10 @@ class Shape1 implements Shape {
             this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
     }
     rotate(){}
+    areBlocksFreeToRotate(matrix: any){
+        return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&
+        this.shape3.isBlockFreeToRotate(matrix) && this.shape4.isBlockFreeToRotate(matrix);
+     }
 }
 
 export default Shape1

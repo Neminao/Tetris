@@ -81,10 +81,10 @@ class Shape6 implements Shape {
         }
     }
     isShapeOutOfBoundsLeft() {
-        return this.shape1.left == 0 || this.shape2.left == 0 || this.shape3.left == 0 || this.shape4.left == 0;
+        return this.shape1.left == 0 || this.shape3.left == 0;
     }
     isShapeOutOfBoundsRight() {
-        return this.shape1.left == 360 || this.shape2.left == 360 || this.shape3.left == 360 || this.shape4.left == 360;
+        return this.shape2.left == 360 || this.shape4.left == 360;
     }
     getAllSquares(): BaseBuildingSquare[] {
         let arr = [];
@@ -106,6 +106,10 @@ class Shape6 implements Shape {
         return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) &&
             this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
     }
+    areBlocksFreeToRotate(matrix: any){
+        return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&
+        this.shape3.isBlockFreeToRotate(matrix) && this.shape4.isBlockFreeToRotate(matrix);
+     }
 }
 
 export default Shape6

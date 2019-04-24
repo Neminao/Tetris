@@ -40,10 +40,10 @@ class Shape3 implements Shape {
         }
     }
     isShapeOutOfBoundsLeft(){
-        return this.shape1.left == 0 || this.shape1.left == 0 || this.shape3.left == 0 || this.shape4.left == 0
+        return this.shape1.left == 0;
     }
     isShapeOutOfBoundsRight(){
-        return this.shape1.left == 360 || this.shape1.left == 360 || this.shape3.left == 360 || this.shape4.left == 360
+        return this.shape4.left == 360 || this.shape3.left == 360;
     }
     rotate() {
         if(this.shape2.top == this.shape1.top){
@@ -74,15 +74,19 @@ class Shape3 implements Shape {
     }
     areBlocksFreeToMoveLeft(matrix: any){
        return this.shape1.isBlockFreeToMoveLeft(matrix) && this.shape2.isBlockFreeToMoveLeft(matrix) &&
-       this.shape3.isBlockFreeToMoveLeft(matrix) && this.shape4.isBlockFreeToMoveLeft(matrix)
+       this.shape3.isBlockFreeToMoveLeft(matrix) && this.shape4.isBlockFreeToMoveLeft(matrix);
     }
     areBlocksFreeToMoveRight(matrix: any){
         return this.shape1.isBlockFreeToMoveRight(matrix) && this.shape2.isBlockFreeToMoveRight(matrix) &&
-        this.shape3.isBlockFreeToMoveRight(matrix) && this.shape4.isBlockFreeToMoveRight(matrix)
+        this.shape3.isBlockFreeToMoveRight(matrix) && this.shape4.isBlockFreeToMoveRight(matrix);
      }
      areBlocksFreeToMoveDown(matrix: any){
         return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) &&
-        this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
+        this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix);
+     }
+     areBlocksFreeToRotate(matrix: any){
+        return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&
+        this.shape3.isBlockFreeToRotate(matrix) && this.shape4.isBlockFreeToRotate(matrix);
      }
 }
 

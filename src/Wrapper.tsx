@@ -71,6 +71,7 @@ class Wrapper extends React.Component<{}, MyState>{
             return copy;
         }
     }
+
     componentDidMount() {
         let c2: any = this.canvasBack.current;
         let c1: any = this.canvasFront.current;
@@ -87,6 +88,7 @@ class Wrapper extends React.Component<{}, MyState>{
         this.createGrid(c2.getContext('2d'));
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
+
     handleKeyDown = (event: any) => {
         if (this.state.running) {
             let c1: any = this.canvasFront.current;
@@ -95,7 +97,7 @@ class Wrapper extends React.Component<{}, MyState>{
             const mat = this.state.matrix;
 
             if (event.keyCode == 39 && shape.areBlocksFreeToMoveRight(mat)) {
-                console.log(shape.areBlocksFreeToMoveRight(mat));
+                //console.log(shape.areBlocksFreeToMoveRight(mat));
                 shape.moveRight();
 
             }
@@ -105,28 +107,34 @@ class Wrapper extends React.Component<{}, MyState>{
             }
             ctx1.clearRect(0, 0, 400, 800);
             shape.updateCanvas(ctx1);
-        
-        if (event.keyCode == 38) {
-            this.handleRotate();
+
+            if (event.keyCode == 38) {
+                this.handleRotate();
+            }
+            if (event.keyCode == 40 || event.keyCode == 32) {
+                if(this.state.speed != 50){
+                this.setState({
+                    speed: 50
+                })
+                //console.log(this.state.speed);
+                clearInterval(this.state.counterId);
+                if (!this.isGameOver()) {
+                    let inter: any = setInterval(() => this.moveShape(shape, inter), this.state.speed);
+                    this.setState({
+                        counterId: inter
+                    })
+                }
+            }
         }
-        if (event.keyCode == 40) {
-            this.setState({
-                speed: 50
-            })
-            console.log(this.state.speed);
-            clearInterval(this.state.counterId);
-            let inter: any = setInterval(() => this.moveShape(shape, inter), this.state.speed);
-        this.setState({
-            counterId: inter
-        })
         }
     }
-    }
+
     onKeyUp = () => {
         this.setState({
-            speed: 900
+            speed: 1200
         })
     }
+
     createGrid = (ctx: any) => {
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#ccc';
@@ -174,8 +182,8 @@ class Wrapper extends React.Component<{}, MyState>{
         const sidec: any = this.canvasSide.current;
         const sidectx = sidec.getContext('2d');
         sidectx.clearRect(0, 0, 400, 800);
-        console.log(this.state.nextShape);
-        console.log(next);
+       // console.log(this.state.nextShape);
+       // console.log(next);
         if (next != null)
             next.updateCanvas(ctx1);
         shape.updateCanvas(sidectx);
@@ -189,10 +197,12 @@ class Wrapper extends React.Component<{}, MyState>{
                 this.clearRow(index);
             });
         }
-        let inter: any = setInterval(() => this.moveShape(next, inter), this.state.speed);
-        this.setState({
-            counterId: inter
-        })
+        if (!this.isGameOver()) {
+            let inter: any = setInterval(() => this.moveShape(next, inter), 1200);
+            this.setState({
+                counterId: inter
+            })
+        }
     }
 
     moveShape = (shape: any, inter: any) => { // temp
@@ -211,10 +221,11 @@ class Wrapper extends React.Component<{}, MyState>{
                 matrix: arr
             })
             this.updateStateOfTheGame(shape);
-            console.log(arr);
+           // console.log(arr);
 
             clearInterval(inter);
             this.run();
+
         }
     }
 
@@ -238,8 +249,20 @@ class Wrapper extends React.Component<{}, MyState>{
                 }
             }
         }
+        this.isGameOver();
         let arr = this.state.allBlocks;
         arr.push(shape);
+    }
+
+    isGameOver = () => {
+        let pom = false
+        this.state.matrix[1].forEach((el: boolean) => {
+            if (el) {
+                pom = true;
+            }
+        })
+        //console.log(pom);
+        return pom;
     }
 
     delay = (ms: number) => {
@@ -248,7 +271,7 @@ class Wrapper extends React.Component<{}, MyState>{
 
     clearRow = (index: number) => {
         let mat = this.state.matrix;
-        console.log(mat);
+      //  console.log(mat);
         function x() {
             let sub: boolean[] = [];
             for (let j = 0; j < 10; j++) {
@@ -256,10 +279,11 @@ class Wrapper extends React.Component<{}, MyState>{
             }
             return sub;
         }
-        mat[index] = x();
-        for (let i = index; i > 0; i--) {
-            mat[i] = mat[i - 1];
-        }
+        mat.splice(index, 1);
+        mat.unshift(x());
+        /*  for (let i = index; i > 0; i--) {
+              mat[i] = mat[i - 1];
+          }*/
         let score = this.state.score;
         score += 1
         this.setState({
@@ -282,6 +306,7 @@ class Wrapper extends React.Component<{}, MyState>{
         }
         return numArr;
     }
+
     handleMove = (event: any) => {
         if (this.state.running) {
             const id = event.target.id;
@@ -291,7 +316,7 @@ class Wrapper extends React.Component<{}, MyState>{
             const mat = this.state.matrix;
 
             if (id == 'right' && shape.areBlocksFreeToMoveRight(mat)) {
-                console.log(shape.areBlocksFreeToMoveRight(mat));
+                //console.log(shape.areBlocksFreeToMoveRight(mat));
                 shape.moveRight();
             }
             else if (id == 'left' && shape.areBlocksFreeToMoveLeft(mat)) {
@@ -305,17 +330,41 @@ class Wrapper extends React.Component<{}, MyState>{
 
     handleRotate = () => {
         if (this.state.running) {
-            let shape = this.state.currentShape;
+            
+            let shape = this.deepCopyShape(this.state.currentShape);
+            let shapehelp = this.state.currentShape;
             shape.rotate();
-            this.setState({
-                currentShape: shape
-            })
-            let c1: any = this.canvasFront.current;
+            if (shape.areBlocksFreeToRotate(this.state.matrix)) {
+                
+                let c1: any = this.canvasFront.current;
             const ctx1: any = c1.getContext('2d');
             ctx1.clearRect(0, 0, 400, 800);
             shape.updateCanvas(ctx1);
+                console.log(true);
+               
+                
+            
+            
+            }
+            else {
+                shape.rotate();
+                shape.rotate();
+                shape.rotate();
+                this.setState({
+                currentShape: shapehelp
+            })
         }
+            console.log('shape: ')
+            console.log(shape);
+            console.log('shapehelp: ')
+            console.log(shapehelp);
+        
+        this.setState({
+            currentShape: shape
+        });
     }
+    }
+
     render() {
         return (
             <div onKeyUp={this.onKeyUp} >
