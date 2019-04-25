@@ -29,10 +29,10 @@ class BaseBuildingSquare {
         ctx.stroke();
     }
     isBlockFreeToMoveLeft(matrix: any) {
-        return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 - 1)] 
+        return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 - 1)]
     }
     isBlockFreeToMoveRight(matrix: any) {
-        return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 + 1)] 
+        return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 + 1)]
     }
     isBlockFreeToMoveDown(matrix: any) {
         return !(matrix[this.top / 40 + 1][this.left / 40])

@@ -59,17 +59,17 @@ class Shape5 implements Shape {
             this.shape1.top = this.shape2.top;
             this.shape1.left -= 40;
         }
-        if(this.shape1.left < 0){
+        if (this.shape1.left < 0) {
             this.shape1.left = 0;
             this.shape2.left = 40;
             this.shape4.left = 40;
             this.shape3.left = 80;
         }
-        if(this.shape4.left > 360){
+        if (this.shape4.left > 360) {
             this.shape1.left = 280;
             this.shape2.left = 320;
             this.shape4.left = 360;
-            this.shape3.left = 320; 
+            this.shape3.left = 320;
         }
     }
     getAllSquares(): BaseBuildingSquare[] {
@@ -98,10 +98,10 @@ class Shape5 implements Shape {
         return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) &&
             this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
     }
-    areBlocksFreeToRotate(matrix: any){
+    areBlocksFreeToRotate(matrix: any) {
         return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&
-        this.shape3.isBlockFreeToRotate(matrix) && this.shape4.isBlockFreeToRotate(matrix);
-     }
+            this.shape3.isBlockFreeToRotate(matrix) && this.shape4.isBlockFreeToRotate(matrix);
+    }
 }
 
 export default Shape5
