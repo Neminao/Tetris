@@ -39,38 +39,37 @@ class Shape7 implements Shape {
         }
     }
     rotate() {
-        console.log(this.shape1.top + ' ' + this.shape2.top + ' ' + this.shape3.top)
         if (this.shape1.top == this.shape2.top && this.shape2.top == this.shape3.top) {
-
+            this.shape1.top = this.shape3.top;
             this.shape1.left = this.shape3.left;
-            this.shape1.top = this.shape4.top;
-            this.shape4.left = this.shape3.left;
-            this.shape4.top += 40;
-        }
-        else if (this.shape3.left == this.shape4.left && this.shape4.left == this.shape1.left) {
-            this.shape1.top -= 80;
+            this.shape3.top = this.shape4.top;
+            this.shape2.top -= 40; 
             this.shape4.top = this.shape2.top;
+            this.shape4.left = this.shape3.left                    
+        }
+        else if (this.shape4.left > this.shape2.left) {
             this.shape4.left -= 80;
-
+            this.shape4.top = this.shape3.top
+            this.shape2.top = this.shape3.top;
         }
         else if (this.shape4.top == this.shape2.top && this.shape3.top == this.shape2.top) {
-            this.shape1.left = this.shape2.left;
-            this.shape4.left = this.shape1.left;
-            this.shape4.top -= 80;
+            this.shape1.left = this.shape4.left;
+            this.shape3.left = this.shape1.left;
+            this.shape3.top -= 80;
         }
         else {
-            this.shape1.top = this.shape2.top;
-            this.shape1.left -= 40;
-            this.shape4.left -= 40;
-            this.shape4.top += 120;
+          this.shape2.top = this.shape1.top;            
+            this.shape3.left = this.shape2.left + 40;
+            this.shape3.top = this.shape1.top;
         }
-        if (this.shape1.left < 0) {
-            this.shape1.left = 0;
-            this.shape4.left = 0;
-            this.shape2.left = 40;
-            this.shape3.left = 80;
+
+        if (this.shape3.left > 360) {
+            this.shape3.left = 360;
+            this.shape1.left = 280;
+            this.shape2.left = 320;
+            this.shape4.left = 280;
         }
-        else if (this.shape4.left < 0) {
+        if (this.shape4.left < 0) {
             this.shape3.left = 80;
             this.shape4.left = 0;
             this.shape2.left = 40;
@@ -81,7 +80,7 @@ class Shape7 implements Shape {
         return this.shape1.left == 0 || this.shape4.left == 0 || this.shape2.left ==0 ;
     }
     isShapeOutOfBoundsRight() {
-        return this.shape3.left == 360;
+        return this.shape3.left == 360 || this.shape2.left == 360;
     }
     getAllSquares(): BaseBuildingSquare[] {
         let arr = [];
