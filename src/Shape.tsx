@@ -10,6 +10,7 @@ interface Shape {
     moveDown(): void;  
     moveRight(): void;
     moveLeft(): void;
+    moveBack(): void;
     getAllSquares(): BaseBuildingSquare[];
     areBlocksFreeToMoveLeft(matrix: any[]): boolean;
     areBlocksFreeToMoveRight(matrix: any[]): boolean;

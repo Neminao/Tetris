@@ -62,6 +62,13 @@ class Shape4 implements Shape {
             this.shape4.left = 80;
         }
     }
+    
+    moveBack(): void {
+        this.shape1.top -= 40;
+        this.shape2.top -= 40;
+        this.shape3.top -= 40;
+        this.shape4.top -= 40;
+    }
 
     getAllSquares(): BaseBuildingSquare[] {
         let arr = [];

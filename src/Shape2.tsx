@@ -93,6 +93,12 @@ class Shape2 implements Shape {
         arr.push(this.shape4);
         return arr;
     }
+    moveBack(): void {
+        this.shape1.top -= 40;
+        this.shape2.top -= 40;
+        this.shape3.top -= 40;
+        this.shape4.top -= 40;
+    }
     areBlocksFreeToMoveLeft(matrix: any) {
         return this.shape1.isBlockFreeToMoveLeft(matrix) 
     }
@@ -100,8 +106,7 @@ class Shape2 implements Shape {
         return this.shape4.isBlockFreeToMoveRight(matrix)
     }
     areBlocksFreeToMoveDown(matrix: any) {
-        return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) &&
-            this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
+        return this.shape4.isBlockFreeToMoveDown(matrix)
     }
     areBlocksFreeToRotate(matrix: any){
         return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&

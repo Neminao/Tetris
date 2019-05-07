@@ -85,6 +85,14 @@ class Shape6 implements Shape {
     isShapeOutOfBoundsRight() {
         return this.shape2.left == 360 || this.shape4.left == 360;
     }
+
+    moveBack(): void {
+        this.shape1.top -= 40;
+        this.shape2.top -= 40;
+        this.shape3.top -= 40;
+        this.shape4.top -= 40;
+    }
+    
     getAllSquares(): BaseBuildingSquare[] {
         let arr = [];
         arr.push(this.shape1);

@@ -112,20 +112,20 @@ class Wrapper extends React.Component<{}, MyState>{
                 this.handleRotate();
             }
             if (event.keyCode == 40 || event.keyCode == 32) {
-                if(this.state.speed != 50){
-                this.setState({
-                    speed: 50
-                })
-                //console.log(this.state.speed);
-                clearInterval(this.state.counterId);
-                if (!this.isGameOver()) {
-                    let inter: any = setInterval(() => this.moveShape(shape, inter), this.state.speed);
+                if (this.state.speed != 50) {
                     this.setState({
-                        counterId: inter
+                        speed: 50
                     })
+                    //console.log(this.state.speed);
+                    clearInterval(this.state.counterId);
+                    if (!this.isGameOver()) {
+                        let inter: any = setInterval(() => this.moveShape(shape, inter), this.state.speed);
+                        this.setState({
+                            counterId: inter
+                        })
+                    }
                 }
             }
-        }
         }
     }
 
@@ -182,8 +182,8 @@ class Wrapper extends React.Component<{}, MyState>{
         const sidec: any = this.canvasSide.current;
         const sidectx = sidec.getContext('2d');
         sidectx.clearRect(0, 0, 400, 800);
-       // console.log(this.state.nextShape);
-       // console.log(next);
+        // console.log(this.state.nextShape);
+        // console.log(next);
         if (next != null)
             next.updateCanvas(ctx1);
         shape.updateCanvas(sidectx);
@@ -207,13 +207,15 @@ class Wrapper extends React.Component<{}, MyState>{
 
     moveShape = (shape: any, inter: any) => { // temp
         let c1: any = this.canvasFront.current;
-
+        let arr = this.state.matrix;
         const ctx1: any = c1.getContext('2d');
         ctx1.clearRect(0, 0, 400, 800);
         shape.moveDown();
-        shape.updateCanvas(ctx1);
-        let arr = this.state.matrix;
+        if (shape.areBlocksFreeToMoveDown(arr))
+            shape.updateCanvas(ctx1);
+
         if (!shape.areBlocksFreeToMoveDown(arr)) {
+            this.state.currentShape.moveBack()
             this.state.currentShape.getAllSquares().forEach((element: any) => {
                 arr[element.top / 40][element.left / 40] = true;
             });
@@ -221,7 +223,7 @@ class Wrapper extends React.Component<{}, MyState>{
                 matrix: arr
             })
             this.updateStateOfTheGame(shape);
-           // console.log(arr);
+            // console.log(arr);
 
             clearInterval(inter);
             this.run();
@@ -251,7 +253,8 @@ class Wrapper extends React.Component<{}, MyState>{
         }
         this.isGameOver();
         let arr = this.state.allBlocks;
-        arr.push(shape);
+        shape.moveBack();
+        arr.push(this.state.currentShape);
     }
 
     isGameOver = () => {
@@ -271,7 +274,7 @@ class Wrapper extends React.Component<{}, MyState>{
 
     clearRow = (index: number) => {
         let mat = this.state.matrix;
-      //  console.log(mat);
+        //  console.log(mat);
         function x() {
             let sub: boolean[] = [];
             for (let j = 0; j < 10; j++) {
@@ -330,39 +333,39 @@ class Wrapper extends React.Component<{}, MyState>{
 
     handleRotate = () => {
         if (this.state.running) {
-            
+
             let shape = this.deepCopyShape(this.state.currentShape);
             let shapehelp = this.state.currentShape;
             shape.rotate();
             if (shape.areBlocksFreeToRotate(this.state.matrix)) {
-                
+
                 let c1: any = this.canvasFront.current;
-            const ctx1: any = c1.getContext('2d');
-            ctx1.clearRect(0, 0, 400, 800);
-            shape.updateCanvas(ctx1);
+                const ctx1: any = c1.getContext('2d');
+                ctx1.clearRect(0, 0, 400, 800);
+                shape.updateCanvas(ctx1);
                 console.log(true);
-               
-                
-            
-            
+
+
+
+
             }
             else {
                 shape.rotate();
                 shape.rotate();
                 shape.rotate();
                 this.setState({
-                currentShape: shapehelp
-            })
-        }
+                    currentShape: shapehelp
+                })
+            }
             console.log('shape: ')
             console.log(shape);
             console.log('shapehelp: ')
             console.log(shapehelp);
-        
-        this.setState({
-            currentShape: shape
-        });
-    }
+
+            this.setState({
+                currentShape: shape
+            });
+        }
     }
 
     render() {

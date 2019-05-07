@@ -51,6 +51,12 @@ class Shape1 implements Shape {
         arr.push(this.shape4);
         return arr;
     }
+    moveBack(): void {
+        this.shape1.top -= 40;
+        this.shape2.top -= 40;
+        this.shape3.top -= 40;
+        this.shape4.top -= 40;
+    }
     areBlocksFreeToMoveLeft(matrix: any) {
         return this.shape1.isBlockFreeToMoveLeft(matrix) && this.shape2.isBlockFreeToMoveLeft(matrix) &&
             this.shape3.isBlockFreeToMoveLeft(matrix) && this.shape4.isBlockFreeToMoveLeft(matrix)
