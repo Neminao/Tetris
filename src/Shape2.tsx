@@ -1,6 +1,5 @@
 import BaseBuildingSquare from "./BaseBuildingSquare";
 import Shape from "./Shape";
-import Shape1 from "./Shape1";
 
 class Shape2 implements Shape {
     shape1 = new BaseBuildingSquare(120, 0, 'blue');
@@ -106,7 +105,8 @@ class Shape2 implements Shape {
         return this.shape4.isBlockFreeToMoveRight(matrix)
     }
     areBlocksFreeToMoveDown(matrix: any) {
-        return this.shape4.isBlockFreeToMoveDown(matrix)
+        return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) && 
+        this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
     }
     areBlocksFreeToRotate(matrix: any){
         return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&

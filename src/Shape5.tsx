@@ -46,6 +46,7 @@ class Shape5 implements Shape {
         else if (this.shape3.left == this.shape2.left && this.shape2.left == this.shape4.left) {
             this.shape4.left += 40;
             this.shape4.top = this.shape2.top;
+            this.top -=40;
         }
         else if (this.shape1.top == this.shape2.top && this.shape2.top == this.shape4.top) {
             this.shape1.top = this.shape3.top;
@@ -54,6 +55,7 @@ class Shape5 implements Shape {
             this.shape3.left = this.shape4.left;
             this.shape4.left = this.shape2.left;
             this.shape4.top += 40;
+            this.top+=40;
         }
         else {
             this.shape1.top = this.shape2.top;
@@ -80,6 +82,13 @@ class Shape5 implements Shape {
         this.shape4.top -= 40;
     }
 
+    isShapeOutOfBoundsLeft() {
+        return this.shape1.left == 0;
+    }
+    isShapeOutOfBoundsRight() {
+        return this.shape3.left == 360 || this.shape4.left == 360;
+    }
+
     getAllSquares(): BaseBuildingSquare[] {
         let arr = [];
         arr.push(this.shape1);
@@ -88,23 +97,17 @@ class Shape5 implements Shape {
         arr.push(this.shape4);
         return arr;
     }
-    isShapeOutOfBoundsLeft() {
-        return this.shape1.left == 0;
-    }
-    isShapeOutOfBoundsRight() {
-        return this.shape3.left == 360 || this.shape4.left == 360;
-    }
     areBlocksFreeToMoveLeft(matrix: any) {
         return this.shape1.isBlockFreeToMoveLeft(matrix) && this.shape2.isBlockFreeToMoveLeft(matrix) &&
-            this.shape3.isBlockFreeToMoveLeft(matrix) && this.shape4.isBlockFreeToMoveLeft(matrix)
+            this.shape3.isBlockFreeToMoveLeft(matrix) && this.shape4.isBlockFreeToMoveLeft(matrix);
     }
     areBlocksFreeToMoveRight(matrix: any) {
         return this.shape1.isBlockFreeToMoveRight(matrix) && this.shape2.isBlockFreeToMoveRight(matrix) &&
-            this.shape3.isBlockFreeToMoveRight(matrix) && this.shape4.isBlockFreeToMoveRight(matrix)
+            this.shape3.isBlockFreeToMoveRight(matrix) && this.shape4.isBlockFreeToMoveRight(matrix);
     }
     areBlocksFreeToMoveDown(matrix: any) {
         return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) &&
-            this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix)
+            this.shape3.isBlockFreeToMoveDown(matrix) && this.shape4.isBlockFreeToMoveDown(matrix);
     }
     areBlocksFreeToRotate(matrix: any) {
         return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) &&

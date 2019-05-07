@@ -1,10 +1,10 @@
 import BaseBuildingSquare from "./BaseBuildingSquare";
 
 interface Shape {
-    shape1: BaseBuildingSquare;
+   /* shape1: BaseBuildingSquare;
     shape2: BaseBuildingSquare;
     shape3: BaseBuildingSquare;
-    shape4: BaseBuildingSquare;
+    shape4: BaseBuildingSquare;*/
     top: number;
     updateCanvas(ctx: any): void;
     moveDown(): void;  

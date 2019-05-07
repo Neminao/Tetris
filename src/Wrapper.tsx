@@ -7,7 +7,9 @@ import Shape4 from './Shape4';
 import Shape5 from './Shape5';
 import Shape6 from './Shape6';
 import Shape7 from './Shape7';
+import Shape8 from './Shape8';
 import Shape from './Shape';
+import Shape9 from './Shape9';
 
 interface MyState {
     currentShape: Shape;
@@ -153,7 +155,7 @@ class Wrapper extends React.Component<{}, MyState>{
     }
 
     randomShape = (): Shape => {
-        switch (Math.floor(Math.random() * Math.floor(7))) {
+        switch (Math.floor(Math.random() * Math.floor(9))) {
             case 0: return new Shape1();
             case 1: return new Shape2();
             case 2: return new Shape3();
@@ -161,6 +163,8 @@ class Wrapper extends React.Component<{}, MyState>{
             case 4: return new Shape5();
             case 5: return new Shape6();
             case 6: return new Shape7();
+            case 7: return new Shape8();
+            case 8: return new Shape9();
         }
         return new Shape1()
     }
