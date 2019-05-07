@@ -61,19 +61,18 @@ class Shape9 implements Shape {
         this.shape1.top -= 40;
         this.shape2.top -= 40;
     }
-    areBlocksFreeToMoveLeft(matrix: any) {
-        return this.shape1.isBlockFreeToMoveLeft(matrix) 
-    }
-    areBlocksFreeToMoveRight(matrix: any) {
-        return this.shape2.isBlockFreeToMoveRight(matrix)
-    }
-    areBlocksFreeToMoveDown(matrix: any) {
-        return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix) 
-    }
-    areBlocksFreeToRotate(matrix: any){
-        return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix) 
+    areBlocksFreeToMoveLeft(matrix: any){
+        return this.shape1.isBlockFreeToMoveLeft(matrix) && this.shape2.isBlockFreeToMoveLeft(matrix);
      }
-     
+     areBlocksFreeToMoveRight(matrix: any){
+         return this.shape1.isBlockFreeToMoveRight(matrix) && this.shape2.isBlockFreeToMoveRight(matrix);
+      }
+      areBlocksFreeToMoveDown(matrix: any){
+         return this.shape1.isBlockFreeToMoveDown(matrix) && this.shape2.isBlockFreeToMoveDown(matrix);
+      }
+      areBlocksFreeToRotate(matrix: any){
+         return this.shape1.isBlockFreeToRotate(matrix) && this.shape2.isBlockFreeToRotate(matrix);
+      }
 }
 
 export default Shape9
