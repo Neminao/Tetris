@@ -24,7 +24,7 @@ button {
   position: relative;
 }
 .canvasBlock {
-  position: static;
+  float: left;
 }
 
 .buttonsBlock {
@@ -43,4 +43,12 @@ button {
   float: center;
   height: 80px;
   width: 400px;
+}
+.sideBlock {
+  float:left;
+}
+
+.wrap {
+  margin-top: 50px;
+ margin-left:30%;
 }

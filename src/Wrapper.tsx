@@ -20,10 +20,17 @@ interface MyState {
     running: boolean;
     matrix: any[];
     score: number;
+    totalScore: number;
     speed: number;
     counterId: number;
+    currentShapeArr: BaseBuildingSquare[];
+    nextShapeArr: BaseBuildingSquare[];
+    delay: number;
+    baseDelay: number;
 }
-
+interface ShapeInterface {
+    [key: number]: any
+}
 class Wrapper extends React.Component<{}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
@@ -38,7 +45,12 @@ class Wrapper extends React.Component<{}, MyState>{
             matrix: [],
             score: 0,
             speed: 900,
-            counterId: -1
+            counterId: -1,
+            currentShapeArr: [],
+            nextShapeArr: [],
+            delay: 1,
+            baseDelay: 20,
+            totalScore: 0
         }
     }
 
@@ -115,27 +127,38 @@ class Wrapper extends React.Component<{}, MyState>{
             if (event.keyCode == 38) {
                 this.handleRotate();
             }
-            if (event.keyCode == 40 || event.keyCode == 32) {
-                if (this.state.speed != 50) {
+            if (event.keyCode == 40) {
+                this.setState({
+                    baseDelay: 1
+                })
+            }
+            if ( event.keyCode == 32) {
+                while(shape.areBlocksFreeToMoveDown(mat)){
+                    shape.moveDown();
+                }
+                if (!shape.areBlocksFreeToMoveDown(mat)) {
+                    this.state.currentShape.moveBack()
+                    this.state.currentShape.getAllSquares().forEach((element: any) => {
+                        mat[element.top / 40][element.left / 40] = true;
+                    });
                     this.setState({
-                        speed: 50
+                        matrix: mat
                     })
-                    //console.log(this.state.speed);
+                    this.updateStateOfTheGame(shape);
+                    // console.log(arr);
+        
                     clearInterval(this.state.counterId);
-                    if (!this.isGameOver()) {
-                        let inter: any = setInterval(() => this.moveShape(shape, inter), this.state.speed);
-                        this.setState({
-                            counterId: inter
-                        })
-                    }
+                    this.run();
+        
                 }
             }
         }
     }
 
-    onKeyUp = () => {
+    onKeyUp = (event: any) => {
+        if(event.keyCode == 40)
         this.setState({
-            speed: 1200
+            baseDelay: 20
         })
     }
 
@@ -173,6 +196,15 @@ class Wrapper extends React.Component<{}, MyState>{
         return new Shape1()
     }
 
+    getRandomShape = (): BaseBuildingSquare[] => {
+        let index = Math.floor(Math.random() * Math.floor(11))
+        let shapes: ShapeInterface = {
+            1: {},
+            2: {}
+        };
+        return shapes[index];
+    }
+
     startGame = () => {
         this.setState({
             running: true
@@ -181,7 +213,11 @@ class Wrapper extends React.Component<{}, MyState>{
             this.run();
     }
 
+    
     run = () => {
+        this.setState({
+            baseDelay: 20
+        })
         let c1: any = this.canvasFront.current;
         const ctx1: any = c1.getContext('2d');
         const shape = this.randomShape();
@@ -190,8 +226,6 @@ class Wrapper extends React.Component<{}, MyState>{
         const sidec: any = this.canvasSide.current;
         const sidectx = sidec.getContext('2d');
         sidectx.clearRect(0, 0, 400, 800);
-        // console.log(this.state.nextShape);
-        // console.log(next);
         if (next != null)
             next.updateCanvas(ctx1);
         shape.updateCanvas(sidectx);
@@ -206,7 +240,7 @@ class Wrapper extends React.Component<{}, MyState>{
             });
         }
         if (!this.isGameOver()) {
-            let inter: any = setInterval(() => this.moveShape(next, inter), 1200);
+            let inter: any = setInterval(() => this.moveShape(next, inter), 50);
             this.setState({
                 counterId: inter
             })
@@ -214,6 +248,17 @@ class Wrapper extends React.Component<{}, MyState>{
     }
 
     moveShape = (shape: any, inter: any) => { // temp
+        let delay = this.state.delay;
+        if(delay <= this.state.baseDelay){
+            delay++;
+            this.setState({
+                delay: delay
+            })
+        }
+        else {
+            this.setState({
+                delay: 1
+            })  
         let c1: any = this.canvasFront.current;
         let arr = this.state.matrix;
         const ctx1: any = c1.getContext('2d');
@@ -238,6 +283,7 @@ class Wrapper extends React.Component<{}, MyState>{
 
         }
     }
+    }
 
     updateStateOfTheGame = (shape: any) => { // temp
         let c1: any = this.canvasBack.current;
@@ -259,10 +305,14 @@ class Wrapper extends React.Component<{}, MyState>{
                 }
             }
         }
-        this.isGameOver();
+        let total = this.state.totalScore;
+        total +=10;
         let arr = this.state.allBlocks;
         shape.moveBack();
         arr.push(this.state.currentShape);
+        this.setState({
+            totalScore: total
+        })
     }
 
     isGameOver = () => {
@@ -296,10 +346,13 @@ class Wrapper extends React.Component<{}, MyState>{
               mat[i] = mat[i - 1];
           }*/
         let score = this.state.score;
-        score += 1
+        score += 1;
+        let total = this.state.totalScore;
+        total += 100;
         this.setState({
             matrix: mat,
-            score: score
+            score: score,
+            totalScore: total
         })
     }
 
@@ -379,22 +432,24 @@ class Wrapper extends React.Component<{}, MyState>{
     render() {
         return (
             <div onKeyUp={this.onKeyUp} >
-                <div>
-                    <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
-                </div>
-                <div>{this.state.score}</div>
+                <div className='wrap'>
+                
                 <div className='canvasBlock'>
                     <canvas className='FrontCanvas' ref={this.canvasFront}></canvas>
                     <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
 
                 </div>
-
+                <div className='sideBlock'>
+                    <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
+                
+                <div>Rows Cleared: {this.state.score}</div>
+                <div>Score: {this.state.totalScore}</div>
                 <div className='buttonsBlock'>
                     <button onClick={this.startGame}>Start</button><br></br>
-                    <button id='left' onClick={this.handleMove}>{'<-'}</button>
-                    <button id='right' onClick={this.handleMove}>-></button>
-                    <button id='rotate' onClick={this.handleRotate}>rotate</button>
                 </div>
+                </div>
+                </div>
+                
             </div>
         )
     }
