@@ -202,7 +202,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
      }*/
 
     getRandomShape = (): UniversalShape => {
-        let index = Math.floor(Math.random() * Math.floor(2))
+        let index = Math.floor(Math.random() * Math.floor(10))
         let shapes: ShapeInterface = {
             0: [{ x: 0, y: 0 },],
             1: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
