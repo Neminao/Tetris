@@ -28,6 +28,18 @@ class BaseBuildingSquare {
         ctx.rect(left, top, 40, 40);
         ctx.stroke();
     }
+    moveDown() {
+        this.top += 40;
+    }
+    moveBack() {
+        this.top -= 40;
+    }
+    moveLeft() {
+        this.left -= 40;
+    }
+    moveRight() {
+        this.left += 40;
+    }
     isBlockFreeToMoveLeft(matrix: any) {
         return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 - 1)]
     }

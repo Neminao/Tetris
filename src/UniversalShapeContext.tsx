@@ -12,19 +12,18 @@ import Shape from './Shape';
 import Shape9 from './Shape9';
 import Shape10 from './Shape10';
 import Shape11 from './Shape11';
+import UniversalShape from './UniversalShape';
 
 interface MyState {
-    currentShape: Shape;
-    nextShape: Shape;
-    allBlocks: Shape[];
+    currentShape: UniversalShape;
+    nextShape: UniversalShape;
+    allBlocks: UniversalShape[];
     running: boolean;
     matrix: any[];
     score: number;
     totalScore: number;
     speed: number;
     counterId: number;
-    currentShapeArr: BaseBuildingSquare[];
-    nextShapeArr: BaseBuildingSquare[];
     delay: number;
     baseDelay: number;
     acceleration: number;
@@ -36,23 +35,21 @@ interface Coordiantes {
     x: number;
     y: number;
 }
-class Wrapper extends React.Component<{}, MyState>{
+class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
     canvasSide = React.createRef<HTMLCanvasElement>();
     constructor(props: {}) {
         super(props);
         this.state = {
-            currentShape: this.randomShape(),
-            nextShape: this.randomShape(),
+            currentShape: this.getRandomShape(),
+            nextShape: this.getRandomShape(),
             allBlocks: [],
             running: false,
             matrix: [],
             score: 0,
             speed: 900,
             counterId: -1,
-            currentShapeArr: [],
-            nextShapeArr: [],
             delay: 1,
             baseDelay: 20,
             totalScore: 0,
@@ -144,7 +141,7 @@ class Wrapper extends React.Component<{}, MyState>{
                 }
                 if (!shape.areBlocksFreeToMoveDown(mat)) {
                     this.state.currentShape.moveBack()
-                    this.state.currentShape.getAllSquares().forEach((element: any) => {
+                    this.state.currentShape.blocksArr.forEach((element: any) => {
                         mat[element.top / 40][element.left / 40] = true;
                     });
                     this.setState({
@@ -187,7 +184,7 @@ class Wrapper extends React.Component<{}, MyState>{
         }
     }
 
-    randomShape = (): Shape => {
+   /* randomShape = (): Shape => {
         switch (Math.floor(Math.random() * Math.floor(11))) {
             case 0: return new Shape1();
             case 1: return new Shape2();
@@ -202,15 +199,12 @@ class Wrapper extends React.Component<{}, MyState>{
             case 10: return new Shape11();
         }
         return new Shape1()
-    }
+    }*/
 
-    getRandomShape = (): Coordiantes[] => {
-        let index = Math.floor(Math.random() * Math.floor(11))
-        let shapes: ShapeInterface = {
-            1: [{x: 0, y:0}, {x: 1, y:0}],
-            2: [{x: 0, y:0}, {x: 1, y:0}]
-        };
-        return shapes[index];
+    getRandomShape = (): UniversalShape => {
+        let index = Math.floor(Math.random() * Math.floor(2))
+        let shapes = [{x: 0, y:0}, {x: 1, y:0}, {x: -1, y:0}, {x: -2, y:0}];
+        return new UniversalShape(shapes);
     }
 
     startGame = () => {
@@ -229,15 +223,15 @@ class Wrapper extends React.Component<{}, MyState>{
         })
         let c1: any = this.canvasFront.current;
         const ctx1: any = c1.getContext('2d');
-        const shape = this.randomShape();
-        const next: Shape = this.deepCopyShape(this.state.nextShape);
+        const shape = this.getRandomShape();
+        const next: UniversalShape = this.deepCopyShape(this.state.nextShape);
         ctx1.clearRect(0, 0, 400, 800);
         const sidec: any = this.canvasSide.current;
         const sidectx = sidec.getContext('2d');
         sidectx.clearRect(0, 0, 400, 800);
-        if (next != null)
-            next.updateCanvas(ctx1);
-        shape.updateCanvas(sidectx);
+       // if (next != null)
+       //     next.updateCanvas(ctx1);
+      //  shape.updateCanvas(sidectx);
         this.setState({
             currentShape: next,
             nextShape: shape
@@ -272,20 +266,20 @@ class Wrapper extends React.Component<{}, MyState>{
         let arr = this.state.matrix;
         const ctx1: any = c1.getContext('2d');
         ctx1.clearRect(0, 0, 400, 800);
-        shape.moveDown();
+        shape.rotate();
         if (shape.areBlocksFreeToMoveDown(arr))
             shape.updateCanvas(ctx1);
 
         if (!shape.areBlocksFreeToMoveDown(arr)) {
-            this.state.currentShape.moveBack()
-            this.state.currentShape.getAllSquares().forEach((element: any) => {
+            this.state.currentShape.moveBack();
+            this.state.currentShape.blocksArr.forEach((element: any) => {
                 arr[element.top / 40][element.left / 40] = true;
             });
             this.setState({
                 matrix: arr
             })
             this.updateStateOfTheGame(shape);
-            // console.log(arr);
+             console.log(arr);
 
             clearInterval(inter);
             this.run();
@@ -472,4 +466,4 @@ class Wrapper extends React.Component<{}, MyState>{
     }
 }
 
-export default Wrapper
+export default UniversalShapeContext
