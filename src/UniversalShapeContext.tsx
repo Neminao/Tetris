@@ -135,8 +135,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     baseDelay: 1
                 })
             }
-            if ( event.keyCode == 32) {
-                while(shape.areBlocksFreeToMoveDown(mat)){
+            if (event.keyCode == 32) {
+                while (shape.areBlocksFreeToMoveDown(mat)) {
                     shape.moveDown();
                 }
                 if (!shape.areBlocksFreeToMoveDown(mat)) {
@@ -149,22 +149,22 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     })
                     this.updateStateOfTheGame(shape);
                     // console.log(arr);
-        
+
                     clearInterval(this.state.counterId);
                     this.run();
-        
+
                 }
             }
         }
     }
 
     onKeyUp = (event: any) => {
-        if(event.keyCode == 40){
-        let acc = this.state.acceleration;
-        this.setState({
-            baseDelay: 20 - acc
-        })
-    }
+        if (event.keyCode == 40) {
+            let acc = this.state.acceleration;
+            this.setState({
+                baseDelay: 20 - acc
+            })
+        }
     }
 
     createGrid = (ctx: any) => {
@@ -184,27 +184,38 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         }
     }
 
-   /* randomShape = (): Shape => {
-        switch (Math.floor(Math.random() * Math.floor(11))) {
-            case 0: return new Shape1();
-            case 1: return new Shape2();
-            case 2: return new Shape3();
-            case 3: return new Shape4();
-            case 4: return new Shape5();
-            case 5: return new Shape6();
-            case 6: return new Shape7();
-            case 7: return new Shape8();
-            case 8: return new Shape9();
-            case 9: return new Shape10();
-            case 10: return new Shape11();
-        }
-        return new Shape1()
-    }*/
+    /* randomShape = (): Shape => {
+         switch (Math.floor(Math.random() * Math.floor(11))) {
+             case 0: return new Shape1();
+             case 1: return new Shape2();
+             case 2: return new Shape3();
+             case 3: return new Shape4();
+             case 4: return new Shape5();
+             case 5: return new Shape6();
+             case 6: return new Shape7();
+             case 7: return new Shape8();
+             case 8: return new Shape9();
+             case 9: return new Shape10();
+             case 10: return new Shape11();
+         }
+         return new Shape1()
+     }*/
 
     getRandomShape = (): UniversalShape => {
         let index = Math.floor(Math.random() * Math.floor(2))
-        let shapes = [{x: 0, y:0}, {x: 1, y:0}, {x: -1, y:0}, {x: -2, y:0}];
-        return new UniversalShape(shapes);
+        let shapes: ShapeInterface = {
+            0: [{ x: 0, y: 0 },],
+            1: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+            2: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }],
+            3: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -2, y: 0 }],
+            4: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -1, y: 1 }],
+            5: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 1 }],
+            6: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+            7: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }],
+            8: [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+            9: [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }],
+        };
+        return new UniversalShape(shapes[index]);
     }
 
     startGame = () => {
@@ -215,7 +226,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             this.run();
     }
 
-    
+
     run = () => {
         let acc = this.state.acceleration;
         this.setState({
@@ -229,9 +240,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const sidec: any = this.canvasSide.current;
         const sidectx = sidec.getContext('2d');
         sidectx.clearRect(0, 0, 400, 800);
-       // if (next != null)
-       //     next.updateCanvas(ctx1);
-      //  shape.updateCanvas(sidectx);
+        if (next != null)
+            next.updateCanvas(ctx1);
+        shape.updateCanvas(sidectx);
         this.setState({
             currentShape: next,
             nextShape: shape
@@ -252,7 +263,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     moveShape = (shape: any, inter: any) => { // temp
         let delay = this.state.delay;
-        if(delay <= this.state.baseDelay){
+        if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
                 delay: delay
@@ -261,31 +272,31 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         else {
             this.setState({
                 delay: 1
-            })  
-        let c1: any = this.canvasFront.current;
-        let arr = this.state.matrix;
-        const ctx1: any = c1.getContext('2d');
-        ctx1.clearRect(0, 0, 400, 800);
-        shape.rotate();
-        if (shape.areBlocksFreeToMoveDown(arr))
-            shape.updateCanvas(ctx1);
-
-        if (!shape.areBlocksFreeToMoveDown(arr)) {
-            this.state.currentShape.moveBack();
-            this.state.currentShape.blocksArr.forEach((element: any) => {
-                arr[element.top / 40][element.left / 40] = true;
-            });
-            this.setState({
-                matrix: arr
             })
-            this.updateStateOfTheGame(shape);
-             console.log(arr);
+            let c1: any = this.canvasFront.current;
+            let arr = this.state.matrix;
+            const ctx1: any = c1.getContext('2d');
+            ctx1.clearRect(0, 0, 400, 800);
+            shape.moveDown();
+            if (shape.areBlocksFreeToMoveDown(arr))
+                shape.updateCanvas(ctx1);
 
-            clearInterval(inter);
-            this.run();
+            if (!shape.areBlocksFreeToMoveDown(arr)) {
+                this.state.currentShape.moveBack();
+                this.state.currentShape.blocksArr.forEach((element: any) => {
+                    arr[element.top / 40][element.left / 40] = true;
+                });
+                this.setState({
+                    matrix: arr
+                })
+                this.updateStateOfTheGame(shape);
+                console.log(arr);
 
+                clearInterval(inter);
+                this.run();
+
+            }
         }
-    }
     }
 
     updateStateOfTheGame = (shape: any) => { // temp
@@ -309,7 +320,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             }
         }
         let total = this.state.totalScore;
-        total +=10;
+        total += 10;
         let arr = this.state.allBlocks;
         shape.moveBack();
         arr.push(this.state.currentShape);
@@ -317,12 +328,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             totalScore: total
         })
         let acc = this.state.acceleration;
-        if(this.state.totalScore > 700 * (acc + 1)){
+        if (this.state.totalScore > 700 * (acc + 1)) {
             acc++;
-            if(acc<20)
-            this.setState({
-                acceleration: acc
-            })
+            if (acc < 20)
+                this.setState({
+                    acceleration: acc
+                })
         }
     }
 
@@ -404,22 +415,26 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     handleRotate = () => {
-        if (this.state.running) {
 
-            let shape = this.deepCopyShape(this.state.currentShape);
+        if (this.state.running) {
+            let shape: UniversalShape = this.deepCopyShape(this.state.currentShape);
             let shapehelp = this.state.currentShape;
             shape.rotate();
-            if (shape.areBlocksFreeToRotate(this.state.matrix)) {
+            if (!shape.areBlockOutOfRotateBoundsLeft() || !shape.areBlockOutOfRotateBoundsRight()) {
+                shape.rotate();
+                shape.rotate();
+                shape.rotate();
+                this.setState({
+                    currentShape: shapehelp
+                })
+            }
+            else if (shape.areBlocksFreeToRotate(this.state.matrix)) {
 
                 let c1: any = this.canvasFront.current;
                 const ctx1: any = c1.getContext('2d');
                 ctx1.clearRect(0, 0, 400, 800);
                 shape.updateCanvas(ctx1);
                 console.log(true);
-
-
-
-
             }
             else {
                 shape.rotate();
@@ -444,23 +459,23 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div className='wrap'>
-                
-                <div className='canvasBlock'>
-                    <canvas className='FrontCanvas' ref={this.canvasFront}></canvas>
-                    <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
 
+                    <div className='canvasBlock'>
+                        <canvas className='FrontCanvas' ref={this.canvasFront}></canvas>
+                        <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
+
+                    </div>
+                    <div className='sideBlock'>
+                        <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
+
+                        <div>Rows Cleared: {this.state.score}</div>
+                        <div>Score: {this.state.totalScore}</div>
+                        <div className='buttonsBlock'>
+                            <button onClick={this.startGame}>Start</button><br></br>
+                        </div>
+                    </div>
                 </div>
-                <div className='sideBlock'>
-                    <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
-                
-                <div>Rows Cleared: {this.state.score}</div>
-                <div>Score: {this.state.totalScore}</div>
-                <div className='buttonsBlock'>
-                    <button onClick={this.startGame}>Start</button><br></br>
-                </div>
-                </div>
-                </div>
-                
+
             </div>
         )
     }
