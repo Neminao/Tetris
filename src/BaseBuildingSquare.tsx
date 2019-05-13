@@ -2,10 +2,12 @@ class BaseBuildingSquare {
     left: number;
     top: number;
     color: string;
-    constructor(left: number, top: number, color: string) {
+    size: number
+    constructor(left: number, top: number, color: string, size: number) {
         this.left = left;
         this.top = top;
         this.color = color;
+        this.size = size
     }
     setTop(top: number) {
         this.top = top;
@@ -15,8 +17,8 @@ class BaseBuildingSquare {
         ctx.fillStyle = this.color;
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 2;
-        ctx.fillRect(this.left, this.top, 40, 40);
-        ctx.rect(this.left, this.top, 40, 40);
+        ctx.fillRect(this.left, this.top, this.size, this.size);
+        ctx.rect(this.left, this.top, this.size, this.size);
         ctx.stroke();
     }
     draw(left: number, top: number, ctx: any) {
@@ -24,33 +26,33 @@ class BaseBuildingSquare {
         ctx.fillStyle = 'blue';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 2;
-        ctx.fillRect(left, top, 40, 40);
-        ctx.rect(left, top, 40, 40);
+        ctx.fillRect(left, top, this.size, this.size);
+        ctx.rect(left, top, this.size, this.size);
         ctx.stroke();
     }
     moveDown() {
-        this.top += 40;
+        this.top += this.size;
     }
     moveBack() {
-        this.top -= 40;
+        this.top -= this.size;
     }
     moveLeft() {
-        this.left -= 40;
+        this.left -= this.size;
     }
     moveRight() {
-        this.left += 40;
+        this.left += this.size;
     }
     isBlockFreeToMoveLeft(matrix: any) {
-        return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 - 1)]
+        return !matrix[Math.abs(this.top / this.size)][Math.abs(this.left / this.size - 1)]
     }
     isBlockFreeToMoveRight(matrix: any) {
-        return !matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40 + 1)]
+        return !matrix[Math.abs(this.top / this.size)][Math.abs(this.left / this.size + 1)]
     }
     isBlockFreeToMoveDown(matrix: any) {
-        return !(matrix[Math.abs(this.top / 40)][this.left / 40])
+        return !(matrix[Math.abs(this.top / this.size)][this.left / this.size])
     }
     isBlockFreeToRotate(matrix: any) {
-        return !(matrix[Math.abs(this.top / 40)][Math.abs(this.left / 40)])
+        return !(matrix[Math.abs(this.top / this.size)][Math.abs(this.left / this.size)])
     }
 }
 

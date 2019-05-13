@@ -5,28 +5,32 @@ class UniversalShape {
     blocksArr: BaseBuildingSquare[];
     top: number;
     left: number;
-    constructor(arr: any) {
+    columns: number;
+    rows: number;
+    size: number;
+    currentPosition: number;
+    constructor(arr: any[], columns: number, rows: number, size: number) {
         this.coordiantesArr = arr
-        this.blocksArr = this.fillArr(arr);
+        this.blocksArr = this.fillArr(arr[0], size, columns);
         this.top = 0;
         this.left = 0;
+        this.rows = rows;
+        this.columns = columns;
+        this.size = size;
+        this.currentPosition = 0;
     }
-    fillArr(arr: any): BaseBuildingSquare[] {
+    fillArr(arr: any, size: number, columns: number): BaseBuildingSquare[] {
         let array: BaseBuildingSquare[] = [];
         arr.forEach((elem: any) => {
-            array.push(new BaseBuildingSquare((elem.x + 4) * 40, elem.y * 40, 'blue'))
+            array.push(new BaseBuildingSquare((elem.x + Math.floor(columns / 2) - 1) * size, elem.y * size, 'blue', size))
         })
         return array;
     }
     moveDown() {
-        if (this.top <= 20) {
-            // if(this.areBlocksFreeToMoveDown(matrix)){
-            this.blocksArr.forEach(elem => {
-                elem.moveDown();
-            })
-            this.top += 1;
-        }
-        // }
+        this.blocksArr.forEach(elem => {
+            elem.moveDown();
+        })
+        this.top += 1;
     }
     moveRight() {
         if (this.areBlockOutOfBoundsRight()) {
@@ -38,10 +42,10 @@ class UniversalShape {
     }
     moveLeft() {
         if (this.areBlockOutOfBoundsLeft()) {
-        this.blocksArr.forEach(elem => {
-            elem.moveLeft();
-        })
-        this.left -= 1;
+            this.blocksArr.forEach(elem => {
+                elem.moveLeft();
+            })
+            this.left -= 1;
         }
     }
     moveBack(): void {
@@ -81,32 +85,24 @@ class UniversalShape {
         })
         return pom;
     }
-    rotate() {
-        let pom = true;
-        for (let i = 0; i < this.coordiantesArr.length - 1; i++) {
-            if (this.coordiantesArr[i].x != this.coordiantesArr[i + 1].x) {
-                pom = false;
-            }
+    rotate() {   
+        let i = this.currentPosition;
+        let blockStates = this.coordiantesArr
+        if (i < blockStates.length -1 ) {
+            i += 1;
+            this.blocksArr = this.fillArr(this.moveAdjustment(blockStates[i]), this.size, this.columns);
+            this.currentPosition = i;
         }
-        if (pom) {
-            this.coordiantesArr.forEach((elem: any) => {
-                const pom = elem.x;
-                elem.x = - elem.y;
-                elem.y = - pom;
-            })
+        else {
+            i = 0;
+            this.blocksArr = this.fillArr(this.moveAdjustment(blockStates[i]), this.size, this.columns);
+            this.currentPosition = i;
         }
-        else
-            this.coordiantesArr.forEach((elem: any) => {
-                const pom = elem.x;
-                elem.x = elem.y;
-                elem.y = - pom;
-            })
-        this.blocksArr = this.fillArr(this.moveAdjustment());
-        console.log(this.left)
+
     }
-    moveAdjustment() {
+    moveAdjustment(blocksArr: any) {
         let arr: any[] = [];
-        this.coordiantesArr.forEach(elem => {
+        blocksArr.forEach((elem: any) => {
             arr.push({ x: elem.x + this.left, y: elem.y + this.top });
         })
         return arr;
@@ -120,37 +116,37 @@ class UniversalShape {
         })
         return pom;
     }
-    areBlockOutOfBoundsLeft(){
+    areBlockOutOfBoundsLeft() {
         let pom = true;
         this.blocksArr.forEach(elem => {
-            if(elem.left<=0){
+            if (elem.left <= 0) {
                 pom = false;
             }
         })
         return pom;
     }
-    areBlockOutOfRotateBoundsLeft(){
+    areBlockOutOfRotateBoundsLeft() {
         let pom = true;
         this.blocksArr.forEach(elem => {
-            if(elem.left<0){
+            if (elem.left < 0) {
                 pom = false;
             }
         })
         return pom;
     }
-    areBlockOutOfBoundsRight(){
+    areBlockOutOfBoundsRight() {
         let pom = true;
         this.blocksArr.forEach(elem => {
-            if(elem.left>=360){
+            if (elem.left >= (this.columns - 1) * this.size) {
                 pom = false;
             }
         })
         return pom;
     }
-    areBlockOutOfRotateBoundsRight(){
+    areBlockOutOfRotateBoundsRight() {
         let pom = true;
         this.blocksArr.forEach(elem => {
-            if(elem.left>360){
+            if (elem.left > (this.columns - 1) * this.size) {
                 pom = false;
             }
         })

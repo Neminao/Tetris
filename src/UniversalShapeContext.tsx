@@ -1,17 +1,5 @@
 import React from 'react'
 import BaseBuildingSquare from './BaseBuildingSquare';
-import Shape1 from './Shape1';
-import Shape2 from './Shape2';
-import Shape3 from './Shape3';
-import Shape4 from './Shape4';
-import Shape5 from './Shape5';
-import Shape6 from './Shape6';
-import Shape7 from './Shape7';
-import Shape8 from './Shape8';
-import Shape from './Shape';
-import Shape9 from './Shape9';
-import Shape10 from './Shape10';
-import Shape11 from './Shape11';
 import UniversalShape from './UniversalShape';
 
 interface MyState {
@@ -27,9 +15,12 @@ interface MyState {
     delay: number;
     baseDelay: number;
     acceleration: number;
+    columns: number;
+    rows: number;
+    blockSize: number;
 }
 interface ShapeInterface {
-    [key: number]: Coordiantes[];
+    [key: number]: any[];
 }
 interface Coordiantes {
     x: number;
@@ -42,8 +33,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     constructor(props: {}) {
         super(props);
         this.state = {
-            currentShape: this.getRandomShape(),
-            nextShape: this.getRandomShape(),
+            currentShape: this.defaultShape(),
+            nextShape: this.defaultShape(),
             allBlocks: [],
             running: false,
             matrix: [],
@@ -53,25 +44,30 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             delay: 1,
             baseDelay: 20,
             totalScore: 0,
-            acceleration: 0
+            acceleration: 0,
+            columns: 10,
+            rows: 20,
+            blockSize: 40
         }
     }
 
     createEmptyMatrix = (): any[] => {
         let arr: any[] = [];
+        const col = this.state.columns;
+        const row = this.state.rows;
         function sub(): boolean[] {
             let sub: boolean[] = [];
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < col; j++) {
                 sub.push(false);
             }
             return sub;
         }
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < row; i++) {
             arr.push(sub());
         }
         function x() {
             let sub: boolean[] = [];
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < col; j++) {
                 sub.push(true);
             }
             return sub;
@@ -95,14 +91,18 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         let c2: any = this.canvasBack.current;
         let c1: any = this.canvasFront.current;
         let c3: any = this.canvasSide.current;
-        c1.width = 400;
-        c1.height = 800;
-        c2.width = 400;
-        c2.height = 800;
-        c3.width = 400;
-        c3.height = 80;
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
+        c1.width = col * size;
+        c1.height = row * size;
+        c2.width = col * size;
+        c2.height = row * size;
+        c3.width = col * size;
+        c3.height = 2 * size;
         this.setState({
-            matrix: this.createEmptyMatrix()
+            matrix: this.createEmptyMatrix(),
+            nextShape: this.getRandomShape()
         })
         this.createGrid(c2.getContext('2d'));
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -114,19 +114,18 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             const ctx1: any = c1.getContext('2d');
             let shape = this.state.currentShape;
             const mat = this.state.matrix;
+            const col = this.state.columns;
+            const row = this.state.rows;
+            const size = this.state.blockSize;
 
             if (event.keyCode == 39 && shape.areBlocksFreeToMoveRight(mat)) {
-                //console.log(shape.areBlocksFreeToMoveRight(mat));
                 shape.moveRight();
-
             }
             else if (event.keyCode == 37 && shape.areBlocksFreeToMoveLeft(mat)) {
                 shape.moveLeft();
-
             }
-            ctx1.clearRect(0, 0, 400, 800);
+            ctx1.clearRect(0, 0, col * size, row * size);
             shape.updateCanvas(ctx1);
-
             if (event.keyCode == 38) {
                 this.handleRotate();
             }
@@ -142,14 +141,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 if (!shape.areBlocksFreeToMoveDown(mat)) {
                     this.state.currentShape.moveBack()
                     this.state.currentShape.blocksArr.forEach((element: any) => {
-                        mat[element.top / 40][element.left / 40] = true;
+                        mat[element.top / size][element.left / size] = true;
                     });
                     this.setState({
                         matrix: mat
                     })
                     this.updateStateOfTheGame(shape);
-                    // console.log(arr);
-
                     clearInterval(this.state.counterId);
                     this.run();
 
@@ -168,66 +165,93 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     createGrid = (ctx: any) => {
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#ccc';
-        for (let i = 1; i < 20; i++) {
+        for (let i = 1; i < row; i++) {
             ctx.beginPath()
-            ctx.moveTo(0, i * 40);
-            ctx.lineTo(400, i * 40);
+            ctx.moveTo(0, i * size);
+            ctx.lineTo(col * size, i * size);
             ctx.stroke();
         }
-        for (let i = 1; i < 10; i++) {
+        for (let i = 1; i < col; i++) {
             ctx.beginPath()
-            ctx.moveTo(i * 40, 0);
-            ctx.lineTo(i * 40, 800);
+            ctx.moveTo(i * size, 0);
+            ctx.lineTo(i * size, row * size);
             ctx.stroke();
         }
     }
 
-    /* randomShape = (): Shape => {
-         switch (Math.floor(Math.random() * Math.floor(11))) {
-             case 0: return new Shape1();
-             case 1: return new Shape2();
-             case 2: return new Shape3();
-             case 3: return new Shape4();
-             case 4: return new Shape5();
-             case 5: return new Shape6();
-             case 6: return new Shape7();
-             case 7: return new Shape8();
-             case 8: return new Shape9();
-             case 9: return new Shape10();
-             case 10: return new Shape11();
-         }
-         return new Shape1()
-     }*/
+    defaultShape = (): UniversalShape => {
+        return new UniversalShape([[{ x: 0, y: 0 }]], 10, 20, 40);
+    }
 
     getRandomShape = (): UniversalShape => {
         let index = Math.floor(Math.random() * Math.floor(10))
         let shapes: ShapeInterface = {
-            0: [{ x: 0, y: 0 }],
-            1: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
-            2: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }],
-            3: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -2, y: 0 }],
-            4: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -1, y: 1 }],
-            5: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 1 }],
-            6: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
-            7: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }],
-            8: [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
-            9: [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }],
+            0: [
+                [{ x: 0, y: 0 }]
+            ],
+            1: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }]
+            ],
+            2: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }]
+            ],
+            3: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: -2 }, { x: 0, y: 1 }]
+            ],
+            4: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 1, y: -1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: -1 }]
+            ],
+            5: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: -1 }],
+                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: -1, y: -1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: 1 }]
+            ],
+            6: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
+            ],
+            7: [
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }]
+            ],
+            8: [
+                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }]
+            ],
+            9: [
+                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
+                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
+            ],
         };
-        return new UniversalShape(shapes[index]);
+        return new UniversalShape(shapes[index], this.state.columns, this.state.rows, this.state.blockSize);
     }
 
     startGame = () => {
         this.setState({
             running: true
         })
-        if (!this.state.running)
+        if (!this.state.running){
+            const col = this.state.columns;
+          const row = this.state.rows;
+            const size = this.state.blockSize;
             this.run();
+            let c1: any = this.canvasBack.current;
+            const ctx1: any = c1.getContext('2d');
+            ctx1.clearRect(0, 0, col * size, row * size);
+            this.setState({
+                matrix: this.createEmptyMatrix(),
+                nextShape: this.getRandomShape()
+            })
+            this.createGrid(ctx1);
+        }
     }
 
-
     run = () => {
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         let acc = this.state.acceleration;
         this.setState({
             baseDelay: 20 - acc
@@ -236,10 +260,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const ctx1: any = c1.getContext('2d');
         const shape = this.getRandomShape();
         const next: UniversalShape = this.deepCopyShape(this.state.nextShape);
-        ctx1.clearRect(0, 0, 400, 800);
+        ctx1.clearRect(0, 0, col * size, row * size);
         const sidec: any = this.canvasSide.current;
         const sidectx = sidec.getContext('2d');
-        sidectx.clearRect(0, 0, 400, 800);
+        sidectx.clearRect(0, 0, col * size, row * size);
         if (next != null)
             next.updateCanvas(ctx1);
         shape.updateCanvas(sidectx);
@@ -247,7 +271,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             currentShape: next,
             nextShape: shape
         })
-
         if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
@@ -261,14 +284,17 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         }
         else {
             this.setState({
-            running: false
-        });
-        window.alert("Game over")
-    }
+                running: false
+            });
+            window.alert("Game over")
+        }
     }
 
     moveShape = (shape: any, inter: any) => { // temp
         let delay = this.state.delay;
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -282,7 +308,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             let c1: any = this.canvasFront.current;
             let arr = this.state.matrix;
             const ctx1: any = c1.getContext('2d');
-            ctx1.clearRect(0, 0, 400, 800);
+            ctx1.clearRect(0, 0, col * size, row * size);
             shape.moveDown();
             if (shape.areBlocksFreeToMoveDown(arr))
                 shape.updateCanvas(ctx1);
@@ -290,7 +316,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             if (!shape.areBlocksFreeToMoveDown(arr)) {
                 this.state.currentShape.moveBack();
                 this.state.currentShape.blocksArr.forEach((element: any) => {
-                    arr[element.top / 40][element.left / 40] = true;
+                    arr[element.top / size][element.left / size] = true;
                 });
                 this.setState({
                     matrix: arr
@@ -306,22 +332,25 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     updateStateOfTheGame = (shape: any) => { // temp
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         let c1: any = this.canvasBack.current;
         const ctx1: any = c1.getContext('2d');
         if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
             });
-            ctx1.clearRect(0, 0, 400, 800);
+            ctx1.clearRect(0, 0, col * size, row * size);
             this.createGrid(ctx1);
         }
 
-        const shape1 = new BaseBuildingSquare(0, 0, 'blue')
+        const shape1 = new BaseBuildingSquare(0, 0, 'blue', size)
         const mat = this.state.matrix;
-        for (let i = 0; i < 20; i++) {
-            for (let j = 0; j < 10; j++) {
+        for (let i = 0; i < row; i++) {
+            for (let j = 0; j < col; j++) {
                 if (mat[i][j]) {
-                    shape1.draw(j * 40, i * 40, ctx1);
+                    shape1.draw(j * size, i * size, ctx1);
                 }
             }
         }
@@ -350,7 +379,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 pom = true;
             }
         })
-        //console.log(pom);
         return pom;
     }
 
@@ -359,20 +387,19 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     clearRow = (index: number) => {
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         let mat = this.state.matrix;
-        //  console.log(mat);
         function x() {
             let sub: boolean[] = [];
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < col; j++) {
                 sub.push(false);
             }
             return sub;
         }
         mat.splice(index, 1);
         mat.unshift(x());
-        /*  for (let i = index; i > 0; i--) {
-              mat[i] = mat[i - 1];
-          }*/
         let score = this.state.score;
         score += 1;
         let total = this.state.totalScore;
@@ -385,14 +412,17 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     isRowComplete = () => {
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         const arr = this.state.matrix;
         let numArr = []
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < row; i++) {
             let counter = 0;
             arr[i].forEach((subEl: any) => {
                 if (subEl) counter++;
             })
-            if (counter == 10) {
+            if (counter == col) {
                 numArr.push(i);
             }
         }
@@ -400,6 +430,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     handleMove = (event: any) => {
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         if (this.state.running) {
             const id = event.target.id;
             let c1: any = this.canvasFront.current;
@@ -408,20 +441,21 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             const mat = this.state.matrix;
 
             if (id == 'right' && shape.areBlocksFreeToMoveRight(mat)) {
-                //console.log(shape.areBlocksFreeToMoveRight(mat));
                 shape.moveRight();
             }
             else if (id == 'left' && shape.areBlocksFreeToMoveLeft(mat)) {
                 shape.moveLeft();
 
             }
-            ctx1.clearRect(0, 0, 400, 800);
+            ctx1.clearRect(0, 0, size * col, size * row);
             shape.updateCanvas(ctx1);
         }
     }
 
     handleRotate = () => {
-
+        const col = this.state.columns;
+        const row = this.state.rows;
+        const size = this.state.blockSize;
         if (this.state.running) {
             let shape: UniversalShape = this.deepCopyShape(this.state.currentShape);
             let shapehelp = this.state.currentShape;
@@ -438,7 +472,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
                 let c1: any = this.canvasFront.current;
                 const ctx1: any = c1.getContext('2d');
-                ctx1.clearRect(0, 0, 400, 800);
+                ctx1.clearRect(0, 0, size * col, size * row);
                 shape.updateCanvas(ctx1);
                 console.log(true);
             }
@@ -462,17 +496,19 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     render() {
+        const style = { "height": this.state.rows * this.state.blockSize, "width": this.state.columns * this.state.blockSize };
+        const style2 = { "height": 2 * this.state.blockSize, "width": this.state.columns * this.state.blockSize };
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div className='wrap'>
 
                     <div className='canvasBlock'>
-                        <canvas className='FrontCanvas' ref={this.canvasFront}></canvas>
-                        <canvas className='BackCanvas' ref={this.canvasBack}></canvas>
+                        <canvas className='FrontCanvas' style={style} ref={this.canvasFront}></canvas>
+                        <canvas className='BackCanvas' style={style} ref={this.canvasBack}></canvas>
 
                     </div>
                     <div className='sideBlock'>
-                        <canvas className='SideCanvas' ref={this.canvasSide}></canvas>
+                        <canvas className='SideCanvas' style={style2} ref={this.canvasSide}></canvas>
 
                         <div>Rows Cleared: {this.state.score}</div>
                         <div>Score: {this.state.totalScore}</div>
