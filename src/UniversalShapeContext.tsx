@@ -204,7 +204,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     getRandomShape = (): UniversalShape => {
         let index = Math.floor(Math.random() * Math.floor(10))
         let shapes: ShapeInterface = {
-            0: [{ x: 0, y: 0 },],
+            0: [{ x: 0, y: 0 }],
             1: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
             2: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }],
             3: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -2, y: 0 }],
@@ -256,9 +256,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         if (!this.isGameOver()) {
             let inter: any = setInterval(() => this.moveShape(next, inter), 50);
             this.setState({
-                counterId: inter
+                counterId: inter,
             })
         }
+        else {
+            this.setState({
+            running: false
+        });
+        window.alert("Game over")
+    }
     }
 
     moveShape = (shape: any, inter: any) => { // temp
