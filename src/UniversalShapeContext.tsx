@@ -33,7 +33,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         super(props);
         this.state = {
             currentShape: this.defaultShape(),
-            nextShape: this.defaultShape(),
+            nextShape: this.getRandomShape(),
             allBlocks: [],
             running: false,
             matrix: [],
@@ -101,7 +101,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         c3.height = 2 * size;
         this.setState({
             matrix: this.createEmptyMatrix(),
-            nextShape: this.getRandomShape()
+         //   nextShape: this.getRandomShape(),
         })
         this.createGrid(c2.getContext('2d'));
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -189,6 +189,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     getRandomShape = (): UniversalShape => {
         let index = Math.floor(Math.random() * Math.floor(10));
+        if(undefined == this.state){
+            return new UniversalShape(shapeCoordinates[index], 10, 20, 40); 
+        }
         return new UniversalShape(shapeCoordinates[index], this.state.columns, this.state.rows, this.state.blockSize);
     }
 
@@ -206,7 +209,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             ctx1.clearRect(0, 0, col * size, row * size);
             this.setState({
                 matrix: this.createEmptyMatrix(),
-                nextShape: this.getRandomShape()
+                score: 0,
+                totalScore: 0
             })
             this.createGrid(ctx1);
         }
