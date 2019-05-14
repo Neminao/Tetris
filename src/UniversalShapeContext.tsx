@@ -1,6 +1,7 @@
 import React from 'react'
 import BaseBuildingSquare from './BaseBuildingSquare';
 import UniversalShape from './UniversalShape';
+import shapeCoordinates from './Shapes'
 
 interface MyState {
     currentShape: UniversalShape;
@@ -19,9 +20,7 @@ interface MyState {
     rows: number;
     blockSize: number;
 }
-interface ShapeInterface {
-    [key: number]: any[];
-}
+
 interface Coordiantes {
     x: number;
     y: number;
@@ -189,43 +188,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     getRandomShape = (): UniversalShape => {
-        let index = Math.floor(Math.random() * Math.floor(10))
-        let shapes: ShapeInterface = {
-            0: [
-                [{ x: 0, y: 0 }]
-            ],
-            1: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }]
-            ],
-            2: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }]
-            ],
-            3: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: -2 }, { x: 0, y: 1 }]
-            ],
-            4: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
-                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 1, y: -1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: -1 }]
-            ],
-            5: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: -1 }],
-                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: -1, y: -1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: 1 }]
-            ],
-            6: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
-            ],
-            7: [
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }]
-            ],
-            8: [
-                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }]
-            ],
-            9: [
-                [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
-                [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
-            ],
-        };
-        return new UniversalShape(shapes[index], this.state.columns, this.state.rows, this.state.blockSize);
+        let index = Math.floor(Math.random() * Math.floor(10));
+        return new UniversalShape(shapeCoordinates[index], this.state.columns, this.state.rows, this.state.blockSize);
     }
 
     startGame = () => {
