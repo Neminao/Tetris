@@ -33,7 +33,9 @@ button {
 
 .BackCanvas {
   position: relative;
+  background: none;
 }
+
 .FrontCanvas {
   position: absolute;
   z-index: 2000;
@@ -50,5 +52,7 @@ button {
 
 .wrap {
   margin-top: 50px;
- margin-left:30%;
+ margin-left:5%;
+ position: static;
+ float: left;
 }

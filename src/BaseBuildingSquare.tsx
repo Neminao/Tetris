@@ -21,9 +21,9 @@ class BaseBuildingSquare {
         ctx.rect(this.left, this.top, this.size, this.size);
         ctx.stroke();
     }
-    draw(left: number, top: number, ctx: any) {
+    draw(left: number, top: number, ctx: any, color: string) {
         ctx.beginPath();
-        ctx.fillStyle = 'blue';
+        ctx.fillStyle = color;
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 2;
         ctx.fillRect(left, top, this.size, this.size);

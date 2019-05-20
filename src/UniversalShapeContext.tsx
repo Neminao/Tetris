@@ -1,8 +1,14 @@
-import React from 'react'
+import React from 'react';
 import BaseBuildingSquare from './BaseBuildingSquare';
 import UniversalShape from './UniversalShape';
 import shapeCoordinates from './Shapes'
+import io from 'socket.io-client';
+import { USER_CONNECTED, LOGOUT, GAME_UPDATE } from './Events'
+import LoginForm from './LoginForm'
+import ChatContainer from './ChatContainer'
+import Canvas from './Canvas';
 
+const socketUrl = "http://localhost:3231";
 interface MyState {
     currentShape: UniversalShape;
     nextShape: UniversalShape;
@@ -19,6 +25,9 @@ interface MyState {
     columns: number;
     rows: number;
     blockSize: number;
+    socket: any;
+    user: any;
+    reciever: string;
 }
 
 interface Coordiantes {
@@ -29,6 +38,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
     canvasSide = React.createRef<HTMLCanvasElement>();
+    canvasBack2 = React.createRef<HTMLCanvasElement>();
+    canvasFront2 = React.createRef<HTMLCanvasElement>();
+    canvasSide2 = React.createRef<HTMLCanvasElement>();
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -46,8 +58,40 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             acceleration: 0,
             columns: 10,
             rows: 20,
-            blockSize: 40
+            blockSize: 40,
+            socket: null,
+            user: null,
+            reciever: ""
         }
+
+
+    }
+
+    initSocket = () => {
+        const socket = io(socketUrl);
+        socket.on('connect', () => {
+            console.log('connected')
+        })
+        this.setState({
+            socket: socket
+        })
+    }
+
+    setUser = (user: any) => {
+        console.log(user)
+        const { socket } = this.state;
+        socket.emit(USER_CONNECTED, user);
+        this.setState({
+            user: user
+        })
+    }
+
+    logout = () => {
+        const { socket } = this.state;
+        socket.emit(LOGOUT);
+        this.setState({
+            user: null
+        })
     }
 
     createEmptyMatrix = (): any[] => {
@@ -87,24 +131,13 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     componentDidMount() {
-        let c2: any = this.canvasBack.current;
-        let c1: any = this.canvasFront.current;
-        let c3: any = this.canvasSide.current;
-        const col = this.state.columns;
-        const row = this.state.rows;
-        const size = this.state.blockSize;
-        c1.width = col * size;
-        c1.height = row * size;
-        c2.width = col * size;
-        c2.height = row * size;
-        c3.width = col * size;
-        c3.height = 2 * size;
         this.setState({
             matrix: this.createEmptyMatrix(),
-         //   nextShape: this.getRandomShape(),
+            nextShape: this.getRandomShape(),
         })
-        this.createGrid(c2.getContext('2d'));
+
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
+        this.initSocket();
     }
 
     handleKeyDown = (event: any) => {
@@ -189,8 +222,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     getRandomShape = (): UniversalShape => {
         let index = Math.floor(Math.random() * Math.floor(10));
-        if(undefined == this.state){
-            return new UniversalShape(shapeCoordinates[index], 10, 20, 40); 
+        if (undefined == this.state) {
+            return new UniversalShape(shapeCoordinates[index], 10, 20, 40);
         }
         return new UniversalShape(shapeCoordinates[index], this.state.columns, this.state.rows, this.state.blockSize);
     }
@@ -199,9 +232,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         this.setState({
             running: true
         })
-        if (!this.state.running){
+        if (!this.state.running) {
             const col = this.state.columns;
-          const row = this.state.rows;
+            const row = this.state.rows;
             const size = this.state.blockSize;
             this.run();
             let c1: any = this.canvasBack.current;
@@ -275,6 +308,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             })
             let c1: any = this.canvasFront.current;
             let arr = this.state.matrix;
+            this.state.socket.emit(GAME_UPDATE, {matrix: arr, reciever: this.state.reciever, sender: this.state.user.name});
             const ctx1: any = c1.getContext('2d');
             ctx1.clearRect(0, 0, col * size, row * size);
             shape.moveDown();
@@ -289,10 +323,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 this.setState({
                     matrix: arr
                 })
+                
                 this.updateStateOfTheGame(shape);
                 console.log(arr);
-
+                
                 clearInterval(inter);
+
                 this.run();
 
             }
@@ -304,6 +340,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const row = this.state.rows;
         const size = this.state.blockSize;
         let c1: any = this.canvasBack.current;
+        const {socket} = this.state
         const ctx1: any = c1.getContext('2d');
         if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
@@ -318,10 +355,11 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         for (let i = 0; i < row; i++) {
             for (let j = 0; j < col; j++) {
                 if (mat[i][j]) {
-                    shape1.draw(j * size, i * size, ctx1);
+                    shape1.draw(j * size, i * size, ctx1, 'blue');
                 }
             }
         }
+        
         let total = this.state.totalScore;
         total += 10;
         let arr = this.state.allBlocks;
@@ -338,6 +376,20 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     acceleration: acc
                 })
         }
+        
+        let c2: any = this.canvasBack2.current
+        let ctx2: any = c2.getContext('2d');
+        socket.on(GAME_UPDATE, (matrix:any)=> {
+            ctx2.clearRect(0, 0, col * size, row * size);
+            this.createGrid(ctx2);
+            for (let i = 0; i < row; i++) {
+                for (let j = 0; j < col; j++) {
+                    if (matrix[i][j]) {
+                        shape1.draw(j * size, i * size, ctx2, 'red');
+                    }
+                }
+            }
+        })
     }
 
     isGameOver = () => {
@@ -462,28 +514,51 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             });
         }
     }
-
+    setReciever = (event: any) => {
+        this.setState({
+            reciever: event.target.value
+        })
+    }
     render() {
-        const style = { "height": this.state.rows * this.state.blockSize, "width": this.state.columns * this.state.blockSize };
-        const style2 = { "height": 2 * this.state.blockSize, "width": this.state.columns * this.state.blockSize };
+        const { columns, rows, blockSize, score, totalScore, socket, user } = this.state;
+        
         return (
             <div onKeyUp={this.onKeyUp} >
+                <div>{
+                    !user ?
+                        <LoginForm socket={this.state.socket} setUser={this.setUser} /> :
+                        <ChatContainer socket={this.state.socket} user={this.state.user} logout={this.logout} onChange={this.setReciever}/>
+                }
+                </div>
                 <div className='wrap'>
-
-                    <div className='canvasBlock'>
-                        <canvas className='FrontCanvas' style={style} ref={this.canvasFront}></canvas>
-                        <canvas className='BackCanvas' style={style} ref={this.canvasBack}></canvas>
-
-                    </div>
-                    <div className='sideBlock'>
-                        <canvas className='SideCanvas' style={style2} ref={this.canvasSide}></canvas>
-
-                        <div>Rows Cleared: {this.state.score}</div>
-                        <div>Score: {this.state.totalScore}</div>
-                        <div className='buttonsBlock'>
-                            <button onClick={this.startGame}>Start</button><br></br>
-                        </div>
-                    </div>
+                    <Canvas
+                        rows={rows}
+                        columns={columns}
+                        blockSize={blockSize}
+                        rowScore={score}
+                        totalScore={totalScore}
+                        startGame={user?this.startGame: null}
+                        canvasFront={this.canvasFront}
+                        canvasBack={this.canvasBack}
+                        canvasSide={this.canvasSide}
+                        socket={socket}
+                        user={user} />
+                </div>
+                <div className='wrap'>
+                    
+                        <Canvas
+                            rows={rows}
+                            columns={columns}
+                            blockSize={blockSize}
+                            rowScore={score}
+                            totalScore={totalScore}
+                            startGame={null}
+                            canvasFront={this.canvasFront2}
+                            canvasBack={this.canvasBack2}
+                            canvasSide={this.canvasSide2}
+                            socket={socket}
+                            user={user} />
+                    
                 </div>
 
             </div>
