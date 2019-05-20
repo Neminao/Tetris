@@ -19,6 +19,11 @@ class UniversalShape {
         this.size = size;
         this.currentPosition = 0;
     }
+    defineNewProperties(blocksArr: any[]){      
+        this.blocksArr = blocksArr.map((elem: any) => {
+            return new BaseBuildingSquare(elem.left, elem.top, 'red', this.size)
+        });
+        }
     fillArr(arr: any, size: number, columns: number): BaseBuildingSquare[] {
         let array: BaseBuildingSquare[] = [];
         arr.forEach((elem: any) => {

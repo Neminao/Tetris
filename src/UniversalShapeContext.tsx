@@ -129,7 +129,26 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             return copy;
         }
     }
-
+    updateSecondCanvas = (obj: any) => {
+        const {socket, columns, blockSize, rows} = this.state;
+        const shape1 = new BaseBuildingSquare(0, 0, 'blue', blockSize)
+        let c2: any = this.canvasBack2.current
+        let ctx2: any = c2.getContext('2d');
+        ctx2.clearRect(0, 0, columns * blockSize, rows * blockSize);
+            let shape = new UniversalShape(obj.shape.coordiantesArr, columns, rows, blockSize);
+            shape.defineNewProperties(obj.shape.blocksArr);
+            this.createGrid(ctx2);
+            shape.updateCanvas(ctx2)
+          
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < columns; j++) {
+                    if (obj.matrix[i][j]) {
+                        shape1.draw(j * blockSize, i * blockSize, ctx2, 'red');
+                    }
+                }
+            }
+           
+    }
     componentDidMount() {
         this.setState({
             matrix: this.createEmptyMatrix(),
@@ -139,7 +158,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         this.initSocket();
     }
-
     handleKeyDown = (event: any) => {
         if (this.state.running) {
             let c1: any = this.canvasFront.current;
@@ -296,6 +314,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
+        const socket = this.state.socket;
+        let arr = this.state.matrix;
+        socket.emit(GAME_UPDATE, {matrix: arr, shape: shape, reciever: this.state.reciever, sender: this.state.user.name});
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -307,11 +328,14 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 delay: 1
             })
             let c1: any = this.canvasFront.current;
-            let arr = this.state.matrix;
-            this.state.socket.emit(GAME_UPDATE, {matrix: arr, reciever: this.state.reciever, sender: this.state.user.name});
+           
+            
             const ctx1: any = c1.getContext('2d');
             ctx1.clearRect(0, 0, col * size, row * size);
             shape.moveDown();
+            socket.on(GAME_UPDATE, (obj: any) => {
+                this.updateSecondCanvas(obj);
+            })
             if (shape.areBlocksFreeToMoveDown(arr))
                 shape.updateCanvas(ctx1);
 
@@ -332,6 +356,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 this.run();
 
             }
+
         }
     }
 
@@ -377,19 +402,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 })
         }
         
-        let c2: any = this.canvasBack2.current
-        let ctx2: any = c2.getContext('2d');
-        socket.on(GAME_UPDATE, (matrix:any)=> {
-            ctx2.clearRect(0, 0, col * size, row * size);
-            this.createGrid(ctx2);
-            for (let i = 0; i < row; i++) {
-                for (let j = 0; j < col; j++) {
-                    if (matrix[i][j]) {
-                        shape1.draw(j * size, i * size, ctx2, 'red');
-                    }
-                }
-            }
-        })
+        
     }
 
     isGameOver = () => {

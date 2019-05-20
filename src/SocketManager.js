@@ -25,10 +25,10 @@ socket.on(USER_CONNECTED, (user)=>{
     io.emit(USER_CONNECTED, connectedUsers)
     console.log(connectedUsers)
 })
-socket.on(GAME_UPDATE, ({matrix, reciever, sender}) => {
+socket.on(GAME_UPDATE, ({matrix, shape, reciever, sender}) => {
     if(reciever in connectedUsers){
         const recSocket = connectedUsers[reciever].socketID;
-        socket.to(recSocket).emit(GAME_UPDATE, matrix);
+        socket.to(recSocket).emit(GAME_UPDATE, {matrix: matrix, shape: shape});
     }
 })
 }

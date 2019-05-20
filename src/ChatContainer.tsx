@@ -1,6 +1,5 @@
 import React from 'react'
 import GAME_UPDATE from './Events'
-import { AnyARecord } from 'dns';
 
 
 class ChatContainer extends React.Component<{user: any, logout: any, socket: any, onChange: any}, {}>{
