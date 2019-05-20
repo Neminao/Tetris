@@ -6,11 +6,15 @@ In the project directory, you can run:
 
 ### `npm run start`
 
-Runs react
+Runs project
 
 ### `npm run server`
 
 Runs server
+
+### `npm run react`
+
+Runs react
 
 ### `npm start`
 
