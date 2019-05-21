@@ -41,7 +41,7 @@ class LoginForm extends React.Component<{socket: any; setUser: any;},{nickname: 
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
-                <label htmlFor='nickname'>Nickname?</label>
+                <label htmlFor='nickname'>Enter your nickname:</label><br></br>
                 <input 
                 ref = {(input)=>{this.textInput = input}}
                 type = 'text'

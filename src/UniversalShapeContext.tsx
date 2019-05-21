@@ -16,6 +16,8 @@ interface MyState {
     running: boolean;
     matrix: any[];
     score: number;
+    scorePlayer2: number;
+    totalScorePlayer2: number;
     totalScore: number;
     speed: number;
     counterId: number;
@@ -61,7 +63,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             blockSize: 40,
             socket: null,
             user: null,
-            reciever: ""
+            reciever: "",
+            scorePlayer2: 0,
+            totalScorePlayer2: 0
         }
 
 
@@ -86,7 +90,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
 
-    logout = () => {
+    logout = (e: any) => {
+        e.preventDefault();
         const { socket } = this.state;
         socket.emit(LOGOUT);
         this.setState({
@@ -129,26 +134,31 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             return copy;
         }
     }
+
     updateSecondCanvas = (obj: any) => {
-        const {socket, columns, blockSize, rows} = this.state;
+        const { columns, blockSize, rows } = this.state;
         const shape1 = new BaseBuildingSquare(0, 0, 'blue', blockSize)
         let c2: any = this.canvasBack2.current
         let ctx2: any = c2.getContext('2d');
         ctx2.clearRect(0, 0, columns * blockSize, rows * blockSize);
-            let shape = new UniversalShape(obj.shape.coordiantesArr, columns, rows, blockSize);
-            shape.defineNewProperties(obj.shape.blocksArr);
-            this.createGrid(ctx2);
-            shape.updateCanvas(ctx2)
-          
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < columns; j++) {
-                    if (obj.matrix[i][j]) {
-                        shape1.draw(j * blockSize, i * blockSize, ctx2, 'red');
-                    }
+        let shape = new UniversalShape(obj.shape.coordiantesArr, columns, rows, blockSize);
+        shape.defineNewProperties(obj.shape.blocksArr);
+        this.createGrid(ctx2);
+        shape.updateCanvas(ctx2)
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                if (obj.matrix[i][j]) {
+                    shape1.draw(j * blockSize, i * blockSize, ctx2, 'red');
                 }
             }
-           
+        }
+        this.setState({
+            totalScorePlayer2: obj.totalScore,
+            scorePlayer2: obj.score
+        })
     }
+
     componentDidMount() {
         this.setState({
             matrix: this.createEmptyMatrix(),
@@ -158,6 +168,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         this.initSocket();
     }
+
     handleKeyDown = (event: any) => {
         if (this.state.running) {
             let c1: any = this.canvasFront.current;
@@ -314,9 +325,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        const socket = this.state.socket;
+        const { socket, totalScore, score } = this.state;
         let arr = this.state.matrix;
-        socket.emit(GAME_UPDATE, {matrix: arr, shape: shape, reciever: this.state.reciever, sender: this.state.user.name});
+        socket.emit(GAME_UPDATE, { matrix: arr, shape: shape, reciever: this.state.reciever, sender: this.state.user.name, totalScore, score });
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -328,8 +339,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 delay: 1
             })
             let c1: any = this.canvasFront.current;
-           
-            
+
+
             const ctx1: any = c1.getContext('2d');
             ctx1.clearRect(0, 0, col * size, row * size);
             shape.moveDown();
@@ -347,10 +358,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 this.setState({
                     matrix: arr
                 })
-                
+
                 this.updateStateOfTheGame(shape);
                 console.log(arr);
-                
+
                 clearInterval(inter);
 
                 this.run();
@@ -365,7 +376,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const row = this.state.rows;
         const size = this.state.blockSize;
         let c1: any = this.canvasBack.current;
-        const {socket} = this.state
+        const { socket } = this.state
         const ctx1: any = c1.getContext('2d');
         if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
@@ -384,7 +395,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 }
             }
         }
-        
+
         let total = this.state.totalScore;
         total += 10;
         let arr = this.state.allBlocks;
@@ -401,8 +412,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     acceleration: acc
                 })
         }
-        
-        
+
+
     }
 
     isGameOver = () => {
@@ -533,50 +544,51 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
     render() {
-        const { columns, rows, blockSize, score, totalScore, socket, user } = this.state;
-        
+        const { columns, rows, blockSize, score, totalScore, socket, user, scorePlayer2, totalScorePlayer2 } = this.state;
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div>{
                     !user ?
-                        <LoginForm socket={this.state.socket} setUser={this.setUser} /> :
-                        <ChatContainer socket={this.state.socket} user={this.state.user} logout={this.logout} onChange={this.setReciever}/>
-                }
-                </div>
-                <div className='wrap'>
-                    <Canvas
-                        rows={rows}
-                        columns={columns}
-                        blockSize={blockSize}
-                        rowScore={score}
-                        totalScore={totalScore}
-                        startGame={user?this.startGame: null}
-                        canvasFront={this.canvasFront}
-                        canvasBack={this.canvasBack}
-                        canvasSide={this.canvasSide}
-                        socket={socket}
-                        user={user} />
-                </div>
-                <div className='wrap'>
-                    
-                        <Canvas
-                            rows={rows}
-                            columns={columns}
-                            blockSize={blockSize}
-                            rowScore={score}
-                            totalScore={totalScore}
-                            startGame={null}
-                            canvasFront={this.canvasFront2}
-                            canvasBack={this.canvasBack2}
-                            canvasSide={this.canvasSide2}
-                            socket={socket}
-                            user={user} />
-                    
-                </div>
+                        <LoginForm socket={socket} setUser={this.setUser} /> : <div>
+                            <ChatContainer socket={socket} user={user} logout={this.logout} onChange={this.setReciever} />
+                            
+                
+                        <div className='wrap'>
+                            <Canvas
+                                rows={rows}
+                                columns={columns}
+                                blockSize={blockSize}
+                                rowScore={score}
+                                totalScore={totalScore}
+                                startGame={user ? this.startGame : null}
+                                canvasFront={this.canvasFront}
+                                canvasBack={this.canvasBack}
+                                canvasSide={this.canvasSide}
+                                socket={socket}
+                                user={user} />
+                        </div>
+                        <div className='wrap'>
 
+                            <Canvas
+                                rows={rows}
+                                columns={columns}
+                                blockSize={blockSize}
+                                rowScore={scorePlayer2}
+                                totalScore={totalScorePlayer2}
+                                startGame={null}
+                                canvasFront={this.canvasFront2}
+                                canvasBack={this.canvasBack2}
+                                canvasSide={this.canvasSide2}
+                                socket={socket}
+                                user={user} />
+
+                        </div>
+                   </div>
+                   }
             </div>
-        )
-    }
-}
-
+            </div>
+                )
+            }
+        }
+        
 export default UniversalShapeContext
