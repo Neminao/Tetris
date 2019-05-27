@@ -1,11 +1,23 @@
 import React from 'react'
-import GAME_UPDATE from './Events'
+import {GAME_UPDATE, GAME_START, USER_READY} from './Events'
+import { userInfo } from 'os';
 
 class Canvas extends React.Component<
-    { rows: number, columns: number, blockSize: number, rowScore: number, totalScore: number, startGame: any, canvasFront: any, canvasBack: any, canvasSide: any, socket: any, user: any },
-    {}> {
+    { rows: number, reciever: string, setGeneratedShapes: any, columns: number, blockSize: number, rowScore: number, totalScore: number, startGame: any, canvasFront: any, canvasBack: any, canvasSide: any, socket: any, user: any },
+    {start: boolean}> {
+        constructor(props: any){
+            super(props);
+            this.state={
+                start: false
+            }
+        }
     componentDidMount() {
-        const { socket, canvasBack, canvasFront, canvasSide, rows, columns, blockSize } = this.props;
+        const { socket, canvasBack, canvasFront, canvasSide, rows, columns, blockSize, user, reciever, startGame } = this.props;
+        socket.on(USER_READY, (generatedShapes: any)=>{
+            this.props.setGeneratedShapes(generatedShapes);
+        })
+        console.log(user+" "+ reciever)
+        socket.emit(GAME_START, {sender: user, reciever})
         if (canvasBack) {
             let c2: any = canvasBack.current;
             let c1: any = canvasFront.current;
@@ -19,7 +31,16 @@ class Canvas extends React.Component<
             c3.height = blockSize * 2;
             this.createGrid(c2.getContext('2d'));
         }
-        
+        socket.on(GAME_START, (bool: any)=>{
+            console.log(bool)
+        //    startGame();
+            this.setState({
+                start: bool
+            })
+        })
+        if(this.state.start){
+            
+        }
     }
     createGrid = (ctx: any) => {
         const { rows, columns, blockSize } = this.props;

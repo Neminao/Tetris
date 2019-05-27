@@ -1,6 +1,11 @@
 import uuidv4 from 'uuid/v4';
 
-export const createUser = ( name: string) => ({
+export const createUser = ({name = "", socketID = null, inGame = false, isReady = true} = {}) => ({
     id: uuidv4(),
-    name: name
+    name,
+		socketID,
+		inGame,
+		isReady
 })
+
+
