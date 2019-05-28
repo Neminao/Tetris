@@ -20,7 +20,7 @@ module.exports = function (socket) {
         if ("user" in socket) {
             connectedUsers = removeUser(connectedUsers, socket.user.name);
 
-            io.emit(USER_DISCONNECTED, connectedUsers);
+            io.emit(USER_DISCONNECTED, connectedUsers); 
         }
     })
 
@@ -43,35 +43,42 @@ module.exports = function (socket) {
         io.emit(USER_DISCONNECTED, connectedUsers);
         console.log("Disconnect", connectedUsers);
     })
-
-    socket.on(GAME_INIT, () => {
+    
+    socket.on(GAME_INIT, () => {       
         socket.emit(GAME_INIT, generateShapes());
     })
 
-    socket.on(USER_READY, ({ to }) => {
+    socket.on(USER_READY, ({to, user})=>{
         if (to in connectedUsers) {
-            const recSocket = connectedUsers[to].socketID;
+            let recSocket = connectedUsers[to];
+            let current = connectedUsers[user];
+            recSocket.inGame = true;
+            current.inGame = true;
             const generatedShapes = generateShapes()
-            socket.to(recSocket).emit(USER_READY, generatedShapes);
+            socket.to(recSocket.socketID).emit(USER_READY, generatedShapes);
             socket.emit(USER_READY, generatedShapes)
         }
     })
 
-    socket.on(GAME_START, (to) => {
-        console.log('to: ' + to);
+    socket.on(GAME_START, ({to, user}) => {
+        console.log('to: '+to);
         const rec = connectedUsers[to];
-        socket.emit(GAME_START, { start: true });
-        if (to)
-            socket.to(rec.socketID).emit(GAME_START, { start: true });
+        const current = connectedUsers[user];
+           // if(!current.inGame)
+            socket.emit(GAME_START, {start: true});
+            if(to){
+          //  if(!to.inGame)
+            socket.to(rec.socketID).emit(GAME_START, {start: true});
+            }
     })
 
-    socket.on(USER_IN_GAME, ({ username }) => {
+    socket.on(USER_IN_GAME, ({username})=>{
         connectedUsers[username].inGame = true;
         io.emit(USER_CONNECTED, connectedUsers);
     })
-    socket.on(GAME_REQUEST, ({ sender, reciever }) => {
+    socket.on(GAME_REQUEST, ({sender, reciever})=>{
         const rec = connectedUsers[reciever]
-        socket.to(rec.socketID).emit(GAME_REQUEST, { sender });
+        socket.to(rec.socketID).emit(GAME_REQUEST, {sender});  
     })
 }
 
@@ -80,7 +87,7 @@ function isUser(userList, username) {
 }
 
 function addUser(userList, user) {
-    let newList = Object.assign({}, userList);
+    let newList = Object.assign({}, userList); 
     newList[user.name] = user;
     return newList;
 }

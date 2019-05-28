@@ -13,7 +13,8 @@ class UserContainer extends React.Component<{
         users: any[],
         reqSent: boolean,
         sender: string,
-        showReq: boolean
+        showReq: boolean,
+        to: string
     }>{
     constructor(props: any) {
         super(props);
@@ -21,7 +22,8 @@ class UserContainer extends React.Component<{
             users: [],
             reqSent: false,
             sender: '',
-            showReq: true
+            showReq: true,
+            to: ''
         }
     }
     componentDidMount() {
@@ -42,16 +44,17 @@ class UserContainer extends React.Component<{
         socket.on(GAME_START, ({ start }: any) => {
             //   this.props.setReciever(this.state.sender)
             if (start) {
+                this.setState({reqSent: true, showReq: false });
                 this.props.startGame();
                 console.log("start: " + start)
             }
         })
     }
     accept = (to: string) => {
-        const { socket, setReciever } = this.props;
-        this.setState({ sender: to, showReq: false })
+        const { socket, setReciever, user } = this.props;
+        this.setState({ sender: to, to, showReq: false })
         setReciever(to);
-        socket.emit(USER_READY, { to });
+        socket.emit(USER_READY, { to, user });
 
     }
     decline = (to: string) => {
@@ -60,7 +63,7 @@ class UserContainer extends React.Component<{
     }
     sendInvite = (event: any) => {
         const { socket, user, setReciever } = this.props;
-        this.setState({ sender: event.target.value })
+        this.setState({ to: event.target.value })
         setReciever(event.target.value);
         socket.emit(GAME_REQUEST, { sender: user, reciever: event.target.value });
     }
@@ -75,10 +78,11 @@ class UserContainer extends React.Component<{
         this.setState({ users: users })
     }
     startGame = () => {
-        const { socket } = this.props;
-        const to = this.state.sender;
+        const { socket, user } = this.props;
+        const to = this.state.to;
         console.log("to:" + to)
-        socket.emit(GAME_START, to);
+        this.setState({showReq: false});
+        socket.emit(GAME_START, {to, user});
     }
     render = () => {
         const { user, logout, isPlayerReady } = this.props;

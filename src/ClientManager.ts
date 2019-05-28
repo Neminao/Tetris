@@ -1,7 +1,6 @@
 import io from 'socket.io-client';
-import { USER_CONNECTED, USER_DISCONNECTED, LOGOUT, GAME_UPDATE, GAME_START, GAME_INIT, USER_READY, READY, USER_IN_GAME } from './Events'
-import UniversalShape from './UniversalShape'
-import shapeCoordinates from './ShapesCoordinates';
+import { USER_CONNECTED, USER_DISCONNECTED,  GAME_UPDATE, GAME_INIT, USER_READY } from './Events'
+import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://localhost:3231";
 
