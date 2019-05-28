@@ -1,9 +1,9 @@
 import React from 'react'
-import {VERIFY_USER} from './Events'
-class LoginForm extends React.Component<{socket: any; setUser: any;},{nickname: string; error: string;}> {
-    
+import { VERIFY_USER } from './Events'
+class LoginForm extends React.Component<{ socket: any; setUser: any; }, { nickname: string; error: string; }> {
+
     textInput: HTMLInputElement | null | undefined;
-    constructor(props: any){
+    constructor(props: any) {
         super(props);
         this.state = {
             nickname: "",
@@ -11,11 +11,10 @@ class LoginForm extends React.Component<{socket: any; setUser: any;},{nickname: 
         }
     }
     setError = (error: string) => {
-        this.setState({error: error})
+        this.setState({ error: error })
     }
-    setUser = ({user, isUser}: any) => {
-        console.log(user, isUser)
-        if(isUser){
+    setUser = ({ user, isUser }: any) => {
+        if (isUser) {
             this.setError('Username taken');
         }
         else {
@@ -23,34 +22,34 @@ class LoginForm extends React.Component<{socket: any; setUser: any;},{nickname: 
             this.setError('')
         }
     }
-    handleChange = (event: any) =>{
-        const {value} = event.target
+    handleChange = (event: any) => {
+        const { value } = event.target
         this.setState({
             nickname: value
         })
     }
     handleSubmit = (event: any) => {
         event.preventDefault();
-        const {socket} = this.props;
-        const {nickname} = this.state;
+        const { socket } = this.props;
+        const { nickname } = this.state;
         socket.emit(VERIFY_USER, nickname, this.setUser);
     }
 
-    render(){
-        const {nickname, error} = this.state
+    render() {
+        const { nickname, error } = this.state
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
-                <label htmlFor='nickname'>Enter your nickname:</label><br></br>
-                <input 
-                ref = {(input)=>{this.textInput = input}}
-                type = 'text'
-                id = 'nickname'
-                value={nickname}
-                onChange = {this.handleChange}
-                placeholder = {'username'}
-                />
-                <div className="error">{error ? error: null}</div>
+                    <label htmlFor='nickname'>Enter your nickname:</label><br></br>
+                    <input
+                        ref={(input) => { this.textInput = input }}
+                        type='text'
+                        id='nickname'
+                        value={nickname}
+                        onChange={this.handleChange}
+                        placeholder={'username'}
+                    />
+                    <div className="error">{error ? error : null}</div>
                 </form>
             </div>
         )

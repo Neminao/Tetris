@@ -1,4 +1,4 @@
-import  express from "express";
+import express from "express";
 import * as socketio from "socket.io";
 import * as path from "path";
 
@@ -16,10 +16,10 @@ app.get("/", (req: any, res: any) => {
 
 // whenever a user connects on port 3000 via
 // a websocket, log that a user has connected
-io.on("connection", function(socket: any) {
+io.on("connection", function (socket: any) {
   console.log("a user connected");
 });
 
-const server = http.listen(3000, function() {
+const server = http.listen(3000, function () {
   console.log("listening on *:3000");
 });

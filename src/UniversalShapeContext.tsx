@@ -3,10 +3,11 @@ import BaseBuildingSquare from './BaseBuildingSquare';
 import UniversalShape from './UniversalShape';
 import shapeCoordinates from './ShapesCoordinates'
 import io from 'socket.io-client';
-import { USER_CONNECTED, LOGOUT, GAME_UPDATE, GAME_START, GAME_INIT, USER_READY, READY, USER_IN_GAME } from './Events'
+import { USER_CONNECTED, LOGOUT, GAME_UPDATE, GAME_INIT, USER_READY, USER_IN_GAME } from './Events'
 import LoginForm from './LoginForm'
 import UserContainer from './UserContainer'
 import Canvas from './Canvas';
+import ClientManager from './ClientManager'
 
 const socketUrl = "http://localhost:3231";
 interface MyState {
@@ -32,6 +33,7 @@ interface MyState {
     reciever: string;
     generatedShapes: any;
     generatedShapesIndex: number;
+    isPlayerReady: boolean;
 }
 
 interface Coordiantes {
@@ -69,7 +71,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             scorePlayer2: 0,
             totalScorePlayer2: 0,
             generatedShapes: null,
-            generatedShapesIndex: 0
+            generatedShapesIndex: 0,
+            isPlayerReady: false
         }
     }
 
@@ -82,33 +85,54 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
         this.initSocket();
-        
+
     }
 
     initSocket = () => {
-        const {columns, rows, blockSize} = this.state;
-        const socket = io(socketUrl);
-        socket.on('connect', () => {
-            console.log('connected')
-        })
+        const { columns, rows, blockSize } = this.state;
+        let CM = new ClientManager();
+        const socket = CM.socket;
         this.setState({
             socket: socket
         })
-        socket.emit(GAME_INIT)
-        socket.on(GAME_INIT, (shapes: any)=>{
-            let generatedShapes = shapes.map((elem: any) => {
-                return new UniversalShape(elem, columns, rows, blockSize);
-            })
-            this.setState({
-                generatedShapes,
-               nextShape: generatedShapes[0]
-            });
-            console.log(generatedShapes)
+        const generatedShapes = CM.generateShapes(columns, rows, blockSize);
+        this.setState({
+            generatedShapes,
+            nextShape: generatedShapes[0]
+        });
+        CM.updateSecondCanvas(this.updateSecondCanvas);
+        socket.on(USER_READY, (generatedShapes: any) => {
+            this.setGeneratedShapes(generatedShapes);
+        });
+
+
+        socket.on(GAME_UPDATE, (obj: any) => {
+            this.updateSecondCanvas(obj);
+        })
+
+    }
+    setGeneratedShapes = (shapes: any) => {
+        let generatedShapes = [];
+        const { columns, rows, blockSize } = this.state;
+        generatedShapes = shapes.map((elem: any) => {
+            return new UniversalShape(elem, columns, rows, blockSize);
+        });
+        //console.log(shapes)
+        this.setState({
+            generatedShapes,
+            nextShape: generatedShapes[0],
+            isPlayerReady: true
+        });
+        return generatedShapes;
+    }
+
+    changePlayerStatus = () => {
+        this.setState({
+            isPlayerReady: false
         })
     }
 
     setUser = (user: any) => {
-        console.log(user)
         const { socket } = this.state;
         socket.emit(USER_CONNECTED, user);
         this.setState({
@@ -185,7 +209,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
 
-    
+
 
     handleKeyDown = (event: any) => {
         if (this.state.running) {
@@ -276,15 +300,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     startGame = () => {
-        this.setState({
-            running: true
-        })
-        const {socket, user} = this.state;
-        socket.emit(USER_IN_GAME, {username: user.name})
+
         if (!this.state.running) {
+            const { socket, user } = this.state;
+            socket.emit(USER_IN_GAME, { username: user.name })
+
             const col = this.state.columns;
             const row = this.state.rows;
             const size = this.state.blockSize;
+
             this.run();
             let c1: any = this.canvasBack.current;
             const ctx1: any = c1.getContext('2d');
@@ -299,10 +323,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     run = () => {
+        this.setState({
+            running: true
+        })
+        console.log(this.state.user);
+        console.log(this.state.reciever);
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        const {generatedShapes} = this.state;
+        const { generatedShapes } = this.state;
         let index = this.state.generatedShapesIndex;
         let acc = this.state.acceleration;
         this.setState({
@@ -311,7 +340,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         let c1: any = this.canvasFront.current;
         const ctx1: any = c1.getContext('2d');
         index += 1;
-        this.setState({generatedShapesIndex: index});
+        this.setState({ generatedShapesIndex: index });
         const shape = generatedShapes[index];
         const next: UniversalShape = this.deepCopyShape(this.state.nextShape);
         ctx1.clearRect(0, 0, col * size, row * size);
@@ -320,7 +349,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         sidectx.clearRect(0, 0, col * size, row * size);
         if (next != null)
             next.updateCanvas(ctx1);
-        shape.updateCanvas(sidectx);
+        if (sidectx)
+            shape.updateCanvas(sidectx);
         this.setState({
             currentShape: next,
             nextShape: shape
@@ -349,9 +379,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        const { socket, totalScore, score } = this.state;
+        const { socket, totalScore, score, reciever } = this.state;
         let arr = this.state.matrix;
-        socket.emit(GAME_UPDATE, { matrix: arr, shape: shape, reciever: this.state.reciever, sender: this.state.user.name, totalScore, score });
+        socket.emit(GAME_UPDATE, { matrix: arr, shape: shape, reciever, sender: this.state.user.name, totalScore, score });
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -363,14 +393,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 delay: 1
             })
             let c1: any = this.canvasFront.current;
-
-
             const ctx1: any = c1.getContext('2d');
             ctx1.clearRect(0, 0, col * size, row * size);
             shape.moveDown();
-            socket.on(GAME_UPDATE, (obj: any) => {
-                this.updateSecondCanvas(obj);
-            })
+
             if (shape.areBlocksFreeToMoveDown(arr))
                 shape.updateCanvas(ctx1);
 
@@ -384,14 +410,11 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 })
 
                 this.updateStateOfTheGame(shape);
-               // console.log(arr);
-
+                // console.log(arr);
                 clearInterval(inter);
-
                 this.run();
 
             }
-
         }
     }
 
@@ -436,8 +459,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     acceleration: acc
                 })
         }
-
-
     }
 
     isGameOver = () => {
@@ -542,7 +563,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 const ctx1: any = c1.getContext('2d');
                 ctx1.clearRect(0, 0, size * col, size * row);
                 shape.updateCanvas(ctx1);
-               // console.log(true);
+                // console.log(true);
             }
             else {
                 shape.rotate();
@@ -552,48 +573,34 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     currentShape: shapehelp
                 })
             }
-            
+
             this.setState({
                 currentShape: shape
             });
         }
     }
-    setReciever = (event: any) => {
-        const {socket} = this.state;
-        const {value} = event.target;
-        socket.emit(USER_READY, value)
+    setReciever = (reciever: any) => {
         this.setState({
-            reciever: value
+            reciever
         })
-
-    }
-    setGeneratedShapes = (shapes: any) => {
-        const {columns, rows, blockSize} = this.state;
-        let generatedShapes = shapes.map((elem: any) => {
-            return new UniversalShape(elem, columns, rows, blockSize);
-        })
-        this.setState({
-            generatedShapes,
-           nextShape: generatedShapes[0]
-        });
-    }
-    setReady = () => {
-        const {user, socket} = this.state;
-        console.log(user.name)
-        user.isReady= true;
-        socket.emit(READY, user.name);
     }
     render() {
-        const { columns, rows, blockSize, score, totalScore, socket, user, scorePlayer2, totalScorePlayer2, reciever } = this.state;
+        const { columns, rows, blockSize, score, totalScore, socket, user, scorePlayer2, totalScorePlayer2, reciever, isPlayerReady } = this.state;
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div>{
                     !user ?
                         <LoginForm socket={socket} setUser={this.setUser} /> : <div>
-                            <UserContainer reciever={reciever} startGame={user ? this.startGame : null} socket={socket} user={user.name} logout={this.logout} setReady={this.setReady} onChange={this.setReciever} />
-                </div> }  
-                       
-                        {(reciever && user )? <div>
+                            <UserContainer
+                                setGeneratedShapes={this.setGeneratedShapes}
+                                reciever={reciever} startGame={this.startGame}
+                                socket={socket} user={user.name} logout={this.logout}
+                                setReciever={this.setReciever}
+                                isPlayerReady={isPlayerReady}
+                                changePlayerStatus={this.changePlayerStatus} />
+                        </div>}
+
+                    {(user) ? <div>
                         <div className='wrap'>
                             <Canvas
                                 rows={rows}
@@ -601,14 +608,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 blockSize={blockSize}
                                 rowScore={score}
                                 totalScore={totalScore}
-                                startGame={null}
                                 canvasFront={this.canvasFront}
                                 canvasBack={this.canvasBack}
                                 canvasSide={this.canvasSide}
-                                socket={socket}
-                                user={user.name}
-                                reciever={reciever}
-                                setGeneratedShapes = {this.setGeneratedShapes} />
+                                showSide={true} />
                         </div>
                         <div className='wrap'>
 
@@ -618,23 +621,19 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 blockSize={blockSize}
                                 rowScore={scorePlayer2}
                                 totalScore={totalScorePlayer2}
-                                startGame={null}
                                 canvasFront={this.canvasFront2}
                                 canvasBack={this.canvasBack2}
                                 canvasSide={this.canvasSide2}
-                                socket={socket}
-                                user={user.name} 
-                                reciever={reciever}
-                                setGeneratedShapes = {this.setGeneratedShapes}/>
+                                showSide={false} />
 
                         </div>
-                        </div> : null }
-                   </div>
-                   
+                    </div> : null}
+                </div>
+
             </div>
-            
-                )
-            }
-        }
-        
+
+        )
+    }
+}
+
 export default UniversalShapeContext
