@@ -1,6 +1,8 @@
 import React from 'react'
 import { VERIFY_USER } from './Events'
-class LoginForm extends React.Component<{ socket: any; setUser: any; }, { nickname: string; error: string; }> {
+import CM from './ClientManager'
+
+class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; error: string; }> {
 
     textInput: HTMLInputElement | null | undefined;
     constructor(props: any) {
@@ -30,9 +32,8 @@ class LoginForm extends React.Component<{ socket: any; setUser: any; }, { nickna
     }
     handleSubmit = (event: any) => {
         event.preventDefault();
-        const { socket } = this.props;
         const { nickname } = this.state;
-        socket.emit(VERIFY_USER, nickname, this.setUser);
+        CM.emitVerifyUser(nickname, this.setUser);
     }
 
     render() {

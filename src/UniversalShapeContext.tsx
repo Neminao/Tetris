@@ -1,15 +1,12 @@
 import React from 'react';
 import BaseBuildingSquare from './BaseBuildingSquare';
 import UniversalShape from './UniversalShape';
-import shapeCoordinates from './ShapesCoordinates'
-import io from 'socket.io-client';
-import { USER_CONNECTED, LOGOUT, GAME_UPDATE, GAME_INIT, USER_READY, USER_IN_GAME } from './Events'
-import LoginForm from './LoginForm'
-import UserContainer from './UserContainer'
+import shapeCoordinates from './ShapesCoordinates';
+import LoginForm from './LoginForm';
+import UserContainer from './UserContainer';
 import Canvas from './Canvas';
-import ClientManager from './ClientManager'
+import CM from './ClientManager';
 
-const socketUrl = "http://localhost:3231";
 interface MyState {
     currentShape: UniversalShape;
     nextShape: UniversalShape;
@@ -28,7 +25,6 @@ interface MyState {
     columns: number;
     rows: number;
     blockSize: number;
-    socket: any;
     user: any;
     reciever: string;
     generatedShapes: any;
@@ -36,10 +32,6 @@ interface MyState {
     isPlayerReady: boolean;
 }
 
-interface Coordiantes {
-    x: number;
-    y: number;
-}
 class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
@@ -65,7 +57,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             columns: 10,
             rows: 20,
             blockSize: 40,
-            socket: null,
             user: null,
             reciever: "",
             scorePlayer2: 0,
@@ -90,27 +81,17 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     initSocket = () => {
         const { columns, rows, blockSize } = this.state;
-        let CM = new ClientManager();
-        const socket = CM.socket;
-        this.setState({
-            socket: socket
-        })
         const generatedShapes = CM.generateShapes(columns, rows, blockSize);
         this.setState({
             generatedShapes,
             nextShape: generatedShapes[0]
         });
         CM.updateSecondCanvas(this.updateSecondCanvas);
-        socket.on(USER_READY, (generatedShapes: any) => {
-            this.setGeneratedShapes(generatedShapes);
-        });
-
-
-        socket.on(GAME_UPDATE, (obj: any) => {
-            this.updateSecondCanvas(obj);
-        })
+        CM.updateShapesWhenReady(this.setGeneratedShapes);
+        CM.updateGame(this.updateSecondCanvas);
 
     }
+
     setGeneratedShapes = (shapes: any) => {
         let generatedShapes = [];
         const { columns, rows, blockSize } = this.state;
@@ -126,6 +107,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         return generatedShapes;
     }
 
+    setPlayerReady = () => {
+        this.setState({isPlayerReady: true})
+    }
+
     changePlayerStatus = () => {
         this.setState({
             isPlayerReady: false
@@ -133,17 +118,13 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     setUser = (user: any) => {
-        const { socket } = this.state;
-        socket.emit(USER_CONNECTED, user);
-        this.setState({
-            user: user
-        })
+        CM.emitUserConnected(user);
+        this.setState({ user })
     }
 
     logout = (e: any) => {
         e.preventDefault();
-        const { socket } = this.state;
-        socket.emit(LOGOUT);
+        CM.emitLogout();
         this.setState({
             user: null
         })
@@ -302,9 +283,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     startGame = () => {
 
         if (!this.state.running) {
-            const { socket, user } = this.state;
-            socket.emit(USER_IN_GAME, { username: user.name })
-
+            const { user } = this.state;
+            CM.emitUserInGame(user.name);
             const col = this.state.columns;
             const row = this.state.rows;
             const size = this.state.blockSize;
@@ -379,9 +359,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        const { socket, totalScore, score, reciever } = this.state;
+        const { totalScore, score, reciever, user } = this.state;
         let arr = this.state.matrix;
-        socket.emit(GAME_UPDATE, { matrix: arr, shape: shape, reciever, sender: this.state.user.name, totalScore, score });
+        CM.emitGameUpdate(arr, shape, reciever, user.name, totalScore, score);
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -423,7 +403,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const row = this.state.rows;
         const size = this.state.blockSize;
         let c1: any = this.canvasBack.current;
-        const { socket } = this.state
         const ctx1: any = c1.getContext('2d');
         if (this.isRowComplete().length > 0) {
             this.isRowComplete().forEach(index => {
@@ -585,16 +564,16 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
     render() {
-        const { columns, rows, blockSize, score, totalScore, socket, user, scorePlayer2, totalScorePlayer2, reciever, isPlayerReady } = this.state;
+        const { columns, rows, blockSize, score, totalScore, user, scorePlayer2, totalScorePlayer2, reciever, isPlayerReady } = this.state;
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div>{
                     !user ?
-                        <LoginForm socket={socket} setUser={this.setUser} /> : <div>
+                        <LoginForm setUser={this.setUser} /> : <div>
                             <UserContainer
                                 setGeneratedShapes={this.setGeneratedShapes}
                                 reciever={reciever} startGame={this.startGame}
-                                socket={socket} user={user.name} logout={this.logout}
+                                user={user.name} logout={this.logout}
                                 setReciever={this.setReciever}
                                 isPlayerReady={isPlayerReady}
                                 changePlayerStatus={this.changePlayerStatus} />
