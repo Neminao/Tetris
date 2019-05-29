@@ -49,7 +49,7 @@ class Canvas extends React.Component<
 
     render() {
 
-        const { rows, columns, blockSize, rowScore, totalScore, canvasFront, canvasBack, canvasSide } = this.props
+        const { rows, columns, blockSize, rowScore, totalScore, canvasFront, canvasBack, canvasSide, showSide } = this.props
         const style = { "height": rows * blockSize, "width": columns * blockSize };
         const style2 = { "height": blockSize * 2, "width": columns * blockSize };
         return (
@@ -62,7 +62,7 @@ class Canvas extends React.Component<
                 </div>
 
                 <div className='sideBlock'>
-                    <canvas className='SideCanvas' style={style2} ref={canvasSide}></canvas>
+                    {showSide ? <canvas className='SideCanvas' style={style2} ref={canvasSide}></canvas> : null }
 
                     <div>Rows Cleared: {rowScore}</div>
                     <div>Score: {totalScore}</div>

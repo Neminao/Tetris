@@ -98,7 +98,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         generatedShapes = shapes.map((elem: any) => {
             return new UniversalShape(elem, columns, rows, blockSize);
         });
-        //console.log(shapes)
         this.setState({
             generatedShapes,
             nextShape: generatedShapes[0],
@@ -124,7 +123,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     logout = (e: any) => {
         e.preventDefault();
-        CM.emitLogout();
+        CM.emitLogout(this.stopGame);
         this.setState({
             user: null
         })
@@ -356,12 +355,11 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     moveShape = (shape: any, inter: any) => { // temp
         let delay = this.state.delay;
-        const col = this.state.columns;
-        const row = this.state.rows;
-        const size = this.state.blockSize;
-        const { totalScore, score, reciever, user } = this.state;
+        const {user, columns, rows, blockSize, totalScore, score, reciever} = this.state;
         let arr = this.state.matrix;
+        if(user){
         CM.emitGameUpdate(arr, shape, reciever, user.name, totalScore, score);
+    }
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -373,17 +371,19 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 delay: 1
             })
             let c1: any = this.canvasFront.current;
+            if(c1){
             const ctx1: any = c1.getContext('2d');
-            ctx1.clearRect(0, 0, col * size, row * size);
+            ctx1.clearRect(0, 0, columns * blockSize, rows * blockSize);
+            
             shape.moveDown();
 
             if (shape.areBlocksFreeToMoveDown(arr))
                 shape.updateCanvas(ctx1);
-
+            }
             if (!shape.areBlocksFreeToMoveDown(arr)) {
                 this.state.currentShape.moveBack();
                 this.state.currentShape.blocksArr.forEach((element: any) => {
-                    arr[element.top / size][element.left / size] = true;
+                    arr[element.top / blockSize][element.left / blockSize] = true;
                 });
                 this.setState({
                     matrix: arr
@@ -397,7 +397,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             }
         }
     }
-
+    stopGame = () => {
+        clearInterval(this.state.counterId);
+    }
     updateStateOfTheGame = (shape: any) => { // temp
         const col = this.state.columns;
         const row = this.state.rows;
@@ -456,8 +458,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     clearRow = (index: number) => {
         const col = this.state.columns;
-        const row = this.state.rows;
-        const size = this.state.blockSize;
         let mat = this.state.matrix;
         function x() {
             let sub: boolean[] = [];
@@ -482,7 +482,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     isRowComplete = () => {
         const col = this.state.columns;
         const row = this.state.rows;
-        const size = this.state.blockSize;
         const arr = this.state.matrix;
         let numArr = []
         for (let i = 0; i < row; i++) {

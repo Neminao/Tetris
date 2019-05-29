@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, READY, USER_IN_GAME, GAME_REQUEST } = require('../Events.js')
+const { VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories')
 
@@ -52,22 +52,22 @@ module.exports = function (socket) {
         if (to in connectedUsers) {
             let recSocket = connectedUsers[to];
             let current = connectedUsers[user];
+            if(!current.inGame && !recSocket.inGame){
             recSocket.inGame = true;
             current.inGame = true;
+            console.log("rec: " + recSocket.inGame);
+            console.log("curr: " + current.inGame);
             const generatedShapes = generateShapes()
             socket.to(recSocket.socketID).emit(USER_READY, generatedShapes);
             socket.emit(USER_READY, generatedShapes)
-        }
+        }}
     })
 
     socket.on(GAME_START, ({to, user}) => {
         console.log('to: '+to);
         const rec = connectedUsers[to];
-        const current = connectedUsers[user];
-           // if(!current.inGame)
             socket.emit(GAME_START, {start: true});
             if(to){
-          //  if(!to.inGame)
             socket.to(rec.socketID).emit(GAME_START, {start: true});
             }
     })

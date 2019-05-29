@@ -61,19 +61,20 @@ class ClientManager {
         this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score });
     }
     emitUserInGame = (username: string) => {
-        this.socket.emit(USER_IN_GAME, { username});
+        this.socket.emit(USER_IN_GAME, { username });
     }
-    emitLogout = () => {
+    emitLogout = (stopGame: any) => {
+        stopGame();
         this.socket.emit(LOGOUT);
     }
     emitUserConnected = (user: any) => {
         this.socket.emit(USER_CONNECTED, user);
     }
-    emitUserReady = (to: string, user:string) => {
+    emitUserReady = (to: string, user: string) => {
         this.socket.emit(USER_READY, { to, user });
     }
-    emitGameRequest = (sender: string, reciever: string ) => {
-        this.socket.emit(GAME_REQUEST, { sender, reciever});
+    emitGameRequest = (sender: string, reciever: string) => {
+        this.socket.emit(GAME_REQUEST, { sender, reciever });
     }
     emitGameStart = (to: string, user: string) => {
         this.socket.emit(GAME_START, { to, user });
@@ -82,8 +83,6 @@ class ClientManager {
         this.socket.emit(VERIFY_USER, nickname, setUser);
     }
 }
-
-//export default ClientManager
 
 let CM = new ClientManager();
 export default CM;
