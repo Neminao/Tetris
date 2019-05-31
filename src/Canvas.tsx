@@ -2,30 +2,24 @@ import React from 'react'
 
 class Canvas extends React.Component<
     {
-        showSide: boolean, rows: number,
-        columns: number, blockSize: number,
-        rowScore: number, totalScore: number, canvasFront: any,
-        canvasBack: any, canvasSide: any
+         rows: number,
+        columns: number, blockSize: number, canvasFront: any,
+        canvasBack: any, 
     },
     {}> {
     constructor(props: any) {
         super(props);
     }
     componentDidMount() {
-        const { canvasBack, canvasFront, canvasSide, rows, columns, blockSize } = this.props;
+        const { canvasBack, canvasFront, rows, columns, blockSize } = this.props;
         if (canvasBack) {
             let c2: any = canvasBack.current;
             let c1: any = canvasFront.current;
-            let c3: any = canvasSide.current;
 
             c1.width = columns * blockSize;
             c1.height = rows * blockSize;
             c2.width = columns * blockSize;
             c2.height = rows * blockSize;
-            if (null != c3) {
-                c3.width = columns * blockSize;
-                c3.height = blockSize * 2;
-            }
             this.createGrid(c2.getContext('2d'));
         }
     }
@@ -48,10 +42,8 @@ class Canvas extends React.Component<
     }
 
     render() {
-
-        const { rows, columns, blockSize, rowScore, totalScore, canvasFront, canvasBack, canvasSide, showSide } = this.props
+        const { rows, columns, blockSize, canvasFront, canvasBack } = this.props
         const style = { "height": rows * blockSize, "width": columns * blockSize };
-        const style2 = { "height": blockSize * 2, "width": columns * blockSize };
         return (
             <div >
 
@@ -61,13 +53,6 @@ class Canvas extends React.Component<
 
                 </div>
 
-                <div className='sideBlock'>
-                    {showSide ? <canvas className='SideCanvas' style={style2} ref={canvasSide}></canvas> : null }
-
-                    <div>Rows Cleared: {rowScore}</div>
-                    <div>Score: {totalScore}</div>
-
-                </div>
             </div>
         )
     }

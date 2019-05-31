@@ -7,7 +7,7 @@ import CM from './ClientManager'
 class UserContainer extends React.Component<{
     user: any, logout: any, setGeneratedShapes: any,
     setReciever: any, reciever: string, startGame: any, isPlayerReady: boolean,
-    changePlayerStatus: any
+    changePlayerStatus: any, running: boolean, reset: any
 },
     {
         users: any[],
@@ -54,7 +54,7 @@ class UserContainer extends React.Component<{
         let users: any = [];
         users = values(allUsers).map((u) => {
             if (u.name != user && !u.inGame) {
-                return <button value={u.name} onClick={this.sendInvite}>{u.name}</button>
+                return <button value={u.name} className={'sideBtn'} onClick={this.sendInvite}>{u.name}</button>
             }
         })
         this.setState({ users: users })
@@ -67,18 +67,19 @@ class UserContainer extends React.Component<{
         CM.emitGameStart(to, user);
     }
     render = () => {
-        const { user, logout, isPlayerReady } = this.props;
+        const { user, logout, isPlayerReady, running, reset } = this.props;
         const { sender, reqSent, showReq } = this.state;
         return (
-            <div>User:
-            {user}
-                <button onClick={logout}>Logout</button>
+            <div>
+                {!running ? <div className={'sideTab'}>Select player:{this.state.users}</div> :null}
+                <div className={"userInfo"}>User: {user} <button onClick={logout}>Logout</button></div>
+                <button onClick={reset}>Reset</button>
                 <div>
-                    {this.state.users}
+                    
                 </div>
                 {(reqSent && showReq) ? <GameRequest name={sender} accept={this.accept} /> : null}
                 {(isPlayerReady) ? <div className='buttonsBlock'>
-                    <button onClick={this.startGame}>Start</button><br></br>
+                    <button className={'startBtn'} onClick={this.startGame}>Start</button><br></br>
                 </div> : null}
 
             </div>

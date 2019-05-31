@@ -9,25 +9,28 @@ class UniversalShape {
     rows: number;
     size: number;
     currentPosition: number;
-    constructor(arr: any[], columns: number, rows: number, size: number) {
+    color: string;
+    constructor(arr: any[], columns: number, rows: number, size: number, color: string) {
         this.coordiantesArr = arr
-        this.blocksArr = this.fillArr(arr[0], size, columns);
+
         this.top = 0;
         this.left = 0;
         this.rows = rows;
         this.columns = columns;
         this.size = size;
         this.currentPosition = 0;
+        this.color = color;
+        this.blocksArr = this.fillArr(arr[0], size, columns);
     }
-    defineNewProperties(blocksArr: any[]){      
+    defineNewProperties(blocksArr: any[], scale: number) {
         this.blocksArr = blocksArr.map((elem: any) => {
-            return new BaseBuildingSquare(elem.left, elem.top, 'red', this.size)
+            return new BaseBuildingSquare(elem.left * scale, elem.top * scale, 'red', this.size)
         });
-        }
+    }
     fillArr(arr: any, size: number, columns: number): BaseBuildingSquare[] {
         let array: BaseBuildingSquare[] = [];
         arr.forEach((elem: any) => {
-            array.push(new BaseBuildingSquare((elem.x + Math.floor(columns / 2) - 1) * size, elem.y * size, 'blue', size))
+            array.push(new BaseBuildingSquare((elem.x + Math.floor(columns / 2) - 1) * size, elem.y * size, this.color, size))
         })
         return array;
     }
@@ -60,7 +63,7 @@ class UniversalShape {
     }
     updateCanvas(ctx: any) {
         this.blocksArr.forEach(elem => {
-            elem.updateCanvas(ctx);
+            elem.updateCanvas(ctx, this.color);
         })
     }
     areBlocksFreeToMoveLeft(matrix: any) {
@@ -90,10 +93,10 @@ class UniversalShape {
         })
         return pom;
     }
-    rotate() {   
+    rotate() {
         let i = this.currentPosition;
         let blockStates = this.coordiantesArr
-        if (i < blockStates.length -1 ) {
+        if (i < blockStates.length - 1) {
             i += 1;
             this.blocksArr = this.fillArr(this.moveAdjustment(blockStates[i]), this.size, this.columns);
             this.currentPosition = i;

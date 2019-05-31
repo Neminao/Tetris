@@ -1,4 +1,7 @@
 body {
+  background-color: black;
+  background-image: url('../src/img/computer-3163437.png');
+  
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -6,6 +9,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-position: left top;
+  background-attachment: fixed;
 }
 
 code {
@@ -16,7 +21,7 @@ code {
 canvas {
   width: 400px;
   height: 800px;
-  background-color: white;
+  background-color: gray;
   position: relative;
   border: 1px solid black;
 }
@@ -34,6 +39,7 @@ button {
 .BackCanvas {
   position: relative;
   background: none;
+  background-color: gray;
 }
 
 .FrontCanvas {
@@ -50,9 +56,123 @@ button {
   float:left;
 }
 
-.wrap {
-  margin-top: 50px;
- margin-left:5%;
+.main {
+  margin-top: 30px;
+ margin-left:180px;
  position: static;
  float: left;
+ width: 850px;
+ padding-left: 20px;
+}
+.wrap {
+ position: static;
+}
+.sideWrap {
+ margin-left:420px;
+ 
+ position: static;
+}
+
+.loginForm {
+  position: absolute;
+  padding-top: 100px;
+  top: 40%;
+  left: 50%;
+  width: 400px;
+  height: 220px;
+  margin: -150px 0 0 -200px;
+  font-size: 30px;
+  border: solid 5px rgba(217, 253, 220, 0.788);
+  border-radius: 10px;
+  background-color: white;
+}
+.loginForm input {
+  border: none;
+  border-bottom: solid 3px gray;
+  width: 300px;
+  height: 35px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.userInfo {
+  height: 50px;
+  font-size: 30px;
+  background-color: white;
+}
+
+.userInfo button {
+  height: 35px;
+  width: 120px;
+  font-size: 25px;
+  background-color: rgb(228, 182, 182);
+  border: solid 3px red;
+  border-radius: 3px;
+}
+
+.sideTab {
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 150px;
+  position: absolute;
+  background-color: navy; 
+  border-right: solid 3px dodgerblue;
+  color: white;
+}
+
+.sideBtn {
+  width: 100%;
+  height: 30px;
+  font-size: 20px;
+  text-align: center;
+  border: solid 2px rgb(0, 140, 205);
+}
+
+.sideBtn:hover{
+  border: solid 2px salmon;
+}
+
+
+.request {
+ width:200px;
+ height:70px;
+ background-color: white;
+ margin-left: 40%;
+ margin-top: 40px;
+ border: solid 3px green;
+ border-radius: 3px;
+ font-size: 14px
+}
+.request button {
+  margin-top: 10px;
+  border: solid 3px green;
+ border-radius: 3px;
+ height: 25px;
+}
+.request button:hover {
+  border: solid 3px greenyellow;
+ 
+}
+
+.startBtn {
+  width: 150px;
+  border: solid 4px seagreen;
+  background-color: darkseagreen;
+  height: 50px;
+  font-size: 30px;
+  text-align: center;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+.score {
+  width: 400px;
+  height: 80px;
+  background-color: white;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-size: 25px;
+  border: solid 3px orange;
+  background-color: yellow;
+  border-radius: 3px; 
 }

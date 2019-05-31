@@ -39,7 +39,7 @@ module.exports = function (socket) {
         }
     })
     socket.on(LOGOUT, () => {
-        connectedUsers = removeUser(connectedUsers, socket.user.name)
+        connectedUsers = removeUser(connectedUsers, socket.user.name);
         io.emit(USER_DISCONNECTED, connectedUsers);
         console.log("Disconnect", connectedUsers);
     })
@@ -55,19 +55,16 @@ module.exports = function (socket) {
             if(!current.inGame && !recSocket.inGame){
             recSocket.inGame = true;
             current.inGame = true;
-            console.log("rec: " + recSocket.inGame);
-            console.log("curr: " + current.inGame);
-            const generatedShapes = generateShapes()
+            const generatedShapes = generateShapes();
             socket.to(recSocket.socketID).emit(USER_READY, generatedShapes);
             socket.emit(USER_READY, generatedShapes)
         }}
     })
 
     socket.on(GAME_START, ({to, user}) => {
-        console.log('to: '+to);
         const rec = connectedUsers[to];
             socket.emit(GAME_START, {start: true});
-            if(to){
+            if(to && rec){
             socket.to(rec.socketID).emit(GAME_START, {start: true});
             }
     })

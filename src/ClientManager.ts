@@ -17,7 +17,7 @@ class ClientManager {
         let shapes: any[] = [];
         this.socket.on(GAME_INIT, (shapes: any) => {
             let generatedShapes = shapes.map((elem: any) => {
-                return new UniversalShape(elem, columns, rows, blockSize);
+                return new UniversalShape(elem.coords, columns, rows, blockSize, elem.color);
             })
 
             shapes = generatedShapes;
@@ -81,6 +81,9 @@ class ClientManager {
     }
     emitVerifyUser = (nickname: string, setUser: any) => {
         this.socket.emit(VERIFY_USER, nickname, setUser);
+    }
+    emitReset = (to: string) => {
+
     }
 }
 

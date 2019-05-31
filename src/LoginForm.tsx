@@ -39,7 +39,7 @@ class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; e
     render() {
         const { nickname, error } = this.state
         return (
-            <div>
+            <div className={'loginForm'}>
                 <form onSubmit={this.handleSubmit}>
                     <label htmlFor='nickname'>Enter your nickname:</label><br></br>
                     <input

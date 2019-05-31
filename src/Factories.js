@@ -35,6 +35,19 @@ var shapeCoordinates = {
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
     ]
 };
+var colors = {
+    0: 'red',
+    1: 'blue',
+    2: 'yellow',
+    3: 'orange',
+    4: 'green',
+    5: 'Aqua',
+    6: 'Purple',
+    7: 'GreenYellow',
+    8: 'OrangeRed',
+    9: 'DeepPink',
+
+}
 const createUser = ({name = "", socketID = null, inGame = false, isReady = false} = {})=>(
 	{
 		id:uuidv4(),
@@ -50,12 +63,12 @@ const createGameData = ({matrix = []} = {})=>(
 		matrix	
 	}
 )
-const generateShapes = () => {
+const generateShapes = () => { 
 	let index = Math.floor(Math.random() * Math.floor(10));
 	let array = [];
 	for(var i = 0 ;i<1000;i++){
 		index = Math.floor(Math.random() * Math.floor(10));
-		array.push(shapeCoordinates[index]);
+		array.push({coords: shapeCoordinates[index], color: colors[index]});
 		
 	}
 	return array;
