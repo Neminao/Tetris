@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME } from './Events'
+import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://localhost:3231";
@@ -24,9 +24,11 @@ class ClientManager {
         })
         return shapes;
     }
-    updateShapesWhenReady = (setGeneratedShapes: any) => {
-        this.socket.on(USER_READY, (generatedShapes: any) => {
+    updateShapesWhenReady = (setGeneratedShapes: any, setReciever: any) => {
+        this.socket.on(USER_READY, ({generatedShapes, reciever}: any) => {
             setGeneratedShapes(generatedShapes);
+            console.log(reciever);
+            setReciever(reciever);
         });
     }
     updateSecondCanvas = (updateSecondCanvas: any) => {
@@ -39,7 +41,7 @@ class ClientManager {
             updateSecondCanvas(obj);
         })
     }
-    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any) => {
+    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
@@ -55,6 +57,9 @@ class ClientManager {
                 setRequest();
                 startGame();
             }
+        })
+        this.socket.on(REQUEST_DENIED, (denied: boolean)=>{
+            showRequest(denied);
         })
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number) => {

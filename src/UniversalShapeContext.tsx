@@ -87,7 +87,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             generatedShapes,
             nextShape: generatedShapes[0]
         });
-        CM.updateShapesWhenReady(this.setGeneratedShapes);
+        CM.updateShapesWhenReady(this.setGeneratedShapes, this.setReciever);
         CM.updateGame(this.updateSecondCanvas);
 
     }

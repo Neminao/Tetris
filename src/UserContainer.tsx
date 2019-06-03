@@ -27,7 +27,7 @@ class UserContainer extends React.Component<{
         }
     }
     componentDidMount() {
-        CM.initUserContainer(this.displayUsers, this.setSender, this.setRequest, this.props.startGame)
+        CM.initUserContainer(this.displayUsers, this.setSender, this.setRequest, this.props.startGame, this.showRequest)
     }
 
     setSender = (sender: string) => {
@@ -35,6 +35,12 @@ class UserContainer extends React.Component<{
     }
     setRequest = () => {
         this.setState({ reqSent: true, showReq: false });
+    }
+    showRequest = (status: boolean) => {
+        this.setState({
+            showReq: status,
+            reqSent: false
+        })
     }
     accept = (to: string) => {
         const { setReciever, user } = this.props;
@@ -48,9 +54,13 @@ class UserContainer extends React.Component<{
         this.setState({ to: event.target.value })
         setReciever(event.target.value);
         CM.emitGameRequest(user, event.target.value);
+        event.target.style.backgroundColor = "#70dbdb";
     }
     displayUsers = (allUsers: any) => {
-        const { user } = this.props;
+        const { user, reciever, setReciever } = this.props;
+        if(!(reciever in allUsers)){
+            setReciever("");
+        }
         let users: any = [];
         users = values(allUsers).map((u) => {
             if (u.name != user && !u.inGame) {
@@ -60,11 +70,9 @@ class UserContainer extends React.Component<{
         this.setState({ users: users })
     }
     startGame = () => {
-        const { user } = this.props;
-        const to = this.state.to;
-        console.log("to:" + to)
+        const { user, reciever } = this.props;
         this.setState({ showReq: false });
-        CM.emitGameStart(to, user);
+        CM.emitGameStart(reciever, user);
     }
     render = () => {
         const { user, logout, isPlayerReady, running, reset } = this.props;
