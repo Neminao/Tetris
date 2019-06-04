@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED } from './Events'
+import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://localhost:3231";
@@ -41,7 +41,7 @@ class ClientManager {
             updateSecondCanvas(obj);
         })
     }
-    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any, setSide: any) => {
+    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any, setSide: any, setReciever: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
@@ -64,6 +64,10 @@ class ClientManager {
         })
         this.socket.on(USER_READY, (obj: any)=> {
             setSide(false);
+        })
+        this.socket.on(RESET, ()=>{
+            setSender("");
+            setReciever("")
         })
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number) => {
@@ -91,8 +95,8 @@ class ClientManager {
     emitVerifyUser = (nickname: string, setUser: any) => {
         this.socket.emit(VERIFY_USER, nickname, setUser);
     }
-    emitReset = (to: string) => {
-
+    emitReset = (to: string, user: string) => {
+        this.socket.emit(RESET, {to, user});
     }
 }
 

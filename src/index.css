@@ -99,6 +99,8 @@ button {
   height: 50px;
   font-size: 30px;
   background-color: white;
+  padding-left: 100px;
+  position: static;
 }
 
 .userInfo button {
@@ -108,6 +110,9 @@ button {
   background-color: rgb(228, 182, 182);
   border: solid 3px red;
   border-radius: 3px;
+  float: right;
+  margin-top: 5px;
+  margin-right: 10px;
 }
 
 .sideTab {
@@ -167,12 +172,16 @@ button {
 }
 .score {
   width: 400px;
-  height: 80px;
+  height: 90px;
   background-color: white;
   margin-top: 15px;
   margin-bottom: 15px;
-  font-size: 25px;
+  font-size: 20px;
   border: solid 3px orange;
   background-color: yellow;
   border-radius: 3px; 
+}
+
+.resetBtn {
+  
 }

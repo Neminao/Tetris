@@ -11,5 +11,6 @@ export const READY = 'READY';
 export const USER_IN_GAME = 'USER_IN_GAME';
 export const GAME_REQUEST = 'GAME_REQUEST';
 export const REQUEST_DENIED = 'REQUEST_DENIED';
+export const RESET = 'RESET';
 
 export default USER_CONNECTED

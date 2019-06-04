@@ -585,7 +585,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
     reset = () => {
-        const rec = this.state.reciever;
+        clearInterval(this.state.counterId);
         this.setState({
             currentShape: this.defaultShape(),
             allBlocks: [],
@@ -609,7 +609,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             matrix: this.createEmptyMatrix(),
             nextShape: this.getRandomShape(),
         })
-        CM.emitReset(rec);
     }
     render() {
         const { columns, rows, blockSize, score, totalScore, user, scorePlayer2, totalScorePlayer2, reciever, isPlayerReady, running } = this.state;
@@ -649,6 +648,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                              totalScore={totalScore}
                              columns={columns}
                              blockSize={blockSize}
+                             name={user.name}
                             />
                             <Canvas
                                 rows={rows}
@@ -664,6 +664,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                              totalScore={totalScorePlayer2}
                              columns={columns}
                              blockSize={blockSize}
+                             name={reciever}
                             />   
 
                         </div>

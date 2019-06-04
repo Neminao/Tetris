@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED } = require('../Events.js')
+const { VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories')
 
@@ -49,7 +49,15 @@ module.exports = function (socket) {
     socket.on(GAME_INIT, () => {       
         socket.emit(GAME_INIT, generateShapes());
     })
-
+    socket.on(RESET, ({to, user})=> {
+        let rec = connectedUsers[to];
+        let current = connectedUsers[user];
+        current.inGame = false;
+        if(rec){
+            socket.to(rec.socketID).emit(RESET);
+            io.emit(USER_CONNECTED, connectedUsers);
+        }
+    })
     socket.on(USER_READY, ({to, user})=>{
         if (to in connectedUsers) {
             let recSocket = connectedUsers[to];
@@ -58,6 +66,7 @@ module.exports = function (socket) {
             recSocket.inGame = true;
             current.inGame = true;
             const generatedShapes = generateShapes();
+            io.emit(USER_CONNECTED, connectedUsers);
             socket.to(recSocket.socketID).emit(USER_READY, {generatedShapes, reciever: user});
             socket.emit(USER_READY, {generatedShapes, reciever: to});
         }
@@ -66,7 +75,7 @@ module.exports = function (socket) {
         socket.emit(REQUEST_DENIED, denied);
     }}
     })
-
+    
     socket.on(GAME_START, ({to, user}) => {
         const rec = connectedUsers[to];
             socket.emit(GAME_START, {start: true});
