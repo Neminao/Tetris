@@ -14,7 +14,8 @@ class UserContainer extends React.Component<{
         reqSent: boolean,
         sender: string,
         showReq: boolean,
-        to: string
+        to: string,
+        showSide: boolean
     }>{
     constructor(props: any) {
         super(props);
@@ -23,11 +24,12 @@ class UserContainer extends React.Component<{
             reqSent: false,
             sender: '',
             showReq: true,
-            to: ''
+            to: '',
+            showSide: true
         }
     }
     componentDidMount() {
-        CM.initUserContainer(this.displayUsers, this.setSender, this.setRequest, this.props.startGame, this.showRequest)
+        CM.initUserContainer(this.displayUsers, this.setSender, this.setRequest, this.props.startGame, this.showRequest, this.setSide)
     }
 
     setSender = (sender: string) => {
@@ -35,6 +37,9 @@ class UserContainer extends React.Component<{
     }
     setRequest = () => {
         this.setState({ reqSent: true, showReq: false });
+    }
+    setSide = (status: boolean) => {
+        this.setState({showSide: status});
     }
     showRequest = (status: boolean) => {
         this.setState({
@@ -76,10 +81,10 @@ class UserContainer extends React.Component<{
     }
     render = () => {
         const { user, logout, isPlayerReady, running, reset } = this.props;
-        const { sender, reqSent, showReq } = this.state;
+        const { sender, reqSent, showReq, showSide } = this.state;
         return (
             <div>
-                {!running ? <div className={'sideTab'}>Select player:{this.state.users}</div> :null}
+                {(!running && showSide) ? <div className={'sideTab'}>Select player:{this.state.users}</div> :null}
                 <div className={"userInfo"}>User: {user} <button onClick={logout}>Logout</button></div>
                 <button onClick={reset}>Reset</button>
                 <div>

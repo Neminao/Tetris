@@ -41,7 +41,7 @@ class ClientManager {
             updateSecondCanvas(obj);
         })
     }
-    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any) => {
+    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any, setSide: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
@@ -60,6 +60,10 @@ class ClientManager {
         })
         this.socket.on(REQUEST_DENIED, (denied: boolean)=>{
             showRequest(denied);
+            setSide(true);
+        })
+        this.socket.on(USER_READY, (obj: any)=> {
+            setSide(false);
         })
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number) => {
