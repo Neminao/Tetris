@@ -63,10 +63,10 @@ const createGameData = ({matrix = []} = {})=>(
 		matrix	
 	}
 )
-const generateShapes = () => { 
+const generateShapes = (max) => { 
 	let index = Math.floor(Math.random() * Math.floor(10));
 	let array = [];
-	for(var i = 0 ;i<1000;i++){
+	for(var i = 0 ;i<max;i++){
 		index = Math.floor(Math.random() * Math.floor(10));
 		array.push({coords: shapeCoordinates[index], color: colors[index]});
 		

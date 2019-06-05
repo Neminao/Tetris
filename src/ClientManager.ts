@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET } from './Events'
+import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://localhost:3231";
@@ -24,12 +24,16 @@ class ClientManager {
         })
         return shapes;
     }
-    updateShapesWhenReady = (setGeneratedShapes: any, setReciever: any) => {
+    
+    updateShapesWhenReady = (setGeneratedShapes: any, setReciever: any, addShapes: any) => {
         this.socket.on(USER_READY, ({generatedShapes, reciever}: any) => {
             setGeneratedShapes(generatedShapes);
             console.log(reciever);
             setReciever(reciever);
         });
+        this.socket.on(ADD_SHAPES, (newShapes: any)=>{
+            addShapes(newShapes);
+        })
     }
     updateSecondCanvas = (updateSecondCanvas: any) => {
         this.socket.on(GAME_UPDATE, (obj: any) => {
@@ -69,6 +73,7 @@ class ClientManager {
             setSender("");
             setReciever("")
         })
+        
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number) => {
         this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score });
@@ -98,6 +103,9 @@ class ClientManager {
     emitReset = (to: string, user: string) => {
         this.socket.emit(RESET, {to, user});
     }
+    emitAddShapes = (reciever: string) => {
+        this.socket.emit(ADD_SHAPES, reciever);
+    }   
 }
 
 let CM = new ClientManager();

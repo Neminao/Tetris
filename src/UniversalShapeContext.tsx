@@ -87,9 +87,24 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             generatedShapes,
             nextShape: generatedShapes[0]
         });
-        CM.updateShapesWhenReady(this.setGeneratedShapes, this.setReciever);
+        CM.updateShapesWhenReady(this.setGeneratedShapes, this.setReciever, this.addShapes);
         CM.updateGame(this.updateSecondCanvas);
 
+    }
+
+    addShapes = (newCoords: any) => {
+        let currentShapes = this.state.generatedShapes;
+        let generatedShapes = [];
+
+        const { columns, rows, blockSize } = this.state;
+        let newShapes = newCoords.map((elem: any) => {
+            const color = elem.color;
+            return new UniversalShape(elem.coords, columns, rows, blockSize, color);
+        });
+        generatedShapes = currentShapes.concat(newShapes);
+        this.setState({
+            generatedShapes
+        });
     }
 
     setGeneratedShapes = (shapes: any) => {
@@ -332,9 +347,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        const { generatedShapes, nextShape } = this.state;
+        const { generatedShapes, nextShape, reciever } = this.state;
         let index = this.state.generatedShapesIndex;
         let acc = this.state.acceleration;
+        if(index + 10 == generatedShapes.length){
+            CM.emitAddShapes(reciever);
+        }
         this.setState({
             baseDelay: 20 - acc
         })
