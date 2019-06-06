@@ -1,15 +1,6 @@
 
 var uuidv4 = require("uuid/v4");
 var shapeCoordinates = {
-    0: [
-        [{ x: 0, y: 0 }]
-    ],
-    1: [
-        [{ x: 0, y: 0 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }]
-    ],
-    2: [
-        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }]
-    ],
     3: [
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: -2 }, { x: 0, y: 1 }]
     ],
@@ -24,28 +15,25 @@ var shapeCoordinates = {
     6: [
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     ],
-    7: [
+    0: [
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }]
     ],
-    8: [
+    1: [
         [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }]
     ],
-    9: [
+    2: [
         [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
     ]
 };
 var colors = {
-    0: 'red',
+    0: 'OrangeRed', 
     1: 'blue',
     2: 'yellow',
     3: 'orange',
-    4: 'green',
+    4: 'GreenYellow',
     5: 'Aqua',
-    6: 'Purple',
-    7: 'GreenYellow',
-    8: 'OrangeRed',
-    9: 'DeepPink',
+    6: 'DeepPink'
 
 }
 const createUser = ({name = "", socketID = null, inGame = false, isReady = false} = {})=>(
@@ -64,10 +52,10 @@ const createGameData = ({matrix = []} = {})=>(
 	}
 )
 const generateShapes = (max) => { 
-	let index = Math.floor(Math.random() * Math.floor(10));
+	let index = Math.floor(Math.random() * Math.floor(7));
 	let array = [];
 	for(var i = 0 ;i<max;i++){
-		index = Math.floor(Math.random() * Math.floor(10));
+		index = Math.floor(Math.random() * Math.floor(7));
 		array.push({coords: shapeCoordinates[index], color: colors[index]});
 		
 	}

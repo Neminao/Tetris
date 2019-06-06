@@ -6,6 +6,8 @@ const { createUser, generateShapes } = require('../factories')
 
 let connectedUsers = {}
 
+let gamesInProgress = {};
+
 module.exports = function (socket) {
     console.log(socket.id);
     socket.on(VERIFY_USER, (nickname, callback) => {
@@ -32,11 +34,11 @@ module.exports = function (socket) {
         io.emit(USER_CONNECTED, connectedUsers);
         console.log(connectedUsers);
     })
-    socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore }) => {
+    socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration }) => {
         if (reciever in connectedUsers) {
             const recSocket = connectedUsers[reciever];
             if(recSocket.inGame){
-            socket.to(recSocket.socketID).emit(GAME_UPDATE, { matrix: matrix, shape: shape, score, totalScore });
+            socket.to(recSocket.socketID).emit(GAME_UPDATE, { matrix: matrix, shape: shape, score, totalScore, acceleration });
             }
         }
     })
@@ -115,3 +117,14 @@ function removeUser(userList, username) {
     return newList;
 }
 
+function addGame(gameList, playerOne, playerTwo) {
+    let newList = Object.assign({}, gameList);
+    delete newList[playerOne+' '+playerTwo];
+    return newList;
+}
+
+function removeGame(userList, gameID) {
+    let newList = Object.assign({}, userList);
+    delete newList[gameID];
+    return newList;
+}

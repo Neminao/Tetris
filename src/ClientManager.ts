@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES } from './Events'
 import UniversalShape from './UniversalShape';
 
-const socketUrl = "http://localhost:3231";
+const socketUrl = "http://192.168.88.14:3231";
 
 class ClientManager {
     socket = io(socketUrl);
@@ -35,11 +35,7 @@ class ClientManager {
             addShapes(newShapes);
         })
     }
-    updateSecondCanvas = (updateSecondCanvas: any) => {
-        this.socket.on(GAME_UPDATE, (obj: any) => {
-            updateSecondCanvas(obj);
-        })
-    }
+    
     updateGame = (updateSecondCanvas: any) => {
         this.socket.on(GAME_UPDATE, (obj: any) => {
             updateSecondCanvas(obj);
@@ -75,8 +71,8 @@ class ClientManager {
         })
         
     }
-    emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number) => {
-        this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score });
+    emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number, acceleration: number) => {
+        this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score, acceleration });
     }
     emitUserInGame = (username: string) => {
         this.socket.emit(USER_IN_GAME, { username });

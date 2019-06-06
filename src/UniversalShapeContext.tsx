@@ -204,6 +204,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     updateSecondCanvas = (obj: any) => {
         const { columns, blockSize, rows } = this.state;
+        let acc = this.state.acceleration;
+        if(obj.acceleration > acc){
+             this.setState({acceleration: obj.acceleration});
+        }
         const shape1 = new BaseBuildingSquare(0, 0, 'red', blockSize /2)
         let c2: any = this.canvasBack2.current
         let ctx2: any = c2.getContext('2d');
@@ -396,10 +400,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     moveShape = (shape: any, inter: any) => { // temp
         let delay = this.state.delay;
-        const {user, columns, rows, blockSize, totalScore, score, reciever} = this.state;
+        const {user, columns, rows, blockSize, totalScore, score, reciever, acceleration} = this.state;
         let arr = this.state.matrix;
         if(user){
-        CM.emitGameUpdate(arr, shape, reciever, user.name, totalScore, score);
+        CM.emitGameUpdate(arr, shape, reciever, user.name, totalScore, score, acceleration);
     }
         if (delay <= this.state.baseDelay) {
             delay++;
@@ -446,8 +450,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const row = this.state.rows;
         const size = this.state.blockSize;
         let c1: any = this.canvasBack.current;
+        let total = this.state.totalScore;
         const ctx1: any = c1.getContext('2d');
         if (this.isRowComplete().length > 0) {
+        switch(this.isRowComplete().length) {
+            case 1: total += 100; break;
+            case 2: total += 250; break;
+            case 3: total += 450; break;
+            case 4: total += 800; break;
+        }           
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
             });
@@ -464,8 +475,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 }
             }
         }
-
-        let total = this.state.totalScore;
         total += 10;
         let arr = this.state.allBlocks;
         shape.moveBack();
@@ -474,7 +483,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             totalScore: total
         })
         let acc = this.state.acceleration;
-        if (this.state.totalScore > 700 * (acc + 1)) {
+        if (this.state.totalScore > 350 * (acc + 1)) {
             acc++;
             if (acc < 20)
                 this.setState({
@@ -485,7 +494,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     isGameOver = () => {
         let pom = false
-        this.state.matrix[1].forEach((el: any) => {
+        this.state.matrix[0].forEach((el: any) => {
             if (el.status) {
                 pom = true;
             }
@@ -511,12 +520,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         mat.unshift(x());
         let score = this.state.score;
         score += 1;
-        let total = this.state.totalScore;
-        total += 100;
+        
         this.setState({
             matrix: mat,
             score: score,
-            totalScore: total
         })
     }
 
