@@ -58,7 +58,7 @@ button {
 
 .main {
   margin-top: 30px;
- margin-left:180px;
+ margin-left:10px;
  position: static;
  float: left;
  width: 850px;
@@ -184,4 +184,19 @@ button {
 
 .resetBtn {
   
+}
+.canvas2 {
+ position: fixed;
+ margin-left: 900px;
+ margin-top: 212px;
+}
+.canvas3 {
+  position: fixed;
+ margin-left: 1350px;
+ margin-top: 212px;
+}
+.canvas4 {
+  position: fixed;
+ margin-left: 1000px;
+ margin-top: 100px;
 }

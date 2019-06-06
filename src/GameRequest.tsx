@@ -2,7 +2,7 @@ import React from 'react';
 
 class GameRequest extends React.Component<{ name: string, accept: any }, {}> {
     accept = () => {
-        this.props.accept(this.props.name);
+        this.props.accept();
     }
     render() {
         return (

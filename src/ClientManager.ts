@@ -49,6 +49,7 @@ class ClientManager {
             displayUsers(allUsers);
         })
         this.socket.on(GAME_REQUEST, ({ sender }: any) => {
+            console.log(sender)
             setSender(sender);
         })
         this.socket.on(GAME_START, ({ start }: any) => {
@@ -71,7 +72,7 @@ class ClientManager {
         })
         
     }
-    emitGameUpdate = (matrix: any, shape: any, reciever: string, sender: string, totalScore: number, score: number, acceleration: number) => {
+    emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number) => {
         this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score, acceleration });
     }
     emitUserInGame = (username: string) => {
@@ -84,22 +85,23 @@ class ClientManager {
     emitUserConnected = (user: any) => {
         this.socket.emit(USER_CONNECTED, user);
     }
-    emitUserReady = (to: string, user: string) => {
+    emitUserReady = (to: string[], user: string) => {
+        console.log(to);
         this.socket.emit(USER_READY, { to, user });
     }
-    emitGameRequest = (sender: string, reciever: string) => {
+    emitGameRequest = (sender: string, reciever: string[]) => {
         this.socket.emit(GAME_REQUEST, { sender, reciever });
     }
-    emitGameStart = (to: string, user: string) => {
+    emitGameStart = (to: string[], user: string) => {
         this.socket.emit(GAME_START, { to, user });
     }
     emitVerifyUser = (nickname: string, setUser: any) => {
         this.socket.emit(VERIFY_USER, nickname, setUser);
     }
-    emitReset = (to: string, user: string) => {
+    emitReset = (to: string[], user: string) => {
         this.socket.emit(RESET, {to, user});
     }
-    emitAddShapes = (reciever: string) => {
+    emitAddShapes = (reciever: string[]) => {
         this.socket.emit(ADD_SHAPES, reciever);
     }   
 }

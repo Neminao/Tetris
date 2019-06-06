@@ -17,6 +17,10 @@ interface MyState {
     score: number;
     scorePlayer2: number;
     totalScorePlayer2: number;
+    scorePlayer3: number;
+    totalScorePlayer3: number;
+    scorePlayer4: number;
+    totalScorePlayer4: number;
     totalScore: number;
     speed: number;
     counterId: number;
@@ -27,10 +31,11 @@ interface MyState {
     rows: number;
     blockSize: number;
     user: any;
-    reciever: string;
+    reciever: string[];
     generatedShapes: any;
     generatedShapesIndex: number;
     isPlayerReady: boolean;
+    numberOfOpponents: number;
 }
 
 class UniversalShapeContext extends React.Component<{}, MyState>{
@@ -40,6 +45,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasBack2 = React.createRef<HTMLCanvasElement>();
     canvasFront2 = React.createRef<HTMLCanvasElement>();
     canvasSide2 = React.createRef<HTMLCanvasElement>();
+    canvasBack3 = React.createRef<HTMLCanvasElement>();
+    canvasFront3 = React.createRef<HTMLCanvasElement>();
+    canvasSide3 = React.createRef<HTMLCanvasElement>();
+    canvasBack4 = React.createRef<HTMLCanvasElement>();
+    canvasFront4 = React.createRef<HTMLCanvasElement>();
+    canvasSide4 = React.createRef<HTMLCanvasElement>();
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -59,12 +70,17 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             rows: 20,
             blockSize: 40,
             user: null,
-            reciever: "",
+            reciever: [],
             scorePlayer2: 0,
             totalScorePlayer2: 0,
+            scorePlayer3: 0,
+            totalScorePlayer3: 0,
+            scorePlayer4: 0,
+            totalScorePlayer4: 0,
             generatedShapes: null,
             generatedShapesIndex: 0,
-            isPlayerReady: false
+            isPlayerReady: false,
+            numberOfOpponents: 0
         }
     }
 
@@ -78,6 +94,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         document.addEventListener('keyup', this.onKeyUp.bind(this));
         this.initSocket();
 
+    }
+
+    setOpponentNumber = (numberOfOpponents: number) => {
+        this.setState({ numberOfOpponents })
     }
 
     initSocket = () => {
@@ -123,7 +143,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     setPlayerReady = () => {
-        this.setState({isPlayerReady: true})
+        this.setState({ isPlayerReady: true })
     }
 
     changePlayerStatus = () => {
@@ -155,7 +175,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             rows: 20,
             blockSize: 40,
             user: null,
-            reciever: "",
+            reciever: [],
             scorePlayer2: 0,
             totalScorePlayer2: 0,
             generatedShapes: null,
@@ -173,7 +193,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         function sub(): any[] {
             let sub: any[] = [];
             for (let j = 0; j < col; j++) {
-                sub.push({status: false, color: 'white'});
+                sub.push({ status: false, color: 'white' });
             }
             return sub;
         }
@@ -183,7 +203,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         function x() {
             let sub: any[] = [];
             for (let j = 0; j < col; j++) {
-                sub.push({status: true, color: 'black'});
+                sub.push({ status: true, color: 'black' });
             }
             return sub;
         }
@@ -203,31 +223,68 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     updateSecondCanvas = (obj: any) => {
-        const { columns, blockSize, rows } = this.state;
+        const { columns, blockSize, rows, reciever } = this.state;
         let acc = this.state.acceleration;
-        if(obj.acceleration > acc){
-             this.setState({acceleration: obj.acceleration});
+        const userIndex = reciever.indexOf(obj.sender);
+        let c2: any;
+        if (obj.acceleration > acc) {
+            this.setState({ acceleration: obj.acceleration });
+
         }
-        const shape1 = new BaseBuildingSquare(0, 0, 'red', blockSize /2)
-        let c2: any = this.canvasBack2.current
+        const shape1 = new BaseBuildingSquare(0, 0, 'red', blockSize / 2)
+        switch (userIndex) {
+            case 0: {
+                c2 = this.canvasBack2.current; this.setState({
+                    totalScorePlayer2: obj.totalScore,
+                    scorePlayer2: obj.score
+                });
+            };
+                break;
+            case 1: {
+                c2 = this.canvasBack3.current;
+                this.setState({
+                    totalScorePlayer3: obj.totalScore,
+                    scorePlayer3: obj.score
+                });
+            }; break;
+            case 2: {
+                c2 = this.canvasBack4.current;
+                this.setState({
+                    totalScorePlayer4: obj.totalScore,
+                    scorePlayer4: obj.score
+                });
+            }; break;
+        }
+
         let ctx2: any = c2.getContext('2d');
-        ctx2.clearRect(0, 0, columns * blockSize / 2, rows * blockSize /2 );
+        ctx2.clearRect(0, 0, columns * blockSize / 2, rows * blockSize / 2);
         let shape = new UniversalShape(obj.shape.coordiantesArr, columns, rows, blockSize / 2, 'red');
-        shape.defineNewProperties(obj.shape.blocksArr, 0.5 );
+        shape.defineNewProperties(obj.shape.blocksArr, 0.5);
         this.createGrid(ctx2, 0.5);
         shape.updateCanvas(ctx2)
 
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 if (obj.matrix[i][j].status) {
-                    shape1.draw(j * blockSize /2, i * blockSize /2, ctx2, 'red');
+                    shape1.draw(j * blockSize / 2, i * blockSize / 2, ctx2, 'red');
                 }
             }
         }
-        this.setState({
-            totalScorePlayer2: obj.totalScore,
-            scorePlayer2: obj.score
-        })
+        switch (userIndex) {
+            case 0: this.setState({
+                totalScorePlayer2: obj.totalScore,
+                scorePlayer2: obj.score
+            }); break;
+            case 1: this.setState({
+                totalScorePlayer3: obj.totalScore,
+                scorePlayer3: obj.score
+            }); break;
+            case 2: this.setState({
+                totalScorePlayer4: obj.totalScore,
+                scorePlayer4: obj.score
+            }); break;
+        }
+
     }
 
 
@@ -293,7 +350,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         let size = this.state.blockSize;
-        if(scale) size = size /2;
+        if (scale) size = size / 2;
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#ccc';
         for (let i = 1; i < row; i++) {
@@ -354,7 +411,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const { generatedShapes, nextShape, reciever } = this.state;
         let index = this.state.generatedShapesIndex;
         let acc = this.state.acceleration;
-        if(index + 10 == generatedShapes.length){
+        if (index + 10 == generatedShapes.length) {
             CM.emitAddShapes(reciever);
         }
         this.setState({
@@ -384,7 +441,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 this.clearRow(index);
             });
         }
-        if (!this.isGameOver()) {
+        if (!this.isGameOver(shape)) {
             let inter: any = setInterval(() => this.moveShape(next, inter), 50);
             this.setState({
                 counterId: inter,
@@ -394,17 +451,26 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             this.setState({
                 running: false
             });
-            window.alert("Game over")
+            this.gameOver();
         }
     }
+    gameOver = () => {
+        let canvas: any = this.canvasFront.current;
+        let ctx = canvas.getContext('2d');
+        ctx.font = "bold 50px Verdana";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2)
+        ctx.strokeStyle = 'black';
+        ctx.strokeText("GAME OVER", canvas.width / 2, canvas.height / 2)
 
+    }
     moveShape = (shape: any, inter: any) => { // temp
         let delay = this.state.delay;
-        const {user, columns, rows, blockSize, totalScore, score, reciever, acceleration} = this.state;
+        const { user, columns, rows, blockSize, totalScore, score, reciever, acceleration } = this.state;
         let arr = this.state.matrix;
-        if(user){
-        CM.emitGameUpdate(arr, shape, reciever, user.name, totalScore, score, acceleration);
-    }
+        if (user) {
+            CM.emitGameUpdate(arr, shape, reciever, user.name, totalScore, score, acceleration);
+        }
         if (delay <= this.state.baseDelay) {
             delay++;
             this.setState({
@@ -416,14 +482,14 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 delay: 1
             })
             let c1: any = this.canvasFront.current;
-            if(c1){
-            const ctx1: any = c1.getContext('2d');
-            ctx1.clearRect(0, 0, columns * blockSize, rows * blockSize);
-            
-            shape.moveDown();
+            if (c1) {
+                const ctx1: any = c1.getContext('2d');
+                ctx1.clearRect(0, 0, columns * blockSize, rows * blockSize);
 
-            if (shape.areBlocksFreeToMoveDown(arr))
-                shape.updateCanvas(ctx1);
+                shape.moveDown();
+
+                if (shape.areBlocksFreeToMoveDown(arr))
+                    shape.updateCanvas(ctx1);
             }
             if (!shape.areBlocksFreeToMoveDown(arr)) {
                 this.state.currentShape.moveBack();
@@ -453,18 +519,18 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         let total = this.state.totalScore;
         const ctx1: any = c1.getContext('2d');
         if (this.isRowComplete().length > 0) {
-        switch(this.isRowComplete().length) {
-            case 1: total += 100; break;
-            case 2: total += 250; break;
-            case 3: total += 450; break;
-            case 4: total += 800; break;
-        }           
+            switch (this.isRowComplete().length) {
+                case 1: total += 100; break;
+                case 2: total += 250; break;
+                case 3: total += 450; break;
+                case 4: total += 800; break;
+            }
             this.isRowComplete().forEach(index => {
                 this.clearRow(index);
             });
             ctx1.clearRect(0, 0, col * size, row * size);
             this.createGrid(ctx1);
-        } 
+        }
 
         const shape1 = new BaseBuildingSquare(0, 0, 'blue', size)
         const mat = this.state.matrix;
@@ -483,7 +549,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             totalScore: total
         })
         let acc = this.state.acceleration;
-        if (this.state.totalScore > 350 * (acc + 1)) {
+        if (this.state.totalScore > 400 * (acc + 1)) {
             acc++;
             if (acc < 20)
                 this.setState({
@@ -492,14 +558,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         }
     }
 
-    isGameOver = () => {
-        let pom = false
-        this.state.matrix[0].forEach((el: any) => {
-            if (el.status) {
-                pom = true;
-            }
-        })
-        return pom;
+    isGameOver = (shape: any) => {
+   
+        return !shape.areBlocksFreeToMoveDown(this.state.matrix)
     }
 
     delay = (ms: number) => {
@@ -512,7 +573,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         function x() {
             let sub: any[] = [];
             for (let j = 0; j < col; j++) {
-                sub.push({status:false,color:'white'});
+                sub.push({ status: false, color: 'white' });
             }
             return sub;
         }
@@ -520,7 +581,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         mat.unshift(x());
         let score = this.state.score;
         score += 1;
-        
+
         this.setState({
             matrix: mat,
             score: score,
@@ -625,7 +686,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             columns: 10,
             rows: 20,
             blockSize: 40,
-            reciever: "",
+            reciever: [],
             scorePlayer2: 0,
             totalScorePlayer2: 0,
             generatedShapes: null,
@@ -636,13 +697,14 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
     render() {
-        const { columns, rows, blockSize, score, totalScore, user, scorePlayer2, totalScorePlayer2, reciever, isPlayerReady, running } = this.state;
+        const { columns, rows, blockSize, score, totalScore, user, scorePlayer2, totalScorePlayer2, reciever, isPlayerReady, running, totalScorePlayer3, totalScorePlayer4, scorePlayer3, scorePlayer4 } = this.state;
+
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div>{
                     !user ?
                         <LoginForm setUser={this.setUser} /> : <div>
-                            
+
                             <UserContainer
                                 setGeneratedShapes={this.setGeneratedShapes}
                                 reciever={reciever} startGame={this.startGame}
@@ -650,7 +712,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 setReciever={this.setReciever}
                                 isPlayerReady={isPlayerReady}
                                 changePlayerStatus={this.changePlayerStatus}
-                                running={running} reset={this.reset}/>
+                                running={running} reset={this.reset}
+                                setOpponentNumber={this.setOpponentNumber} />
 
                         </div>}
 
@@ -660,20 +723,20 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 rows={rows}
                                 columns={columns}
                                 blockSize={blockSize}
-                                
+
                                 canvasFront={this.canvasFront}
                                 canvasBack={this.canvasBack}
-                                />
+                            />
                         </div>
                         <div className='sideWrap'>
-                            <MiniCanvas 
-                            canvasSide={this.canvasSide}
-                            showSide={true} 
-                            rowScore={score}
-                             totalScore={totalScore}
-                             columns={columns}
-                             blockSize={blockSize}
-                             name={user.name}
+                            <MiniCanvas
+                                canvasSide={this.canvasSide}
+                                showSide={true}
+                                rowScore={score}
+                                totalScore={totalScore}
+                                columns={columns}
+                                blockSize={blockSize}
+                                name={user.name}
                             />
                             <Canvas
                                 rows={rows}
@@ -681,17 +744,54 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 blockSize={blockSize / 2}
                                 canvasFront={this.canvasFront2}
                                 canvasBack={this.canvasBack2}
-                             />   
-                             <MiniCanvas 
-                            canvasSide={this.canvasSide2}
-                            showSide={false} 
-                            rowScore={scorePlayer2}
-                             totalScore={totalScorePlayer2}
-                             columns={columns}
-                             blockSize={blockSize}
-                             name={reciever}
-                            />   
+                            />
+                            <MiniCanvas
+                                canvasSide={this.canvasSide2}
+                                showSide={false}
+                                rowScore={scorePlayer2}
+                                totalScore={totalScorePlayer2}
+                                columns={columns}
+                                blockSize={blockSize}
+                                name={reciever[0]}
+                            />
 
+
+                        </div>
+                        <div className={'canvas2'}>
+                            <Canvas
+                                rows={rows}
+                                columns={columns}
+                                blockSize={blockSize / 2}
+                                canvasFront={this.canvasFront3}
+                                canvasBack={this.canvasBack3}
+                            />
+                            <MiniCanvas
+                                canvasSide={this.canvasSide3}
+                                showSide={false}
+                                rowScore={scorePlayer3}
+                                totalScore={totalScorePlayer3}
+                                columns={columns}
+                                blockSize={blockSize}
+                                name={reciever[1]}
+                            />
+                        </div>
+                        <div className={'canvas3'}>
+                            <Canvas
+                                rows={rows}
+                                columns={columns}
+                                blockSize={blockSize / 2}
+                                canvasFront={this.canvasFront4}
+                                canvasBack={this.canvasBack4}
+                            />
+                            <MiniCanvas
+                                canvasSide={this.canvasSide4}
+                                showSide={false}
+                                rowScore={scorePlayer4}
+                                totalScore={totalScorePlayer4}
+                                columns={columns}
+                                blockSize={blockSize}
+                                name={reciever[2]}
+                            />
                         </div>
                     </div> : null}
                 </div>
