@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES } = require('../Events.js')
+const { DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories')
 
@@ -20,9 +20,11 @@ module.exports = function (socket) {
     })
     socket.on('disconnect', () => {
         if ("user" in socket) {
+            let name = socket.user.name;
+            console.log("name: "+name)
             connectedUsers = removeUser(connectedUsers, socket.user.name);
 
-            io.emit(USER_DISCONNECTED, connectedUsers);
+            io.emit(USER_DISCONNECTED, {allUsers: connectedUsers, name});
         }
     })
 
@@ -35,7 +37,8 @@ module.exports = function (socket) {
         console.log(connectedUsers);
     })
     socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration }) => {
-        let pom = true;
+        let pom = true; 
+        if(reciever)
         reciever.forEach(name => {
             if (!(name in connectedUsers)) {
                 pom = false;
@@ -52,9 +55,10 @@ module.exports = function (socket) {
         }
     })
     socket.on(LOGOUT, () => {
+        let name = socket.user.name;
+        console.log(name)
         connectedUsers = removeUser(connectedUsers, socket.user.name);
-        io.emit(USER_DISCONNECTED, connectedUsers);
-        console.log("Disconnect", connectedUsers);
+        io.emit(USER_DISCONNECTED, {allUsers: connectedUsers, name});
     })
 
     socket.on(GAME_INIT, () => {
@@ -64,6 +68,7 @@ module.exports = function (socket) {
     socket.on(RESET, ({ to, user }) => {
         let rec;
         let current = connectedUsers[user];
+        if(current)
         current.inGame = false;
         if (to)
             to.forEach(name => {
@@ -118,6 +123,7 @@ module.exports = function (socket) {
         if (to) {
          to.forEach(name => {
             rec = connectedUsers[name];
+            if(rec)
             socket.to(rec.socketID).emit(GAME_START, { start: true });
          })
             
@@ -132,6 +138,7 @@ module.exports = function (socket) {
         let rec;
         const generatedShapes = generateShapes(1000);
         let tempArray;
+        gamesInProgress = addGame(gamesInProgress, sender, reciever);
         for(var i = 0;i<reciever.length;i++){
             rec = connectedUsers[reciever[i]];
             tempArray = reciever.slice(0);
@@ -145,6 +152,7 @@ module.exports = function (socket) {
         
             socket.emit(USER_READY, { generatedShapes, reciever}); 
       //  socket.to(rec.socketID).emit(GAME_REQUEST, { sender });
+      io.emit(DISPLAY_GAMES, gamesInProgress)
     })
 
     socket.on(ADD_SHAPES, (reciever) => {
@@ -155,10 +163,37 @@ module.exports = function (socket) {
          })
        // socket.to(connectedUsers[reciever].socketID).emit(ADD_SHAPES, newShapes);
     })
+
+
+    socket.on(SPECTATE, ({user, game}) => {
+        let gameToSpectate = gamesInProgress[game];
+        let u1;
+        if(gameToSpectate)
+        u1 = connectedUsers[gameToSpectate.sender];
+        let un;
+        if(u1)
+        socket.to(u1.socketID).emit(SPECTATE, user);
+        gameToSpectate.recievers.forEach(name => {
+            un = connectedUsers[name];
+            if(un)
+            socket.to(un.socketID).emit(SPECTATE, user);
+        })
+        let recievers = gameToSpectate.recievers;
+        recievers.push(game);
+        socket.emit(SPECTATE_INFO, recievers);
+        
+    })
+    socket.on(SEND_TO_SPECTATOR, ({matrix, shape, spectator, user, totalScore, score}) => {
+        
+        const specID = connectedUsers[spectator];
+        if(specID)
+        socket.to(specID.socketID).emit(SEND_TO_SPECTATOR, {matrix, shape, user, totalScore, score});
+    }) 
 }
 
 function emitToAllRecievers(data, emitType, recievers, socket) {
-    let rec
+    let rec;
+    if(recievers)
     recievers.forEach(name => {
         rec = connectedUsers[name];
         if (rec.inGame) {
@@ -180,15 +215,9 @@ function removeUser(userList, username) {
     delete newList[username];
     return newList;
 }
-
-function addGame(gameList, playerOne, playerTwo) {
-    let newList = Object.assign({}, gameList);
-    delete newList[playerOne + ' ' + playerTwo];
-    return newList;
-}
-
-function removeGame(userList, gameID) {
+function addGame(userList, sender, recievers) {
     let newList = Object.assign({}, userList);
-    delete newList[gameID];
+    newList[sender] = {sender, recievers};
     return newList;
 }
+

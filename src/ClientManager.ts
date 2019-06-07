@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES } from './Events'
+import { USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://192.168.88.14:3231";
@@ -41,15 +41,21 @@ class ClientManager {
             updateSecondCanvas(obj);
         })
     }
-    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any, setSide: any, setReciever: any) => {
+    spectatingGames = (updateSpectatingCanvas: any) => {
+        this.socket.on(SEND_TO_SPECTATOR, (obj: any) => {
+            updateSpectatingCanvas(obj);
+        })
+        
+    }
+    initUserContainer = (displayUsers: any, setSender: any, setRequest: any, startGame: any, showRequest: any, setSide: any, setReciever: any, addSpectator: any, updateAvailableGames: any, removeReciever: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
-        this.socket.on(USER_DISCONNECTED, (allUsers: any) => {
-            displayUsers(allUsers);
+        this.socket.on(USER_DISCONNECTED, (obj: any) => {
+            displayUsers(obj.allUsers);
+            removeReciever(obj.name);
         })
         this.socket.on(GAME_REQUEST, ({ sender }: any) => {
-            console.log(sender)
             setSender(sender);
         })
         this.socket.on(GAME_START, ({ start }: any) => {
@@ -70,7 +76,15 @@ class ClientManager {
             setSender("");
             setReciever("")
         })
-        
+        this.socket.on(SPECTATE, (spectator: string) => {
+            addSpectator(spectator);
+        })
+        this.socket.on(SPECTATE_INFO, (recievers: any) => {
+            setReciever(recievers);
+        })
+        this.socket.on(DISPLAY_GAMES, (gamesInProgress: any) => {
+            updateAvailableGames(gamesInProgress);
+        })
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number) => {
         this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score, acceleration });
@@ -86,7 +100,6 @@ class ClientManager {
         this.socket.emit(USER_CONNECTED, user);
     }
     emitUserReady = (to: string[], user: string) => {
-        console.log(to);
         this.socket.emit(USER_READY, { to, user });
     }
     emitGameRequest = (sender: string, reciever: string[]) => {
@@ -103,7 +116,13 @@ class ClientManager {
     }
     emitAddShapes = (reciever: string[]) => {
         this.socket.emit(ADD_SHAPES, reciever);
-    }   
+    }
+    emitSpectate = (user: string, game: string) => {
+        this.socket.emit(SPECTATE, {user, game});
+    }
+    emitSpectatorData = (matrix: any, shape: any, spectator: string, user: string, totalScore: number, score: number) => {
+        this.socket.emit(SEND_TO_SPECTATOR, {matrix, shape, spectator, user, totalScore, score});
+    } 
 }
 
 let CM = new ClientManager();

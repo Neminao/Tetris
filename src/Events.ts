@@ -13,5 +13,9 @@ export const GAME_REQUEST = 'GAME_REQUEST';
 export const REQUEST_DENIED = 'REQUEST_DENIED';
 export const RESET = 'RESET';
 export const ADD_SHAPES = 'ADD_SHAPES';
+export const SEND_TO_SPECTATOR = 'SEND_TO_SPECTATOR';
+export const SPECTATE = 'SPECTATE';
+export const SPECTATE_INFO = 'SPECTATE_INFO';
+export const DISPLAY_GAMES = 'DISPLAY_GAMES';
 
 export default USER_CONNECTED

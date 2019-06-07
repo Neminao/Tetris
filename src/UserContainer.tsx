@@ -8,7 +8,7 @@ class UserContainer extends React.Component<{
     user: any, logout: any, setGeneratedShapes: any,
     setReciever: any, reciever: string[], startGame: any, isPlayerReady: boolean,
     changePlayerStatus: any, running: boolean, reset: any,
-    setOpponentNumber: any
+    setOpponentNumber: any, addSpectator: any
 },
     {
         users: any[],
@@ -17,7 +17,8 @@ class UserContainer extends React.Component<{
         showReq: boolean,
         to: string[],
         showSide: boolean,
-        selectedPlayers: string[]
+        selectedPlayers: string[],
+        games: any,
     }>{
     constructor(props: any) {
         super(props);
@@ -28,11 +29,28 @@ class UserContainer extends React.Component<{
             showReq: true,
             to: [],
             showSide: true,
-            selectedPlayers: []
+            selectedPlayers: [],
+            games: []
         }
     }
     componentDidMount() {
-        CM.initUserContainer(this.displayUsers, this.setSender, this.setRequest, this.props.startGame, this.showRequest, this.setSide, this.props.setReciever)
+        CM.initUserContainer(
+            this.displayUsers,
+            this.setSender,
+            this.setRequest, this.props.startGame,
+            this.showRequest, this.setSide,
+            this.props.setReciever, this.props.addSpectator,
+            this.updateAvailableGames, this.removeReciever
+            )
+    }
+
+    removeReciever = (name: string) => {
+        let rec = this.state.selectedPlayers;
+        let index = rec.indexOf(name)
+        rec.splice(index, 1);
+        this.setState({
+            selectedPlayers: rec
+        })
     }
 
     setSender = (sender: string) => {
@@ -42,7 +60,7 @@ class UserContainer extends React.Component<{
         this.setState({ reqSent: true, showReq: false });
     }
     setSide = (status: boolean) => {
-        this.setState({showSide: status});
+        this.setState({ showSide: status });
     }
     showRequest = (status: boolean) => {
         this.setState({
@@ -58,26 +76,29 @@ class UserContainer extends React.Component<{
         CM.emitUserReady(to, user)
     }
 
-    sendInvite = (event: any) => {      
+    sendInvite = (event: any) => {
         let players = this.state.selectedPlayers;
+        if(players.length<3){
         players.push(event.target.value);
-        this.setState({selectedPlayers: players});
-        
+        this.setState({ selectedPlayers: players });
         event.target.style.backgroundColor = "#70dbdb";
+        }
     }
+
     inviteAll = () => {
         const { user, setReciever } = this.props;
-        let {selectedPlayers} = this.state;
+        let { selectedPlayers } = this.state;
         console.log(selectedPlayers)
         this.setState({ to: selectedPlayers })
         setReciever(selectedPlayers);
         CM.emitGameRequest(user, selectedPlayers);
     }
+
     displayUsers = (allUsers: any) => {
         const { user, reciever, setReciever } = this.props;
-      /*  if(!(reciever in allUsers)){
-            setReciever("");
-        }*/
+        /*  if(!(reciever in allUsers)){
+              setReciever("");
+          }*/
         let users: any = [];
         users = values(allUsers).map((u) => {
             if (u.name != user && !u.inGame) {
@@ -85,6 +106,14 @@ class UserContainer extends React.Component<{
             }
         })
         this.setState({ users: users })
+    }
+    updateAvailableGames = (games: any) => {
+        let users = values(games).map((u) => {
+            return <button value={u.sender} className={''} onClick={this.spectate}>{u.sender}'s game</button>;
+        })
+        this.setState({
+            games: users
+        })
     }
     startGame = (event: any) => {
         const { user, reciever } = this.props;
@@ -103,20 +132,25 @@ class UserContainer extends React.Component<{
         console.log(this.state);
     }
 
+    spectate = (event: any) => {
+        CM.emitSpectate(this.props.user, event.target.value);
+        this.props.changePlayerStatus();
+    }
+
     setNumberOfOpponents = (event: any) => {
         this.props.setOpponentNumber(event.target.value);
     }
     render = () => {
         const { user, logout, isPlayerReady, running, reset } = this.props;
-        const { sender, reqSent, showReq, showSide } = this.state;
+        const { sender, reqSent, showReq, showSide, games } = this.state;
         return (
             <div>
-                {(showSide) ? <div className={'sideTab'}>Select player:{this.state.users}</div> :null}
-                <div className={"userInfo"}>User: {user} <button onClick={logout}>Logout</button><button className={'resetBtn'} onClick={this.reset}>Reset</button></div>
+                {(showSide) ? <div className={'sideTab'}>Select player:{this.state.users}</div> : null}
                 
+                <div className={"userInfo"}>User: {user} <button onClick={logout}>Logout</button><button className={'resetBtn'} onClick={this.reset}>Reset</button></div>
+                {(games) ? <div className={''}>Select Game:{games}</div> : null}
                 <div>
-                  <button value={4} onClick={this.setNumberOfOpponents}>4 players</button> <br></br> 
-                  <button onClick={this.inviteAll}>Invite All</button>
+                    <button onClick={this.inviteAll}>Invite All</button>
                 </div>
                 {(reqSent && showReq && false) ? <GameRequest name={sender} accept={this.accept} /> : null}
                 {(isPlayerReady) ? <div className='buttonsBlock'>
