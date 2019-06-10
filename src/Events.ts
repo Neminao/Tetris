@@ -17,5 +17,6 @@ export const SEND_TO_SPECTATOR = 'SEND_TO_SPECTATOR';
 export const SPECTATE = 'SPECTATE';
 export const SPECTATE_INFO = 'SPECTATE_INFO';
 export const DISPLAY_GAMES = 'DISPLAY_GAMES';
+export const INITIALIZE_GAME = 'INITIALIZE_GAME';
 
 export default USER_CONNECTED
