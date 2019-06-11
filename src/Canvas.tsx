@@ -13,14 +13,15 @@ class Canvas extends React.Component<
     componentDidMount() {
         const { canvasBack, canvasFront, rows, columns, blockSize } = this.props;
         if (canvasBack) {
-            let c2: any = canvasBack.current;
-            let c1: any = canvasFront.current;
-
-            c1.width = columns * blockSize;
-            c1.height = rows * blockSize;
+            let c2: any = canvasBack.current;          
             c2.width = columns * blockSize;
             c2.height = rows * blockSize;
             this.createGrid(c2.getContext('2d'));
+        }
+        if(canvasFront){
+            let c1: any = canvasFront.current;
+            c1.width = columns * blockSize;
+            c1.height = rows * blockSize;
         }
     }
     createGrid = (ctx: any) => {

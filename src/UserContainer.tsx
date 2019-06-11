@@ -1,14 +1,15 @@
 import React from 'react';
 import { values } from 'lodash';
 import GameRequest from './GameRequest';
-import CM from './ClientManager'
+import CM from './ClientManager';
+import GameSetupScreen from './GameSetupScreen';
 
 
 class UserContainer extends React.Component<{
     user: any, logout: any, setGeneratedShapes: any,
     setReciever: any, reciever: string[], startGame: any, isPlayerReady: boolean,
     changePlayerStatus: any, running: boolean, reset: any,
-    setOpponentNumber: any, addSpectator: any, initGame: any
+    setOpponentNumber: any, addSpectator: any, initGame: any, denied: string[],
 },
     {
         users: any[],
@@ -20,7 +21,11 @@ class UserContainer extends React.Component<{
         selectedPlayers: string[],
         games: any,
         showInitBtn: boolean,
-        showStartBtn: boolean
+        showStartBtn: boolean,
+        invitedPlayers: string[],
+        accepted: string[],
+        
+
     }>{
     constructor(props: any) {
         super(props);
@@ -34,7 +39,9 @@ class UserContainer extends React.Component<{
             selectedPlayers: [],
             games: [],
             showInitBtn: true,
-            showStartBtn: true
+            showStartBtn: true,
+            invitedPlayers: [],
+            accepted: []
         }
     }
     componentDidMount() {
@@ -92,22 +99,24 @@ class UserContainer extends React.Component<{
 
     sendInvite = (event: any) => {
         let players = this.state.selectedPlayers;
-
         players.push(event.target.value);
-        this.setState({ selectedPlayers: players });
-        event.target.style.backgroundColor = "#70dbdb";
+        this.setState({ selectedPlayers: players});
 
     }
 
     inviteAll = () => {
         const { user, reciever } = this.props;
-        let { selectedPlayers } = this.state;
+        let selected = this.state.selectedPlayers;
+        let invited = this.state.invitedPlayers;
+        invited = invited.concat(selected);
+        this.setState({invitedPlayers: invited});
         if (reciever.length < 3) {
-            console.log(selectedPlayers)
-            this.setState({ to: selectedPlayers })
-            CM.emitGameRequest(user, selectedPlayers);
-            this.setState({ selectedPlayers: [] });
+           
+            this.setState({ to: selected })
+            CM.emitGameRequest(user, selected);
+            this.setState({ selectedPlayers: []  });
         }
+        console.log(invited, selected)
     }
 
     setInitBtn = (showInitBtn: boolean) => {
@@ -166,8 +175,8 @@ class UserContainer extends React.Component<{
     }
 
     render = () => {
-        const { user, logout, isPlayerReady, running, reciever, initGame } = this.props;
-        const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn } = this.state;
+        const { user, logout, isPlayerReady, running, reciever, initGame, denied } = this.props;
+        const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers } = this.state;
         let displayRecievers = "";
         reciever.forEach(name => {
             if (displayRecievers == "") {
@@ -177,19 +186,33 @@ class UserContainer extends React.Component<{
         })
         return (
             <div>
-                {(showSide) ? <div className={'sideTab'}>Select player:{this.state.users}</div> : null}
+                {(showSide) ? 
+                <div className={'sideTab'}>
+                Select players:{this.state.users}
+                <button className={'inviteBtn'} onClick={this.inviteAll}>Invite</button>
+                </div> 
+                : null}
 
-                <div className={"userInfo"}>User: {user} Selected players: {displayRecievers}<button onClick={logout}>Logout</button><button className={'resetBtn'} onClick={this.reset}>Reset</button></div>
+                <div className={"userInfo"}>User: {user} {reciever.length>0 && isPlayerReady ? 'Users in game: ' + displayRecievers : null}<button onClick={logout}>Logout</button><button className={'resetBtn'} onClick={this.reset}>Reset</button></div>
                 {(games && !running) ? <div className={''}>Select Game:{games}</div> : null}
-                <div>
-                    <button onClick={this.inviteAll}>Invite All</button>
-                </div>
+                
+                {showInitBtn ?  
+                <GameSetupScreen 
+                user={user} 
+                start={this.startGame} 
+                initializeGame={initGame} 
+                selectedPlayers={selectedPlayers} 
+                recievers={reciever} denied={denied}
+                showStartBtn={showStartBtn && isPlayerReady}
+                showInitBtn={showInitBtn}
+                invitedPlayers={invitedPlayers}
+                /> : null}
+                
                 {(reqSent && showReq) ? <GameRequest name={sender} accept={this.accept} /> : null}
-                {(reciever.length > 0 && showInitBtn) ? <button className={'startBtn'} onClick={initGame}>InitializeGame</button> : null}
                 {(isPlayerReady && showStartBtn) ? <div className='buttonsBlock'>
                     <button className={'startBtn'} onClick={this.startGame}>Start</button><br></br>
                 </div> : null}
-
+                
             </div>
         )
     }

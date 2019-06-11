@@ -8,22 +8,32 @@ class MiniCanvas extends React.Component<{
 
     componentDidMount(){
         const {canvasSide, columns, blockSize} = this.props;
+        if (canvasSide != null) {
         let c3: any = canvasSide.current;
-        if (null != c3) {
-            c3.width = columns * blockSize;
+        if(c3){
+            c3.width = columns / 2 * blockSize;
             c3.height = blockSize * 2;
+        }
         }
     }
     render() {
         const {canvasSide, rowScore, totalScore, blockSize, columns, showSide, name} = this.props;
-        const style2 = { "height": blockSize * 2, "width": columns * blockSize };      
+        const style2 = { "height": blockSize * 2, "width": columns / 2  * blockSize };      
         return (
             <div className='sideBlock'>
                     {showSide ? <canvas className='SideCanvas' style={style2} ref={canvasSide}></canvas> : null }
                     <div className={'score'}>
-                    <div>User: {name}</div>
-                    <div>Rows Cleared: {rowScore}</div>
-                    <div>Score: {totalScore}</div>
+                    <table className={'infoTable'}>
+                        <tr>
+                            <td>User:</td><td className={'rightTD'}>{name}</td>
+                        </tr>
+                        <tr>
+                            <td>Lines:</td><td className={'rightTD'}>{rowScore}</td>
+                        </tr>
+                        <tr>
+                            <td>Score:</td><td className={'rightTD'}>{totalScore}</td>
+                        </tr>
+                    </table>
                     </div>
                 </div>
         )

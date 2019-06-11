@@ -41,6 +41,7 @@ interface MyState {
     isSpectator: boolean;
     specCanvases: any;
     reqAccepted: any;
+    denied: string[];
 }
 
 class UniversalShapeContext extends React.Component<{}, MyState>{
@@ -49,13 +50,13 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasSide = React.createRef<HTMLCanvasElement>();
     canvasBack2 = React.createRef<HTMLCanvasElement>();
     canvasFront2 = React.createRef<HTMLCanvasElement>();
-    canvasSide2 = React.createRef<HTMLCanvasElement>();
+    
     canvasBack3 = React.createRef<HTMLCanvasElement>();
     canvasFront3 = React.createRef<HTMLCanvasElement>();
-    canvasSide3 = React.createRef<HTMLCanvasElement>();
+    
     canvasBack4 = React.createRef<HTMLCanvasElement>();
     canvasFront4 = React.createRef<HTMLCanvasElement>();
-    canvasSide4 = React.createRef<HTMLCanvasElement>();
+    
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -89,7 +90,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             spectators: [],
             isSpectator: false,
             specCanvases: null,
-            reqAccepted: null
+            reqAccepted: null, 
+            denied: []
         }
     }
 
@@ -163,6 +165,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         this.setState({
             reqAccepted: <Popup user={user} accepted={tf} resetPopup={this.resetPopup}/>
         })
+        if(!tf){
+            let d = this.state.denied;
+            d.push(user);
+            this.setState({
+                denied: d
+            })
+        }
+
+        setTimeout(this.resetPopup, 5000);
     }
 
     resetPopup = () => {
@@ -186,7 +197,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         return generatedShapes;
     }
 
-    setPlayerReady = () => {
+    setPlayerReady = (tf: boolean) => {
         this.setState({ isPlayerReady: true })
     }
 
@@ -315,21 +326,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 }
             }
         }
-        /*   switch (userIndex) {
-               case 0: this.setState({
-                   totalScorePlayer2: obj.totalScore,
-                   scorePlayer2: obj.score
-               }); break;
-               case 1: this.setState({
-                   totalScorePlayer3: obj.totalScore,
-                   scorePlayer3: obj.score
-               }); break;
-               case 2: this.setState({
-                   totalScorePlayer4: obj.totalScore,
-                   scorePlayer4: obj.score
-               }); break;
-           }*/
-
     }
 
     updateSpectatingCanvas = (obj: any) => {
@@ -529,8 +525,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         sidectx.clearRect(0, 0, col * size, row * size);
         if (nextShape != null)
             nextShape.updateCanvas(ctx1);
-        if (sidectx)
-            shape.updateCanvas(sidectx);
+        if (sidectx){
+            let tempShape = this.deepCopyShape(shape);
+            tempShape.fitToSide(2.5);
+            tempShape.updateCanvas(sidectx);
+            tempShape.fitToSide(-2.5);
+        }
         this.setState({
             currentShape: next,
             nextShape: shape
@@ -829,7 +829,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             isPlayerReady, running,
             totalScorePlayer3, totalScorePlayer4,
             scorePlayer3, scorePlayer4,
-            reqAccepted } = this.state;
+            reqAccepted, denied } = this.state;
 
         return (
             <div onKeyUp={this.onKeyUp} >
@@ -847,7 +847,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 running={running} reset={this.reset}
                                 setOpponentNumber={this.setOpponentNumber}
                                 addSpectator={this.addSpectator}
-                                initGame={this.initGame} />
+                                initGame={this.initGame} 
+                                denied ={denied}/>
 
                         </div>}
 
@@ -871,22 +872,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 blockSize={blockSize}
                                 name={user.name}
                             />
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront2}
-                                canvasBack={this.canvasBack2}
-                            />
-                            <MiniCanvas
-                                canvasSide={this.canvasSide2}
-                                showSide={false}
-                                rowScore={scorePlayer2}
-                                totalScore={totalScorePlayer2}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[0]}
-                            />
+                           
 
 
                         </div>
@@ -899,7 +885,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 canvasBack={this.canvasBack3}
                             />
                             <MiniCanvas
-                                canvasSide={this.canvasSide3}
+                                canvasSide={null}
                                 showSide={false}
                                 rowScore={scorePlayer3}
                                 totalScore={totalScorePlayer3}
@@ -908,6 +894,24 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 name={recievers[1]}
                             />
                         </div>
+                        <div className={'canvas1'}>
+                        <Canvas
+                                rows={rows}
+                                columns={columns}
+                                blockSize={blockSize / 2}
+                                canvasFront={this.canvasFront2}
+                                canvasBack={this.canvasBack2}
+                            />
+                            <MiniCanvas
+                                canvasSide={null}
+                                showSide={false}
+                                rowScore={scorePlayer2}
+                                totalScore={totalScorePlayer2}
+                                columns={columns}
+                                blockSize={blockSize}
+                                name={recievers[0]}
+                            />
+                            </div>
                         <div className={'canvas3'}>
                             <Canvas
                                 rows={rows}
@@ -917,7 +921,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 canvasBack={this.canvasBack4}
                             />
                             <MiniCanvas
-                                canvasSide={this.canvasSide4}
+                                canvasSide={null}
                                 showSide={false}
                                 rowScore={scorePlayer4}
                                 totalScore={totalScorePlayer4}
@@ -928,7 +932,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                         </div>
                     </div> : null}
                     {isSpectator ? <div>
-                        <div className='wrap'>
+                        <div className={'canvas4'}>
                             <Canvas
                                 rows={rows}
                                 columns={columns}
@@ -948,7 +952,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 name={recievers[3]}
                             />
                         </div>
-                        <div>
+                        <div className={'canvas1'}>
                             <Canvas
                                 rows={rows}
                                 columns={columns}
@@ -957,7 +961,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 canvasBack={this.canvasBack2}
                             />
                             <MiniCanvas
-                                canvasSide={this.canvasSide2}
+                                canvasSide={null}
                                 showSide={false}
                                 rowScore={scorePlayer2}
                                 totalScore={totalScorePlayer2}
@@ -977,7 +981,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 canvasBack={this.canvasBack3}
                             />
                             <MiniCanvas
-                                canvasSide={this.canvasSide3}
+                                canvasSide={null}
                                 showSide={false}
                                 rowScore={scorePlayer3}
                                 totalScore={totalScorePlayer3}
@@ -995,7 +999,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 canvasBack={this.canvasBack4}
                             />
                             <MiniCanvas
-                                canvasSide={this.canvasSide4}
+                                canvasSide={null}
                                 showSide={false}
                                 rowScore={scorePlayer4}
                                 totalScore={totalScorePlayer4}

@@ -22,6 +22,12 @@ class UniversalShape {
         this.color = color;
         this.blocksArr = this.fillArr(arr[0], size, columns);
     }
+
+    fitToSide(move: number) {
+        this.blocksArr = this.blocksArr.map((elem: any) => {
+            return new BaseBuildingSquare((elem.left - move * this.size), elem.top , this.color, this.size)
+        });
+    }
     defineNewProperties(blocksArr: any[], scale: number) {
         this.blocksArr = blocksArr.map((elem: any) => {
             return new BaseBuildingSquare(elem.left * scale, elem.top * scale, 'red', this.size)

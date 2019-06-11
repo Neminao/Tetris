@@ -161,7 +161,7 @@ button {
 }
 
 .startBtn {
-  width: 150px;
+  
   border: solid 4px seagreen;
   background-color: darkseagreen;
   height: 50px;
@@ -171,8 +171,8 @@ button {
   margin-top: 10px;
 }
 .score {
-  width: 400px;
-  height: 90px;
+  width: 200px;
+  height: 95px;
   background-color: white;
   margin-top: 15px;
   margin-bottom: 15px;
@@ -185,20 +185,27 @@ button {
 .resetBtn {
   
 }
+
+.canvas1 {
+  position: fixed;
+  margin-left: 650px;
+  margin-top: 0px;
+ }
+
 .canvas2 {
  position: fixed;
  margin-left: 900px;
- margin-top: 212px;
+ margin-top: 0px;
 }
 .canvas3 {
   position: fixed;
- margin-left: 1350px;
- margin-top: 212px;
+ margin-left: 1150px;
+ margin-top: 0px;
 }
 .canvas4 {
   position: fixed;
- margin-left: 1000px;
- margin-top: 100px;
+ margin-left: 400px;
+ margin-top: 0px;
 }
 
 .popupOpen {
@@ -207,10 +214,65 @@ button {
   width: 200px;
   background-color: white;
   z-index: 2000;
-  margin-left: 300px;
-  margin-bottom: 20px;
+  margin-left: 200px;
+  
+  margin-top: 20px;
+  border: solid lime 3px;
+  border-radius: 3px;
+}
+
+.popupOpen button {
+  margin-right: 5px;
+  margin-top: 5px;
+  margin-left: 140px;
+  background-color: darksalmon;
+  border: solid lightcoral 2px;
 }
 
 .popupClosed {
   display: none;
 }
+
+.inviteBtn {
+  width: 100%;
+  border: solid 2px green;
+  font-size: 20px;
+  background-color: palegreen;
+}
+
+.gameSetup {
+  position: fixed;
+  width: 800px;
+  left: 50%;
+  margin-left: -400px; 
+  height: 600px;
+  margin-top: 100px;
+  background-color: rgba(217, 250, 209, 0.911);
+  border: solid lightgreen 4px;
+  border-radius: 3px;
+  font-size: 25px;
+}
+
+.gameSetup button {
+  border: solid 3px rgb(245, 212, 140);
+  font-size: 25px;
+  background-color: rgb(255, 251, 0);
+  border-radius: 3px;
+  height: 40px;
+}
+
+.gameSetup button:hover {
+  background-color: rgb(255, 187, 0);
+}
+
+.infoTable td{
+  margin: 15px;
+}
+
+.rightTD {
+  background-color: orange;
+  border-radius: 10px;
+  width: 150px;
+  font-size: 17px;
+}
+
