@@ -18,5 +18,6 @@ export const SPECTATE = 'SPECTATE';
 export const SPECTATE_INFO = 'SPECTATE_INFO';
 export const DISPLAY_GAMES = 'DISPLAY_GAMES';
 export const INITIALIZE_GAME = 'INITIALIZE_GAME';
+export const GAME_OVER = 'GAME_OVER';
 
 export default USER_CONNECTED

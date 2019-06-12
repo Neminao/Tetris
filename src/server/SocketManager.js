@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
+const { GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories')
 
@@ -68,6 +68,7 @@ module.exports = function (socket) {
         if (to)
             to.forEach(name => {
                 rec = connectedUsers[name];
+                if(rec)
                 socket.to(rec.socketID).emit(RESET, user);
             })
         io.emit(USER_CONNECTED, connectedUsers);
@@ -76,7 +77,7 @@ module.exports = function (socket) {
     socket.on(USER_READY, ({ user, reqSender }) => {
         const senderID = connectedUsers[reqSender].socketID;
         socket.to(senderID).emit(USER_READY, user);
-        console.log('Invited by: ' + reqSender + ", User: " + user);
+        console.log('Invited by: ' + reqSender + ", User: " + user); 
     })
 
     socket.on(REQUEST_DENIED, ({ user, reqSender }) => {
@@ -95,10 +96,14 @@ module.exports = function (socket) {
                 tempArray = recievers.slice(0);
                 tempArray.splice(i, 1);
                 tempArray.push(sender);
+                rec.inGame = true;
                 socket.to(rec.socketID).emit(INITIALIZE_GAME, { generatedShapes, recievers: tempArray });
             }
         }
+        let s = connectedUsers[sender];
+        s.inGame = true;
         socket.emit(INITIALIZE_GAME, { generatedShapes, recievers });
+        io.emit(USER_CONNECTED, connectedUsers);
     })
 
     socket.on(GAME_START, ({ to, user }) => {
@@ -162,6 +167,16 @@ module.exports = function (socket) {
         const specID = connectedUsers[spectator];
         if (specID)
             socket.to(specID.socketID).emit(SEND_TO_SPECTATOR, { matrix, shape, user, totalScore, score });
+    })
+
+    socket.on(GAME_OVER, ({user, recievers}) => {
+        let reciever;
+        recievers.forEach(name => {
+            reciever = connectedUsers[name]
+            if(reciever){
+                socket.to(reciever.socketID).emit(GAME_OVER, user);
+            }
+        })
     })
 }
 

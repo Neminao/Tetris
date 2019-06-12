@@ -9,7 +9,7 @@ class UserContainer extends React.Component<{
     user: any, logout: any, setGeneratedShapes: any,
     setReciever: any, reciever: string[], startGame: any, isPlayerReady: boolean,
     changePlayerStatus: any, running: boolean, reset: any,
-    setOpponentNumber: any, addSpectator: any, initGame: any, denied: string[],
+     addSpectator: any, initGame: any, denied: string[],
 },
     {
         users: any[],
@@ -99,9 +99,13 @@ class UserContainer extends React.Component<{
 
     sendInvite = (event: any) => {
         let players = this.state.selectedPlayers;
-        players.push(event.target.value);
+        let invited = this.state.invitedPlayers;
+        let index1 = players.indexOf(event.target.value);
+        let index2 = invited.indexOf(event.target.value);
+        if(index1 == -1 && index2 == -1){
+        players.push(event.target.value);       
         this.setState({ selectedPlayers: players});
-
+    }
     }
 
     inviteAll = () => {
@@ -136,7 +140,7 @@ class UserContainer extends React.Component<{
     }
     updateAvailableGames = (games: any) => {
         let users = values(games).map((u) => {
-            return <button value={u.sender} className={''} onClick={this.spectate}>{u.sender}'s game</button>;
+            return <button value={u.sender} className={'sideBtn'} onClick={this.spectate}>{u.sender}'s game</button>;
         })
         this.setState({
             games: users,
@@ -170,14 +174,14 @@ class UserContainer extends React.Component<{
         this.setInitBtn(false);
     }
 
-    setNumberOfOpponents = (event: any) => {
-        this.props.setOpponentNumber(event.target.value);
-    }
-
     render = () => {
         const { user, logout, isPlayerReady, running, reciever, initGame, denied } = this.props;
         const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers } = this.state;
         let displayRecievers = "";
+        let displayGames = null;
+        if(games && !running){
+            displayGames = games;
+        }
         reciever.forEach(name => {
             if (displayRecievers == "") {
                 displayRecievers += name;
@@ -189,12 +193,12 @@ class UserContainer extends React.Component<{
                 {(showSide) ? 
                 <div className={'sideTab'}>
                 Select players:{this.state.users}
-                <button className={'inviteBtn'} onClick={this.inviteAll}>Invite</button>
+                <button className={'inviteBtn'} onClick={this.inviteAll}>Invite</button>Spectate a game:{displayGames}
                 </div> 
                 : null}
 
                 <div className={"userInfo"}>User: {user} {reciever.length>0 && isPlayerReady ? 'Users in game: ' + displayRecievers : null}<button onClick={logout}>Logout</button><button className={'resetBtn'} onClick={this.reset}>Reset</button></div>
-                {(games && !running) ? <div className={''}>Select Game:{games}</div> : null}
+                
                 
                 {showInitBtn ?  
                 <GameSetupScreen 

@@ -9,7 +9,9 @@ class Popup extends React.Component<{user: string, accepted: boolean, resetPopup
         return (
             <div className={'popupOpen'} >
                 <button onClick={this.close}>Close</button>
+                <p>
                 {user}{accepted ? ' accepted your request' : ' denied your request'}
+                </p>
             </div>
         )
     }

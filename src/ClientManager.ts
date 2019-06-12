@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES } from './Events'
+import { GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://192.168.88.14:3231";
@@ -25,7 +25,7 @@ class ClientManager {
         return shapes;
     }
 
-    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any) => {
+    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any) => {
         this.socket.on(USER_READY, (user: any) => {
             setReciever(user);
             showAccepted(user, true);
@@ -45,6 +45,10 @@ class ClientManager {
         this.socket.on(INITIALIZE_GAME, (obj: any) => {
             setGeneratedShapes(obj.generatedShapes);
             setRecievers(obj.recievers);
+        })
+
+        this.socket.on(GAME_OVER, (user: string) => {
+            opponentGameOver(user);
         })
     }
 
@@ -139,6 +143,10 @@ class ClientManager {
     emitRequestDenied = (user: string, reqSender: string) => {
         this.socket.emit(REQUEST_DENIED, { user, reqSender })
     }
+    emitGameOver= (user: string, recievers: string[]) => {
+        this.socket.emit(GAME_OVER, {user,recievers});
+    }
+
 }
 
 let CM = new ClientManager();

@@ -9,13 +9,19 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-position: left top;
+  background-position: center;
   background-attachment: fixed;
+  font-family: 'Saira Semi Condensed', sans-serif;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+    font-family: 'Saira Semi Condensed', sans-serif;
+}
+
+button {
+  font-family: 'Saira Semi Condensed', sans-serif;
 }
 
 canvas {
@@ -26,7 +32,7 @@ canvas {
   border: 1px solid black;
 }
 button {
-  position: relative;
+  font-weight: 600;
 }
 .canvasBlock {
   float: left;
@@ -98,21 +104,25 @@ button {
 .userInfo {
   height: 50px;
   font-size: 30px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.938);
   padding-left: 100px;
   position: static;
 }
 
 .userInfo button {
-  height: 35px;
+  
   width: 120px;
-  font-size: 25px;
+  font-size: 20px;
   background-color: rgb(228, 182, 182);
-  border: solid 3px red;
+  border: solid 3px rgb(228, 182, 182);
   border-radius: 3px;
   float: right;
   margin-top: 5px;
   margin-right: 10px;
+}
+
+.userInfo button:hover {
+  border: solid 3px red;
 }
 
 .sideTab {
@@ -121,17 +131,16 @@ button {
   height: 100%;
   width: 150px;
   position: absolute;
-  background-color: navy; 
-  border-right: solid 3px dodgerblue;
+  background-color: #4d59ff; 
+  border-right: solid 3px #a04dff;
   color: white;
 }
 
 .sideBtn {
   width: 100%;
-  height: 30px;
-  font-size: 20px;
+  font-size: 17px;
   text-align: center;
-  border: solid 2px rgb(0, 140, 205);
+  border: solid 2px #4dfff3;
 }
 
 .sideBtn:hover{
@@ -141,22 +150,26 @@ button {
 
 .request {
  width:200px;
- height:70px;
- background-color: white;
+ height:100px;
+ background-color: #ffe436ea;
  margin-left: 40%;
- margin-top: 40px;
- border: solid 3px green;
+ margin-top: 10px;
+ border: solid 3px #ffb236;
  border-radius: 3px;
- font-size: 14px
+ font-size: 14px;
+ z-index: 2500;
 }
 .request button {
-  margin-top: 10px;
-  border: solid 3px green;
+  margin-top: 35px;
+  border: solid 3px #ff8036;
+  background-color: #ff8036;
  border-radius: 3px;
  height: 25px;
+ margin-left: 5px;
+ margin-right: 5px;
 }
 .request button:hover {
-  border: solid 3px greenyellow;
+  border: solid 3px #ffb236;
  
 }
 
@@ -164,15 +177,15 @@ button {
   
   border: solid 4px seagreen;
   background-color: darkseagreen;
-  height: 50px;
   font-size: 30px;
+  width: 110px;
   text-align: center;
   border-radius: 5px;
   margin-top: 10px;
 }
 .score {
   width: 200px;
-  height: 95px;
+  height: 110px;
   background-color: white;
   margin-top: 15px;
   margin-bottom: 15px;
@@ -180,10 +193,6 @@ button {
   border: solid 3px orange;
   background-color: yellow;
   border-radius: 3px; 
-}
-
-.resetBtn {
-  
 }
 
 .canvas1 {
@@ -212,21 +221,22 @@ button {
   position: fixed;
   height: 100px;
   width: 200px;
-  background-color: white;
+  background-color: #ff814be8;
   z-index: 2000;
   margin-left: 200px;
   
   margin-top: 20px;
-  border: solid lime 3px;
+  border: solid #ff544b 3px;
   border-radius: 3px;
+  
 }
 
 .popupOpen button {
   margin-right: 5px;
   margin-top: 5px;
   margin-left: 140px;
-  background-color: darksalmon;
-  border: solid lightcoral 2px;
+  background-color: #ff4b93;
+  border: solid #ff4b93 2px;
 }
 
 .popupClosed {
@@ -235,9 +245,13 @@ button {
 
 .inviteBtn {
   width: 100%;
-  border: solid 2px green;
+  border: solid 2px #9af3ff;
   font-size: 20px;
-  background-color: palegreen;
+  background-color: #9af3ff;
+}
+
+.inviteBtn:hover{
+  border: solid 2px salmon;
 }
 
 .gameSetup {
@@ -247,32 +261,50 @@ button {
   margin-left: -400px; 
   height: 600px;
   margin-top: 100px;
-  background-color: rgba(217, 250, 209, 0.911);
-  border: solid lightgreen 4px;
+  background-color: white;
+  border: solid #f9ff8f 4px;
   border-radius: 3px;
   font-size: 25px;
+  z-index: 100;
+  background-image: url('../src/img/computer-3163437.png');
+  background-position: center;
 }
 
 .gameSetup button {
   border: solid 3px rgb(245, 212, 140);
   font-size: 25px;
-  background-color: rgb(255, 251, 0);
+  background-color: #f9ff8f;
   border-radius: 3px;
-  height: 40px;
+  
 }
 
 .gameSetup button:hover {
-  background-color: rgb(255, 187, 0);
+  background-color: salmon;
 }
 
 .infoTable td{
-  margin: 15px;
+  margin-left: 15px;
+  height: 10px;
 }
 
 .rightTD {
   background-color: orange;
   border-radius: 10px;
   width: 150px;
-  font-size: 17px;
+  font-size: 16px;
+}
+
+.gameSetup p {
+  border-top: solid #f9ff8f 4px;
+  border-bottom: solid #f9ff8f 4px;
+  background-color: rgba(255, 255, 255, 0.938);
+
+}
+
+.gameSetup table {
+  background-color: rgba(255, 255, 255, 0.938);
+  width: 100%;
+  border-top: solid #f9ff8f 4px;
+  border-bottom: solid #f9ff8f 4px;
 }
 

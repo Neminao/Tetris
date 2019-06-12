@@ -24,6 +24,7 @@ class MiniCanvas extends React.Component<{
                     {showSide ? <canvas className='SideCanvas' style={style2} ref={canvasSide}></canvas> : null }
                     <div className={'score'}>
                     <table className={'infoTable'}>
+                        <tbody>
                         <tr>
                             <td>User:</td><td className={'rightTD'}>{name}</td>
                         </tr>
@@ -33,6 +34,7 @@ class MiniCanvas extends React.Component<{
                         <tr>
                             <td>Score:</td><td className={'rightTD'}>{totalScore}</td>
                         </tr>
+                        </tbody>
                     </table>
                     </div>
                 </div>
