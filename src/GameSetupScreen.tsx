@@ -5,11 +5,13 @@ class GameSetupScreen extends React.Component<
         selectedPlayers: string[],
         recievers: string[], user: string,
         initializeGame: any,
-        start: any,
         denied: string[],
-        showStartBtn: boolean,
         showInitBtn: boolean,
         invitedPlayers: string[],
+        isPlayer: boolean,
+        gameMaster: string,
+        setDifficulty: any,
+        showDifficultySelection: boolean
     },
     {}> {
 
@@ -22,8 +24,12 @@ class GameSetupScreen extends React.Component<
         })
         return str;
     }
+
+    setDifficulty = (event: any) => {
+        this.props.setDifficulty(event.target.value);
+    }
     render() {
-        const { selectedPlayers, recievers, user, initializeGame, start, denied, showStartBtn, showInitBtn, invitedPlayers } = this.props;
+        const { selectedPlayers, recievers, user, initializeGame, denied, showInitBtn, invitedPlayers, isPlayer, gameMaster, showDifficultySelection } = this.props;
         let selected = '', recs = '', d = '', invited = '';
         selected = this.createStringFromArray(selectedPlayers, selected);
         recs = this.createStringFromArray(recievers, recs);
@@ -33,6 +39,7 @@ class GameSetupScreen extends React.Component<
         return (
             <div className={'gameSetup'}>
                 <p>Current user: {user}</p>
+                {gameMaster ? <p>Creating game: {gameMaster}</p> : null}
                 {selected.length > 0 || invited.length > 0 ?
                     <table>
                         <tbody>
@@ -65,7 +72,9 @@ class GameSetupScreen extends React.Component<
                 {invitedPlayers.length > 0 ? <p>Invited players: {invited}</p> : null}
                 {denied.length > 0 ? <p>Players who declined: {d}</p> : null}
                 {(recievers.length > 0 && showInitBtn) ? <button onClick={initializeGame} >Initialize Game</button> : null}
-                {showStartBtn ? <button onClick={start}>Start</button> : null}
+                {isPlayer ? <p>Waiting for other players to join...</p> : null}
+                {showDifficultySelection ? <div><button value='10' onClick={this.setDifficulty}>Easy</button>
+                <button value='7' onClick={this.setDifficulty}>Normal</button></div> : null }
             </div>
         )
     }

@@ -1,6 +1,16 @@
 
 var uuidv4 = require("uuid/v4");
 var shapeCoordinates = {
+    0: [
+        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }]
+    ],
+    1: [
+        [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }]
+    ],
+    2: [
+        [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
+        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
+    ],
     3: [
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: -2 }, { x: 0, y: 1 }]
     ],
@@ -15,16 +25,15 @@ var shapeCoordinates = {
     6: [
         [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     ],
-    0: [
-        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }]
+    7: [
+        [{ x: 0, y: 0 }]
     ],
-    1: [
-        [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }]
+    8: [
+        [{ x: 0, y: 0 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }]
     ],
-    2: [
-        [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
-        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
-    ]
+    9: [
+        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }]
+    ],
 };
 var colors = {
     0: 'OrangeRed', 
@@ -33,7 +42,10 @@ var colors = {
     3: 'orange',
     4: 'GreenYellow',
     5: 'Aqua',
-    6: 'DeepPink'
+    6: 'DeepPink',
+    7: 'dodgerblue',
+    8: 'red',
+    9: 'green'
 
 }
 const createUser = ({name = "", socketID = null, inGame = false, isReady = false} = {})=>(
@@ -51,11 +63,11 @@ const createGameData = ({matrix = []} = {})=>(
 		matrix	
 	}
 )
-const generateShapes = (max) => { 
-	let index = Math.floor(Math.random() * Math.floor(7));
+const generateShapes = (max, difficulty) => { 
+	let index = Math.floor(Math.random() * Math.floor(difficulty));
 	let array = [];
 	for(var i = 0 ;i<max;i++){
-		index = Math.floor(Math.random() * Math.floor(7));
+		index = Math.floor(Math.random() * Math.floor(difficulty));
 		array.push({coords: shapeCoordinates[index], color: colors[index]});
 		
 	}

@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES } from './Events'
+import { GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://192.168.88.14:3231";
@@ -25,7 +25,7 @@ class ClientManager {
         return shapes;
     }
 
-    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any) => {
+    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any, removeReciever: any) => {
         this.socket.on(USER_READY, (user: any) => {
             setReciever(user);
             showAccepted(user, true);
@@ -37,6 +37,7 @@ class ClientManager {
 
         this.socket.on(RESET, (user: any) => {
             removeSpectator(user);
+            removeReciever(user);
         })
 
         this.socket.on(ADD_SHAPES, (newShapes: any) => {
@@ -67,7 +68,8 @@ class ClientManager {
         setSender: any, setRequest: any, startGame: any,
         showRequest: any, setSide: any, setRecievers: any,
         addSpectator: any, updateAvailableGames: any,
-        removeReciever: any, setInitBtn: any) => {
+        removeReciever: any, setInitBtn: any, updateGameSetupScreen: any,
+        emitGameSetup: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
@@ -98,6 +100,12 @@ class ClientManager {
         })
         this.socket.on(DISPLAY_GAMES, (gamesInProgress: any) => {
             updateAvailableGames(gamesInProgress);
+        })
+        this.socket.on(GAME_SETUP, (obj: any) => {
+            updateGameSetupScreen(obj);
+        })
+        this.socket.on(USER_READY, ()=>{
+            emitGameSetup();
         })
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number) => {
@@ -137,14 +145,17 @@ class ClientManager {
     emitSpectatorData = (matrix: any, shape: any, spectator: string, user: string, totalScore: number, score: number) => {
         this.socket.emit(SEND_TO_SPECTATOR, { matrix, shape, spectator, user, totalScore, score });
     }
-    emitInitializeGame = (sender: string, recievers: string[]) => {
-        this.socket.emit(INITIALIZE_GAME, { sender, recievers });
+    emitInitializeGame = (sender: string, recievers: string[], difficulty: number) => {
+        this.socket.emit(INITIALIZE_GAME, { sender, recievers, difficulty });
     }
     emitRequestDenied = (user: string, reqSender: string) => {
         this.socket.emit(REQUEST_DENIED, { user, reqSender })
     }
     emitGameOver= (user: string, recievers: string[]) => {
         this.socket.emit(GAME_OVER, {user,recievers});
+    }
+    emitGameSetup = (master: string, recievers: string[], invited: string[]) => {
+        this.socket.emit(GAME_SETUP, {master, recievers, invited});
     }
 
 }

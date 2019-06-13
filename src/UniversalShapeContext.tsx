@@ -41,6 +41,7 @@ interface MyState {
     specCanvases: any;
     reqAccepted: any;
     denied: string[];
+    difficulty: number;
 }
 
 class UniversalShapeContext extends React.Component<{}, MyState>{
@@ -89,7 +90,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             isSpectator: false,
             specCanvases: null,
             reqAccepted: null,
-            denied: []
+            denied: [],
+            difficulty: -1
         }
     }
 
@@ -112,14 +114,31 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             generatedShapes,
             nextShape: generatedShapes[0]
         });
-        CM.initMainTetrisContext(this.setGeneratedShapes, this.setReciever, this.addShapes, this.showAccepted, this.setRecievers, this.removeSpectator, this.opponentGameOver);
+        CM.initMainTetrisContext(this.setGeneratedShapes, this.setReciever, this.addShapes, this.showAccepted, this.setRecievers, this.removeSpectator, this.opponentGameOver, this.removeReciever);
         CM.updateGame(this.updateSecondCanvas);
         CM.spectatingGames(this.updateSpectatingCanvas);
 
     }
 
+    setDifficulty = (difficulty: number) => {
+        this.setState({difficulty});
+    }
+
     setRecievers = (recievers: string[]) => {
         this.setState({ recievers });
+    }
+
+    removeReciever = (reciever: string) => {
+        let recs = this.state.recievers;
+        const {running} = this.state;
+        let index = recs.indexOf(reciever)
+        if (index != -1 && !running) {
+            recs.splice(index, 1);
+        
+        this.setState({
+            recievers: recs
+        })
+    }
     }
 
     opponentGameOver = (user: string) => {
@@ -424,7 +443,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             const row = this.state.rows;
             const size = this.state.blockSize;
             const acc = this.state.acceleration;
-            let delay = (acc <= 10) ? 20 : 10 ;
+            let delay = 25 - acc;
 
             if (event.keyCode == 39 && shape.areBlocksFreeToMoveRight(mat)) {
                 shape.moveRight();
@@ -815,14 +834,13 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         }
     }
     setReciever = (reciever: any) => {
-        let rec = this.state.recievers;
+        let rec = this.state.recievers;       
         if (rec.length < 3) {
             rec.push(reciever);
         }
         this.setState({
             recievers: rec
         })
-        console.log(rec);
     }
     reset = () => {
         clearInterval(this.state.counterId);
@@ -855,13 +873,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             spectators: [],
             isSpectator: false,
             specCanvases: null,
-            reqAccepted: null
+            reqAccepted: null,
+            denied: [],
+            difficulty: -1
         })
     }
 
     initGame = () => {
-        const { user, recievers } = this.state;
-        CM.emitInitializeGame(user.name, recievers);
+        const { user, recievers, difficulty } = this.state;
+        CM.emitInitializeGame(user.name, recievers, difficulty);
     }
     render() {
         const {
@@ -872,7 +892,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             isPlayerReady, running,
             totalScorePlayer3, totalScorePlayer4,
             scorePlayer3, scorePlayer4,
-            reqAccepted, denied } = this.state;
+            reqAccepted, denied, difficulty } = this.state;
 
         return (
             <div onKeyUp={this.onKeyUp} >
@@ -890,7 +910,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 running={running} reset={this.reset}
                                 addSpectator={this.addSpectator}
                                 initGame={this.initGame}
-                                denied={denied} />
+                                denied={denied} diffculty={difficulty}
+                                setDifficulty={this.setDifficulty} />
 
                         </div>}
 

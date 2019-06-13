@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
+const { GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories')
 
@@ -57,7 +57,7 @@ module.exports = function (socket) {
     })
 
     socket.on(GAME_INIT, () => {
-        socket.emit(GAME_INIT, generateShapes(1000));
+        socket.emit(GAME_INIT, generateShapes(1000, 7));
     })
 
     socket.on(RESET, ({ to, user }) => {
@@ -85,9 +85,9 @@ module.exports = function (socket) {
         socket.to(senderID).emit(REQUEST_DENIED, user);
     })
 
-    socket.on(INITIALIZE_GAME, ({ sender, recievers }) => {
+    socket.on(INITIALIZE_GAME, ({ sender, recievers, difficulty }) => {
         let rec;
-        const generatedShapes = generateShapes(1000);
+        const generatedShapes = generateShapes(1000, difficulty);
         let tempArray;
         gamesInProgress = addGame(gamesInProgress, sender, recievers);
         for (var i = 0; i < recievers.length; i++) {
@@ -136,7 +136,7 @@ module.exports = function (socket) {
     })
 
     socket.on(ADD_SHAPES, (reciever) => {
-        const newShapes = generateShapes(100);
+        const newShapes = generateShapes(100, 7);
         socket.emit(ADD_SHAPES, newShapes);
         reciever.forEach(name => {
             socket.to(connectedUsers[name].socketID).emit(ADD_SHAPES, newShapes);
@@ -177,6 +177,15 @@ module.exports = function (socket) {
                 socket.to(reciever.socketID).emit(GAME_OVER, user);
             }
         })
+    })
+
+    socket.on(GAME_SETUP, ({master, recievers, invited}) => {
+        let rec;
+        recievers.forEach(name => {
+            rec = connectedUsers[name];
+            if(rec)
+            socket.to(rec.socketID).emit(GAME_SETUP, {master, recievers, invited});
+        } )
     })
 }
 
