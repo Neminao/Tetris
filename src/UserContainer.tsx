@@ -238,8 +238,8 @@ class UserContainer extends React.Component<{
             <div>
                 {(showSide) ?
                     <div className={'sideTab'}>
-                        Select players:{this.state.users}
-                        <button className={'inviteBtn'} onClick={this.inviteAll}>Invite</button>Spectate a game:{displayGames}
+                        <p>Select players:</p>{this.state.users}
+                        <button className={'inviteBtn'} onClick={this.inviteAll}>Invite</button><p>Spectate a game:</p>{displayGames}
                     </div>
                     : null}
 

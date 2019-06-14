@@ -71,6 +71,11 @@ module.exports = function (socket) {
                 if(rec)
                 socket.to(rec.socketID).emit(RESET, user);
             })
+        let game = gamesInProgress[user];
+        if(game){
+            gamesInProgress = removeGame(gamesInProgress, user);
+            io.emit(DISPLAY_GAMES, gamesInProgress);
+        }
         io.emit(USER_CONNECTED, connectedUsers);
     })
 

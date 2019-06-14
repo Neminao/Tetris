@@ -100,7 +100,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             matrix: this.createEmptyMatrix(),
             nextShape: this.getRandomShape(),
         })
-
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
         this.initSocket();
@@ -121,7 +120,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     setDifficulty = (difficulty: number) => {
-        this.setState({difficulty});
+        this.setState({ difficulty });
     }
 
     setRecievers = (recievers: string[]) => {
@@ -130,15 +129,14 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     removeReciever = (reciever: string) => {
         let recs = this.state.recievers;
-        const {running} = this.state;
+        const { running } = this.state;
         let index = recs.indexOf(reciever)
         if (index != -1 && !running) {
             recs.splice(index, 1);
-        
-        this.setState({
-            recievers: recs
-        })
-    }
+            this.setState({
+                recievers: recs
+            })
+        }
     }
 
     opponentGameOver = (user: string) => {
@@ -146,21 +144,11 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const index = recievers.indexOf(user);
         let canvas = this.getCanvasBasedOnRecieverIndex(index);
         this.gameOver(canvas);
-        console.log("game over: "+user)
-
     }
-
-    removeItemFromArray = (name: any, recievers: any[]) => {
-        const index = recievers.indexOf(name);
-        recievers.splice(index, 1);
-        return recievers;
-    }
-
 
     addShapes = (newCoords: any) => {
         let currentShapes = this.state.generatedShapes;
         let generatedShapes = [];
-
         const { columns, rows, blockSize } = this.state;
         let newShapes = newCoords.map((elem: any) => {
             const color = elem.color;
@@ -201,7 +189,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 denied: d
             })
         }
-
         setTimeout(this.resetPopup, 5000);
     }
 
@@ -360,19 +347,19 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     getCanvasBasedOnRecieverIndex = (index: number) => {
         let c2: any = this.canvasBack.current;
         switch (index) {
-            case 0: 
+            case 0:
                 c2 = this.canvasBack2.current;
                 ;
                 break;
-            case 1: 
+            case 1:
                 c2 = this.canvasBack3.current;
                 ; break;
-            case 2: 
+            case 2:
                 c2 = this.canvasBack4.current;
                 ; break;
-            case 3: 
+            case 3:
                 c2 = this.canvasBack.current;
-               ; break;
+                ; break;
 
         }
         return c2;
@@ -390,19 +377,19 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     totalScorePlayer3: obj.totalScore,
                     scorePlayer3: obj.score
                 })
-                ; break;
+                    ; break;
             case 2:
                 this.setState({
                     totalScorePlayer4: obj.totalScore,
                     scorePlayer4: obj.score
                 })
-                ; break;
+                    ; break;
             case 3:
                 this.setState({
                     totalScore: obj.totalScore,
                     score: obj.score
                 })
-                ; break;
+                    ; break;
 
         }
     }
@@ -617,7 +604,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     gameOver = (canvas: any) => {
         let ctx = canvas.getContext('2d');
         let size = canvas.width / 10 + "px";
-        ctx.font = "bold " + size +" Verdana";
+        ctx.font = "bold " + size + " Verdana";
         ctx.textAlign = "center";
         ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2)
         ctx.strokeStyle = 'black';
@@ -625,7 +612,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
     moveShape = (shape: any, inter: any) => {
         let delay = this.state.delay;
-        
+
         const { user, columns, rows, blockSize, totalScore, score, recievers, acceleration, spectators } = this.state;
         let arr = this.state.matrix;
         if (user && shape) {
@@ -666,7 +653,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 });
                 this.setState({
                     matrix: arr,
-                    
+
                 })
 
                 this.updateStateOfTheGame(shape);
@@ -679,7 +666,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     stopGame = () => {
         clearInterval(this.state.counterId);
     }
-    updateStateOfTheGame = (shape: any) => { // temp
+    updateStateOfTheGame = (shape: any) => { 
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
@@ -727,13 +714,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     }
 
     isGameOver = (shape: any) => {
-
         return !shape.areBlocksFreeToMoveDown(this.state.matrix)
     }
-
-    /*delay = (ms: number) => {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }*/
 
     clearRow = (index: number) => {
         const col = this.state.columns;
@@ -834,7 +816,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         }
     }
     setReciever = (reciever: any) => {
-        let rec = this.state.recievers;       
+        let rec = this.state.recievers;
         if (rec.length < 3) {
             rec.push(reciever);
         }
@@ -879,6 +861,70 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         })
     }
 
+    generateSpecCanvases = () => {
+        const { rows, columns, blockSize, recievers } = this.state;
+        let canvases = [];
+        for (let i = 0; i < recievers.length; i++) {
+            let info = this.generateCanvasData(i);
+            if (info) {
+                let data = (recievers[i]) ? <div className={info.className}>
+                    <Canvas
+                        rows={rows}
+                        columns={columns}
+                        blockSize={blockSize / 2}
+                        canvasFront={null}
+                        canvasBack={info.canvasBack}
+                    />
+                    <MiniCanvas
+                        canvasSide={null}
+                        showSide={false}
+                        rowScore={info.rowScore}
+                        totalScore={info.totalScore}
+                        columns={columns}
+                        blockSize={blockSize}
+                        name={recievers[i]}
+                    />
+                </div> : null;
+                canvases.push(data);
+            }
+        }
+        console.log(canvases);
+        return canvases;
+    }
+
+
+    generateCanvasData = (index: number) => {
+        const { score, scorePlayer2, scorePlayer3, scorePlayer4, totalScore, totalScorePlayer2, totalScorePlayer3, totalScorePlayer4 } = this.state;
+        let data = null;
+        switch (index) {
+            case 0: data = {
+                className: 'canvas1',
+                rowScore: scorePlayer2,
+                totalScore: totalScorePlayer2,
+                canvasBack: this.canvasBack2
+            }; break;
+            case 1: data = {
+                className: 'canvas2',
+                rowScore: scorePlayer3,
+                totalScore: totalScorePlayer3,
+                canvasBack: this.canvasBack3
+            }; break;
+            case 2: data = {
+                className: 'canvas3',
+                rowScore: scorePlayer4,
+                totalScore: totalScorePlayer4,
+                canvasBack: this.canvasBack4
+            }; break;
+            case 3: data = {
+                className: 'canvas4',
+                rowScore: score,
+                totalScore: totalScore,
+                canvasBack: this.canvasBack
+            }; break;
+        }
+        return data;
+    }
+
     initGame = () => {
         const { user, recievers, difficulty } = this.state;
         CM.emitInitializeGame(user.name, recievers, difficulty);
@@ -887,13 +933,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const {
             isSpectator, columns,
             rows, blockSize, score,
-            totalScore, user, scorePlayer2,
-            totalScorePlayer2, recievers,
+            totalScore, user, recievers,
             isPlayerReady, running,
-            totalScorePlayer3, totalScorePlayer4,
-            scorePlayer3, scorePlayer4,
             reqAccepted, denied, difficulty } = this.state;
-
+        const canvases = this.generateSpecCanvases();
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div>{
@@ -935,143 +978,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 blockSize={blockSize}
                                 name={user.name}
                             />
-
-
-
                         </div>
-                        {(recievers[1]) ?<div className={'canvas2'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront3}
-                                canvasBack={this.canvasBack3}
-                            />
-                            <MiniCanvas
-                                canvasSide={null}
-                                showSide={false}
-                                rowScore={scorePlayer3}
-                                totalScore={totalScorePlayer3}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[1]}
-                            />
-                        </div> : null }
-                        {(recievers[0]) ? <div className={'canvas1'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront2}
-                                canvasBack={this.canvasBack2}
-                            />
-                            <MiniCanvas
-                                canvasSide={null}
-                                showSide={false}
-                                rowScore={scorePlayer2}
-                                totalScore={totalScorePlayer2}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[0]}
-                            />
-                        </div> : null }
-                        {(recievers[2]) ? <div className={'canvas3'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront4}
-                                canvasBack={this.canvasBack4}
-                            />
-                            <MiniCanvas
-                                canvasSide={null}
-                                showSide={false}
-                                rowScore={scorePlayer4}
-                                totalScore={totalScorePlayer4}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[2]}
-                            />
-                        </div> : null }
+                        {canvases}
                     </div> : null}
                     {isSpectator ? <div>
-                        <br></br>>
-                        {(recievers[3]) ? <div className={'canvas4'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-
-                                canvasFront={this.canvasFront}
-                                canvasBack={this.canvasBack}
-                            />
-
-                            <MiniCanvas
-                                canvasSide={this.canvasSide}
-                                showSide={false}
-                                rowScore={score}
-                                totalScore={totalScore}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[3]}
-                            />
-                        </div> : null }
-                        {(recievers[0]) ? <div className={'canvas1'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront2}
-                                canvasBack={this.canvasBack2}
-                            />
-                            <MiniCanvas
-                                canvasSide={null}
-                                showSide={false}
-                                rowScore={scorePlayer2}
-                                totalScore={totalScorePlayer2}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[0]}
-                            />
-
-
-                        </div> : null }
-                        {(recievers[1]) ? <div className={'canvas2'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront3}
-                                canvasBack={this.canvasBack3}
-                            />
-                            <MiniCanvas
-                                canvasSide={null}
-                                showSide={false}
-                                rowScore={scorePlayer3}
-                                totalScore={totalScorePlayer3}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[1]}
-                            />
-                        </div> : null}
-                        {(recievers[2]) ?<div className={'canvas3'}>
-                            <Canvas
-                                rows={rows}
-                                columns={columns}
-                                blockSize={blockSize / 2}
-                                canvasFront={this.canvasFront4}
-                                canvasBack={this.canvasBack4}
-                            />
-                            <MiniCanvas
-                                canvasSide={null}
-                                showSide={false}
-                                rowScore={scorePlayer4}
-                                totalScore={totalScorePlayer4}
-                                columns={columns}
-                                blockSize={blockSize}
-                                name={recievers[2]}
-                            />
-                        </div> : null}
+                        <br></br>
+                        {canvases}
                     </div> : null}
                 </div>
                 {reqAccepted}

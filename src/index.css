@@ -131,9 +131,12 @@ button {
   height: 100%;
   width: 150px;
   position: absolute;
-  background-color: #4d59ff; 
+  background-color: rgba(255, 255, 255, 0.9); 
   border-right: solid 3px #a04dff;
-  color: white;
+  color: black;
+}
+.sideTab p {
+  margin: 0px;
 }
 
 .sideBtn {
@@ -141,6 +144,7 @@ button {
   font-size: 17px;
   text-align: center;
   border: solid 2px #4dfff3;
+  background-color: white;
 }
 
 .sideBtn:hover{
@@ -151,7 +155,7 @@ button {
 .request {
  width:200px;
  height:100px;
- background-color: #ffe436ea;
+ background-color: #ffffffe5;
  margin-left: 40%;
  margin-top: 10px;
  border: solid 3px #ffb236;
@@ -221,7 +225,7 @@ button {
   position: fixed;
   height: 100px;
   width: 200px;
-  background-color: #ff814be8;
+  background-color: rgba(255, 255, 255, 0.877);
   z-index: 2000;
   margin-left: 200px;
   
