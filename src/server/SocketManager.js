@@ -163,6 +163,7 @@ module.exports = function (socket) {
                 socket.to(un.socketID).emit(SPECTATE, user);
         })
         let recievers = gameToSpectate.recievers;
+        if(recievers.indexOf(game) === -1)
         recievers.push(game);
         socket.emit(SPECTATE_INFO, recievers);
 

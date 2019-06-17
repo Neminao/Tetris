@@ -7,9 +7,9 @@ import GameSetupScreen from './GameSetupScreen';
 
 class UserContainer extends React.Component<{
     user: any, logout: any, setGeneratedShapes: any,
-    setReciever: any, reciever: string[], startGame: any, isPlayerReady: boolean,
-    changePlayerStatus: any, running: boolean, reset: any,
-    addSpectator: any, initGame: any, denied: string[], diffculty: number, setDifficulty: any
+    setRecievers: any, reciever: string[], startGame: any, isPlayerReady: boolean,
+    changeSpectatingStatus: any, running: boolean, reset: any,
+    addSpectator: any, initGame: any, denied: string[], diffculty: number, setDifficulty: any, isSpectator: boolean
 },
     {
         users: any[],
@@ -27,6 +27,7 @@ class UserContainer extends React.Component<{
         isGameMaster: boolean,
         isPlayer: boolean,
         gameMaster: string,
+        timeoutID: any;
 
     }>{
     constructor(props: any) {
@@ -47,6 +48,7 @@ class UserContainer extends React.Component<{
             isGameMaster: false,
             isPlayer: false,
             gameMaster: '',
+            timeoutID: null
         }
     }
     componentDidMount() {
@@ -55,7 +57,7 @@ class UserContainer extends React.Component<{
             this.setSender,
             this.setRequest, this.finalizeStart,
             this.showRequest, this.setSide,
-            this.props.setReciever, this.props.addSpectator,
+            this.props.setRecievers, this.props.addSpectator,
             this.updateAvailableGames, this.removeReciever,
             this.setInitBtn, this.updateGameSetupScreen, this.emitGameSetup
         )
@@ -66,7 +68,7 @@ class UserContainer extends React.Component<{
             invitedPlayers: obj.invited,
             gameMaster: obj.master
         })
-        this.props.setReciever(obj.recievers);
+        this.props.setRecievers(obj.recievers);
     }
 
     finalizeStart = () => {
@@ -86,7 +88,17 @@ class UserContainer extends React.Component<{
     
 
     setSender = (sender: string) => {
+        const {isPlayer} = this.state;
+        const {user} = this.props;
         this.setState({ sender, reqSent: true })
+        if(!isPlayer){
+            const timeoutID = setTimeout(()=>{
+                CM.emitRequestDenied(user, sender);
+                this.setState({ sender: "", reqSent: false });
+            }
+                , 10000);
+            this.setState({timeoutID});
+        }
     }
     setRequest = () => {
         this.setState({ reqSent: true, showReq: false });
@@ -101,10 +113,19 @@ class UserContainer extends React.Component<{
         })
     }
     accept = (tf: boolean) => {
-        const { user } = this.props;
-        const { sender } = this.state;
-        this.setState({ showReq: false })
+        const { user, isSpectator, reciever, changeSpectatingStatus, setRecievers } = this.props;
+        const { sender, timeoutID } = this.state;
+        this.setState({ showReq: false });
+        clearTimeout(timeoutID);
         if (tf) {
+            
+            if(isSpectator){
+                CM.emitReset(reciever, user);
+                changeSpectatingStatus(false);
+                setRecievers([]);
+                this.setInitBtn(true);
+            }
+            
             CM.emitUserReady(user, sender);
             this.setState({
                 isGameMaster: false,
@@ -113,6 +134,7 @@ class UserContainer extends React.Component<{
         }
         else {
             CM.emitRequestDenied(user, sender);
+            this.reset();
         }
     }
     emitGameSetup = () => {
@@ -123,11 +145,18 @@ class UserContainer extends React.Component<{
 
     sendInvite = (event: any) => {
         const { isPlayer } = this.state;
+        const { isSpectator, reciever, user, changeSpectatingStatus, setRecievers} = this.props;
         let players = this.state.selectedPlayers;
         let invited = this.state.invitedPlayers;
         let index1 = players.indexOf(event.target.value);
         let index2 = invited.indexOf(event.target.value);
         if (!isPlayer) {
+            if(isSpectator){
+                CM.emitReset(reciever, user);
+                changeSpectatingStatus(false);
+                setRecievers([]);
+                this.setInitBtn(true);
+            }
             if (index1 == -1 && index2 == -1) {
                 players.push(event.target.value);
                 this.setState({ selectedPlayers: players, isGameMaster: true });
@@ -196,7 +225,6 @@ class UserContainer extends React.Component<{
                 to: [],
                 showSide: true,
                 selectedPlayers: [],
-                games: [],
                 showInitBtn: true,
                 showStartBtn: true,
                 invitedPlayers: [],
@@ -215,8 +243,9 @@ class UserContainer extends React.Component<{
     }
 
     spectate = (event: any) => {
+        this.reset();
         CM.emitSpectate(this.props.user, event.target.value);
-        this.props.changePlayerStatus();
+        this.props.changeSpectatingStatus(true);
         this.setInitBtn(false);
     }
 

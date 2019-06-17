@@ -1,7 +1,6 @@
 import React from 'react';
 import BaseBuildingSquare from './BaseBuildingSquare';
 import UniversalShape from './UniversalShape';
-import shapeCoordinates from './ShapesCoordinates';
 import LoginForm from './LoginForm';
 import UserContainer from './UserContainer';
 import Canvas from './Canvas';
@@ -49,19 +48,14 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasFront = React.createRef<HTMLCanvasElement>();
     canvasSide = React.createRef<HTMLCanvasElement>();
     canvasBack2 = React.createRef<HTMLCanvasElement>();
-    canvasFront2 = React.createRef<HTMLCanvasElement>();
-
     canvasBack3 = React.createRef<HTMLCanvasElement>();
-    canvasFront3 = React.createRef<HTMLCanvasElement>();
-
     canvasBack4 = React.createRef<HTMLCanvasElement>();
-    canvasFront4 = React.createRef<HTMLCanvasElement>();
 
     constructor(props: {}) {
         super(props);
         this.state = {
             currentShape: this.defaultShape(),
-            nextShape: this.getRandomShape(),
+            nextShape: this.defaultShape(),
             allBlocks: [],
             running: false,
             matrix: [],
@@ -97,8 +91,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     componentDidMount() {
         this.setState({
-            matrix: this.createEmptyMatrix(),
-            nextShape: this.getRandomShape(),
+            matrix: this.createEmptyMatrix()
         })
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
@@ -213,14 +206,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         return generatedShapes;
     }
 
-    setPlayerReady = (tf: boolean) => {
-        this.setState({ isPlayerReady: true })
-    }
-
-    changePlayerStatus = () => {
+    changeSpectatingStatus = (tf: boolean) => {
         this.setState({
-
-            isSpectator: true
+            isSpectator: tf
         })
     }
 
@@ -254,7 +242,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             generatedShapesIndex: 0,
             isPlayerReady: false,
             matrix: this.createEmptyMatrix(),
-            nextShape: this.getRandomShape(),
+            nextShape: this.defaultShape(),
         })
     }
 
@@ -511,14 +499,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     defaultShape = (): UniversalShape => {
         return new UniversalShape([[{ x: 0, y: 0 }]], 10, 20, 40, 'red');
-    }
-
-    getRandomShape = (): UniversalShape => {
-        let index = Math.floor(Math.random() * Math.floor(10));
-        if (undefined == this.state) {
-            return new UniversalShape(shapeCoordinates[index], 10, 20, 40, 'red');
-        }
-        return new UniversalShape(shapeCoordinates[index], this.state.columns, this.state.rows, this.state.blockSize, 'red');
     }
 
     startGame = () => {
@@ -828,7 +808,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         clearInterval(this.state.counterId);
         this.setState({
             currentShape: this.defaultShape(),
-            nextShape: this.getRandomShape(),
+            nextShape: this.defaultShape(),
             allBlocks: [],
             running: false,
             matrix: this.createEmptyMatrix(),
@@ -947,14 +927,15 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 setGeneratedShapes={this.setGeneratedShapes}
                                 reciever={recievers} startGame={this.startGame}
                                 user={user.name} logout={this.logout}
-                                setReciever={this.setRecievers}
+                                setRecievers={this.setRecievers}
                                 isPlayerReady={isPlayerReady}
-                                changePlayerStatus={this.changePlayerStatus}
+                                changeSpectatingStatus={this.changeSpectatingStatus}
                                 running={running} reset={this.reset}
                                 addSpectator={this.addSpectator}
                                 initGame={this.initGame}
                                 denied={denied} diffculty={difficulty}
-                                setDifficulty={this.setDifficulty} />
+                                setDifficulty={this.setDifficulty}
+                                isSpectator={isSpectator} />
 
                         </div>}
 

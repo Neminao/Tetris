@@ -71,7 +71,7 @@ class GameSetupScreen extends React.Component<
                 {selectedPlayers.length > 0 ? <p>Selected players: {selected}</p> : null}
                 {invitedPlayers.length > 0 ? <p>Invited players: {invited}</p> : null}
                 {denied.length > 0 ? <p>Players who declined: {d}</p> : null}
-                {(recievers.length > 0 && showInitBtn) ? <button onClick={initializeGame} >Initialize Game</button> : null}
+                {(recievers.length > 0 && showInitBtn) ? <button onClick={initializeGame} >Initialize Game with current players</button> : null}
                 {isPlayer ? <p>Waiting for other players to join...</p> : null}
                 {showDifficultySelection ? <div><button value='10' onClick={this.setDifficulty}>Easy</button>
                 <button value='7' onClick={this.setDifficulty}>Normal</button></div> : null }
