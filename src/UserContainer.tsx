@@ -54,12 +54,11 @@ class UserContainer extends React.Component<{
     componentDidMount() {
         CM.initUserContainer(
             this.displayUsers,
-            this.setSender,
-            this.setRequest, this.finalizeStart,
+            this.setSender, this.finalizeStart,
             this.showRequest, this.setSide,
             this.props.setRecievers, this.props.addSpectator,
-            this.updateAvailableGames, this.removeReciever,
-            this.setInitBtn, this.updateGameSetupScreen, this.emitGameSetup
+            this.updateAvailableGames,
+            this.setInitBtn, this.updateGameSetupScreen, this.emitGameSetup, this.reset
         )
     }
 
@@ -75,17 +74,6 @@ class UserContainer extends React.Component<{
         this.props.startGame();
         this.setState({ showStartBtn: false })
     }
-
-    removeReciever = (name: string) => {
-        let rec = this.state.selectedPlayers;
-        let index = rec.indexOf(name)
-        rec.splice(index, 1);
-        this.setState({
-            selectedPlayers: rec
-        })
-    }
-
-    
 
     setSender = (sender: string) => {
         const {isPlayer} = this.state;

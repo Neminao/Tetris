@@ -26,10 +26,16 @@ class ClientManager {
     }
 
     initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any, removeReciever: any) => {
-        this.socket.on(USER_READY, (user: any) => {
-            setReciever(user);
-            showAccepted(user, true);
+        this.socket.on(USER_READY, (obj: any) => {
+            if(obj.tf){
+            setReciever(obj.user);
+            showAccepted(obj.user, true);
+            }
         });
+
+        this.socket.on(USER_DISCONNECTED, (obj: any) => {
+            removeReciever(obj.name);
+        })
 
         this.socket.on(REQUEST_DENIED, (user: string) => {
             showAccepted(user, false);
@@ -65,17 +71,14 @@ class ClientManager {
 
     }
     initUserContainer = (displayUsers: any,
-        setSender: any, setRequest: any, startGame: any,
-        showRequest: any, setSide: any, setRecievers: any,
-        addSpectator: any, updateAvailableGames: any,
-        removeReciever: any, setInitBtn: any, updateGameSetupScreen: any,
-        emitGameSetup: any) => {
+        setSender: any, setRequest: any, startGame: any, setSide: any, setRecievers: any,
+        addSpectator: any, updateAvailableGames: any, setInitBtn: any, updateGameSetupScreen: any,
+        emitGameSetup: any, reset: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
         this.socket.on(USER_DISCONNECTED, (obj: any) => {
             displayUsers(obj.allUsers);
-            removeReciever(obj.name);
         })
         this.socket.on(INITIALIZE_GAME, (obj: any) => {
             setSide(false);
@@ -104,8 +107,10 @@ class ClientManager {
         this.socket.on(GAME_SETUP, (obj: any) => {
             updateGameSetupScreen(obj);
         })
-        this.socket.on(USER_READY, ()=>{
+        this.socket.on(USER_READY, (obj: any)=>{
+            if(obj.tf)
             emitGameSetup();
+            else reset();
         })
     }
     emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number) => {

@@ -868,7 +868,6 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 canvases.push(data);
             }
         }
-        console.log(canvases);
         return canvases;
     }
 
