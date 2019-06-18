@@ -1,4 +1,5 @@
 import React from 'react'
+import DifficultyButton from './DifficultyButton'
 
 class GameSetupScreen extends React.Component<
     {
@@ -59,10 +60,10 @@ class GameSetupScreen extends React.Component<
                                     {recievers[0] ? recievers[0] : ' '}
                                 </td>
                                 <td>
-                                {recievers[1] ? recievers[1] : <br></br>}
+                                    {recievers[1] ? recievers[1] : <br></br>}
                                 </td>
                                 <td>
-                                {recievers[2] ? recievers[2] : ' '}
+                                    {recievers[2] ? recievers[2] : ' '}
                                 </td>
                             </tr>
 
@@ -71,10 +72,15 @@ class GameSetupScreen extends React.Component<
                 {selectedPlayers.length > 0 ? <p>Selected players: {selected}</p> : null}
                 {invitedPlayers.length > 0 ? <p>Invited players: {invited}</p> : null}
                 {denied.length > 0 ? <p>Players who declined: {d}</p> : null}
+
+                {showDifficultySelection ? <p>
+                    Select difficulty:<br></br>
+                    <DifficultyButton difficultyValue={7} setDifficulty={this.setDifficulty} difficultyName={'Normal'} /> 
+                    <DifficultyButton difficultyValue={10} setDifficulty={this.setDifficulty} difficultyName={'Easy'} />
+                
+                </p> : null}
                 {(recievers.length > 0 && showInitBtn) ? <button onClick={initializeGame} >Initialize Game with current players</button> : null}
                 {isPlayer ? <p>Waiting for other players to join...</p> : null}
-                {showDifficultySelection ? <div><button value='10' onClick={this.setDifficulty}>Easy</button>
-                <button value='7' onClick={this.setDifficulty}>Normal</button></div> : null }
             </div>
         )
     }

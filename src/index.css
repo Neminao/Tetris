@@ -129,7 +129,7 @@ button {
   top: 0px;
   left: 0px;
   height: 100%;
-  width: 150px;
+  width: 180px;
   position: absolute;
   background-color: rgba(255, 255, 255, 0.9); 
   border-right: solid 3px #a04dff;
@@ -148,6 +148,20 @@ button {
 }
 
 .sideBtn:hover{
+  border: solid 2px salmon;
+}
+
+.sideBtnSmall {
+  width: 100%;
+  height: 32px;
+  font-size: 12px;
+
+  text-align: center;
+  border: solid 2px #4dfff3;
+  background-color: white;
+}
+
+.sideBtnSmall:hover{
   border: solid 2px salmon;
 }
 
@@ -258,32 +272,41 @@ button {
   border: solid 2px salmon;
 }
 
-.gameSetup {
-  position: fixed;
-  width: 800px;
-  left: 50%;
-  margin-left: -400px; 
-  height: 600px;
-  margin-top: 140px;
-  background-color: white;
-  border: solid #f9ff8f 4px;
-  border-radius: 3px;
-  font-size: 25px;
-  z-index: 100;
-  background-image: url('../src/img/computer-3163437.png');
-  background-position: center;
-}
 
-.gameSetup button {
+
+.container {
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   border: solid 3px rgb(245, 212, 140);
-  font-size: 25px;
+  font-size: 22px;
   background-color: #f9ff8f;
   border-radius: 3px;
   
 }
 
-.gameSetup button:hover {
-  background-color: salmon;
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0px;
+  width: 0px;
+  
+}
+.checkmark{
+  width: 120px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.container:hover input ~ .checkmark {
+  background-color: rgb(245, 212, 140);
+}
+
+.container input:checked ~ .checkmark {
+  border: 2px solid black;
 }
 
 .infoTable td{
@@ -296,6 +319,35 @@ button {
   border-radius: 10px;
   width: 150px;
   font-size: 16px;
+}
+
+.gameSetup {
+  position: fixed;
+  width: 800px;
+  left: 50%;
+  margin-left: -400px; 
+  height: 600px;
+  margin-top: 140px;
+  background-color: white;
+  border: solid #f9ff8f 4px;
+  border-radius: 3px;
+  font-size: 22px;
+  z-index: 100;
+  background-image: url('../src/img/computer-3163437.png');
+  background-position: center;
+}
+
+.gameSetup button {
+  border: solid 3px rgb(245, 212, 140);
+  font-size: 22px;
+  background-color: #f9ff8f;
+  border-radius: 3px;
+  
+}
+
+
+.gameSetup button:hover {
+  background-color: salmon;
 }
 
 .gameSetup p {

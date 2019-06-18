@@ -77,7 +77,7 @@ module.exports = function (socket) {
             gamesInProgress = removeGame(gamesInProgress, user);
             io.emit(DISPLAY_GAMES, gamesInProgress);
         }
-        io.emit(USER_CONNECTED, connectedUsers);
+        io.emit(USER_CONNECTED, connectedUsers); 
     })
 
     socket.on(USER_READY, ({ user, reqSender }) => {

@@ -7,6 +7,7 @@ import Canvas from './Canvas';
 import MiniCanvas from './MiniCanvas';
 import CM from './ClientManager';
 import Popup from './Popup';
+import generateShapes from './Factories';
 
 interface MyState {
     currentShape: UniversalShape;
@@ -41,6 +42,7 @@ interface MyState {
     reqAccepted: any;
     denied: string[];
     difficulty: number;
+    gameMode: number;
 }
 
 class UniversalShapeContext extends React.Component<{}, MyState>{
@@ -85,7 +87,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             specCanvases: null,
             reqAccepted: null,
             denied: [],
-            difficulty: -1
+            difficulty: 7,
+            gameMode: 0
         }
     }
 
@@ -504,7 +507,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     startGame = () => {
 
         if (!this.state.running) {
-            const { user } = this.state;
+            const { user, gameMode } = this.state;
+            if(gameMode == 0)
             CM.emitUserInGame(user.name);
             const col = this.state.columns;
             const row = this.state.rows;
@@ -530,10 +534,11 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        const { generatedShapes, nextShape, recievers, user } = this.state;
+        const { generatedShapes, nextShape, recievers, user, gameMode } = this.state;
         let index = this.state.generatedShapesIndex;
         let acc = this.state.acceleration;
         if (index + 10 == generatedShapes.length) {
+            if(gameMode == 0)
             CM.emitAddShapes(recievers);
         }
         this.setState({
@@ -646,7 +651,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     stopGame = () => {
         clearInterval(this.state.counterId);
     }
-    updateStateOfTheGame = (shape: any) => { 
+    updateStateOfTheGame = (shape: any) => {
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
@@ -837,7 +842,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             specCanvases: null,
             reqAccepted: null,
             denied: [],
-            difficulty: -1
+            difficulty: 7
         })
     }
 
@@ -908,20 +913,96 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const { user, recievers, difficulty } = this.state;
         CM.emitInitializeGame(user.name, recievers, difficulty);
     }
+    shapeCoordinates: any = {
+        0: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }]
+        ],
+        1: [
+            [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 1, y: -1 }]
+        ],
+        2: [
+            [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }]
+        ],
+        3: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: -2 }, { x: 0, y: 1 }]
+        ],
+        4: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: -1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+            [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 1, y: -1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: -1 }]
+        ],
+        5: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 1 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: -1 }],
+            [{ x: 0, y: 0 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: -1, y: -1 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: 1 }]
+        ],
+        6: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
+        ],
+        7: [
+            [{ x: 0, y: 0 }]
+        ],
+        8: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: 1 }]
+        ],
+        9: [
+            [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: -1, y: 0 }], [{ x: 0, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }]
+        ],
+    };
+    colors: any = {
+        0: 'OrangeRed',
+        1: 'blue',
+        2: 'yellow',
+        3: 'orange',
+        4: 'GreenYellow',
+        5: 'Aqua',
+        6: 'DeepPink',
+        7: 'dodgerblue',
+        8: 'red',
+        9: 'green'
+
+    }
+
+
+
+    generateShapes = (max: number, difficulty: number) => {
+        let index = Math.floor(Math.random() * Math.floor(difficulty));
+        let array = [];
+        for (var i = 0; i < max; i++) {
+            index = Math.floor(Math.random() * Math.floor(difficulty));
+            array.push({ coords: this.shapeCoordinates[index], color: this.colors[index] });
+
+        }
+        return array;
+    }
+
+    singlePlayer = (event: any) => {
+        const shapesCoord = this.generateShapes(1000, 7);
+        console.log(shapesCoord);
+       const shapes = this.setGeneratedShapes(shapesCoord);
+        this.setState({
+            generatedShapes: shapes,
+            nextShape: shapes[0],
+            gameMode: 1,
+            user: {name: 'Guest'}
+        })
+        
+    }
     render() {
         const {
             isSpectator, columns,
             rows, blockSize, score,
             totalScore, user, recievers,
             isPlayerReady, running,
-            reqAccepted, denied, difficulty } = this.state;
+            reqAccepted, denied, difficulty, gameMode } = this.state;
         const canvases = this.generateSpecCanvases();
         return (
             <div onKeyUp={this.onKeyUp} >
                 <div>{
-                    !user ?
-                        <LoginForm setUser={this.setUser} /> : <div>
-
+                    !user && gameMode == 0 ? <div>
+                        <LoginForm setUser={this.setUser} />
+                        <button value={1} onClick={this.singlePlayer}>Single player</button>
+                    </div> : <div>
+                            {gameMode==0 ?
                             <UserContainer
                                 setGeneratedShapes={this.setGeneratedShapes}
                                 reciever={recievers} startGame={this.startGame}
@@ -935,7 +1016,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 denied={denied} diffculty={difficulty}
                                 setDifficulty={this.setDifficulty}
                                 isSpectator={isSpectator} />
-
+                                : null}
                         </div>}
 
                     {(isPlayerReady) ? <div className={'main'}>
@@ -967,7 +1048,9 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     </div> : null}
                 </div>
                 {reqAccepted}
+                {gameMode == 1 ? <div><button onClick={this.startGame}>Start</button></div> : null}
             </div>
+
 
         )
     }

@@ -48,6 +48,7 @@ class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; e
                         id='nickname'
                         value={nickname}
                         onChange={this.handleChange}
+                        maxLength={16}
                         placeholder={'username'}
                     />
                     <div className="error">{error ? error : null}</div>

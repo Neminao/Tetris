@@ -79,14 +79,14 @@ class UserContainer extends React.Component<{
         const {isPlayer} = this.state;
         const {user} = this.props;
         this.setState({ sender, reqSent: true })
-        if(!isPlayer){
+       /* if(!isPlayer){
             const timeoutID = setTimeout(()=>{
                 CM.emitRequestDenied(user, sender);
                 this.setState({ sender: "", reqSent: false });
             }
                 , 10000);
             this.setState({timeoutID});
-        }
+        }*/
     }
     setRequest = () => {
         this.setState({ reqSent: true, showReq: false });
@@ -104,7 +104,7 @@ class UserContainer extends React.Component<{
         const { user, isSpectator, reciever, changeSpectatingStatus, setRecievers } = this.props;
         const { sender, timeoutID } = this.state;
         this.setState({ showReq: false });
-        clearTimeout(timeoutID);
+     //   clearTimeout(timeoutID);
         if (tf) {
             
             if(isSpectator){
@@ -180,14 +180,16 @@ class UserContainer extends React.Component<{
         let users: any = [];
         users = values(allUsers).map((u) => {
             if (u.name != user && !u.inGame) {
-                return <button value={u.name} className={'sideBtn'} onClick={this.sendInvite}>{u.name}</button>
+                const className = (u.name.length>=12) ? 'sideBtnSmall' : 'sideBtn';
+                return <button value={u.name} className={className} onClick={this.sendInvite}>{u.name}</button>
             }
         })
         this.setState({ users: users })
     }
     updateAvailableGames = (games: any) => {
         let users = values(games).map((u) => {
-            return <button value={u.sender} className={'sideBtn'} onClick={this.spectate}>{u.sender}'s game</button>;
+            const className = (u.sender.length>=12) ? 'sideBtnSmall' : 'sideBtn';
+            return <button value={u.sender} className={className} onClick={this.spectate}>{u.sender}'s game</button>;
         })
         this.setState({
             games: users,
@@ -274,7 +276,7 @@ class UserContainer extends React.Component<{
                         isPlayer={isPlayer}
                         gameMaster = {gameMaster}
                         setDifficulty={this.props.setDifficulty}
-                        showDifficultySelection={gameMaster==user && diffculty == -1}
+                        showDifficultySelection={gameMaster==user}
                     /> : null}
 
                 {(reqSent && showReq) ? <GameRequest name={sender} accept={this.accept} /> : null}
