@@ -28,9 +28,9 @@ class UniversalShape {
             return new BaseBuildingSquare((elem.left - move * this.size), elem.top , this.color, this.size)
         });
     }
-    defineNewProperties(blocksArr: any[], scale: number) {
+    defineNewProperties(blocksArr: any[], scale: number, size: number) {
         this.blocksArr = blocksArr.map((elem: any) => {
-            return new BaseBuildingSquare(elem.left * scale, elem.top * scale, 'red', this.size)
+            return new BaseBuildingSquare(Math.floor(elem.left / scale * size), Math.floor(elem.top / scale * size), 'red', this.size)
         });
     }
     fillArr(arr: any, size: number, columns: number): BaseBuildingSquare[] {

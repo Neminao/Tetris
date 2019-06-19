@@ -52,8 +52,8 @@ module.exports = function (socket) {
         }
         console.log(connectedUsers);
     })
-    socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration }) => {
-        emitToAllRecievers({ matrix: matrix, shape: shape, score, totalScore, acceleration, sender }, GAME_UPDATE, reciever, socket);
+    socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration, blockSize }) => {
+        emitToAllRecievers({ matrix: matrix, shape: shape, score, totalScore, acceleration, sender, blockSize }, GAME_UPDATE, reciever, socket);
     })
 
 
@@ -171,11 +171,11 @@ module.exports = function (socket) {
         socket.emit(SPECTATE_INFO, recievers);
 
     })
-    socket.on(SEND_TO_SPECTATOR, ({ matrix, shape, spectator, user, totalScore, score }) => {
+    socket.on(SEND_TO_SPECTATOR, ({ matrix, shape, spectator, user, totalScore, score, blockSize }) => {
 
         const specID = connectedUsers[spectator];
         if (specID)
-            socket.to(specID.socketID).emit(SEND_TO_SPECTATOR, { matrix, shape, user, totalScore, score });
+            socket.to(specID.socketID).emit(SEND_TO_SPECTATOR, { matrix, shape, user, totalScore, score, blockSize });
     })
 
     socket.on(GAME_OVER, ({ user, recievers }) => {
@@ -210,7 +210,8 @@ function emitToAllRecievers(data, emitType, recievers, socket) {
         })
 }
 function isUser(userList, username) {
-    return username in userList;
+
+    return username in userList || username == "Guest";
 }
 
 function addUser(userList, user) {

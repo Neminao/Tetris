@@ -63,7 +63,7 @@ const createGameData = ({matrix = []} = {})=>(
 		matrix	
 	}
 )
-const generateShapes = (max, difficulty) => { 
+function generateShapes (max, difficulty) { 
 	let index = Math.floor(Math.random() * Math.floor(difficulty));
 	let array = [];
 	for(var i = 0 ;i<max;i++){

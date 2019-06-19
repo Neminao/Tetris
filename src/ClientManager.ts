@@ -25,7 +25,7 @@ class ClientManager {
         return shapes;
     }
 
-    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any, removeReciever: any) => {
+    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any, removeReciever: any, setShapesCoords: any, setPlayerReady: any) => {
         this.socket.on(USER_READY, (obj: any) => {
             if(obj.tf){
             setReciever(obj.user);
@@ -51,7 +51,9 @@ class ClientManager {
         });
         this.socket.on(INITIALIZE_GAME, (obj: any) => {
             setGeneratedShapes(obj.generatedShapes);
+            setShapesCoords(obj.generatedShapes)
             setRecievers(obj.recievers);
+            setPlayerReady(true);
         })
 
         this.socket.on(GAME_OVER, (user: string) => {
@@ -113,8 +115,8 @@ class ClientManager {
             else reset();
         })
     }
-    emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number) => {
-        this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score, acceleration });
+    emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number, blockSize: number) => {
+        this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score, acceleration, blockSize });
     }
     emitUserInGame = (username: string) => {
         this.socket.emit(USER_IN_GAME, { username });
@@ -147,8 +149,8 @@ class ClientManager {
     emitSpectate = (user: string, game: string) => {
         this.socket.emit(SPECTATE, { user, game });
     }
-    emitSpectatorData = (matrix: any, shape: any, spectator: string, user: string, totalScore: number, score: number) => {
-        this.socket.emit(SEND_TO_SPECTATOR, { matrix, shape, spectator, user, totalScore, score });
+    emitSpectatorData = (matrix: any, shape: any, spectator: string, user: string, totalScore: number, score: number, blockSize: number) => {
+        this.socket.emit(SEND_TO_SPECTATOR, { matrix, shape, spectator, user, totalScore, score, blockSize });
     }
     emitInitializeGame = (sender: string, recievers: string[], difficulty: number) => {
         this.socket.emit(INITIALIZE_GAME, { sender, recievers, difficulty });

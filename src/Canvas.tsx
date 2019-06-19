@@ -4,12 +4,13 @@ class Canvas extends React.Component<
     {
          rows: number,
         columns: number, blockSize: number, canvasFront: any,
-        canvasBack: any, 
+        canvasBack: any, running? : boolean, isPlayerReady?: boolean
     },
     {}> {
     constructor(props: any) {
         super(props);
-    }
+        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
+    } 
     componentDidMount() {
         const { canvasBack, canvasFront, rows, columns, blockSize } = this.props;
         if (canvasBack) {
@@ -23,7 +24,31 @@ class Canvas extends React.Component<
             c1.width = columns * blockSize;
             c1.height = rows * blockSize;
         }
+        this.updateWindowDimensions();
+        window.addEventListener('resize', this.updateWindowDimensions);
     }
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowDimensions);
+    }
+
+
+    updateWindowDimensions() {
+        const { canvasBack, canvasFront, rows, columns, blockSize, running, isPlayerReady } = this.props;
+        if(!running && isPlayerReady){
+        if (canvasBack) {
+            let c2: any = canvasBack.current;          
+            c2.width = columns * blockSize;
+            c2.height = rows * blockSize;
+            this.createGrid(c2.getContext('2d'));
+        }
+        if(canvasFront){
+            let c1: any = canvasFront.current;
+            c1.width = columns * blockSize;
+            c1.height = rows * blockSize;
+        }
+    }
+    }
+    
     createGrid = (ctx: any) => {
         const { rows, columns, blockSize } = this.props;
         ctx.lineWidth = 1;

@@ -3,8 +3,12 @@ import React from 'react';
 class MiniCanvas extends React.Component<{
     canvasSide: any, rowScore: number,
      totalScore: number, blockSize: number, columns: number,
-      showSide: boolean, name: string
+      showSide: boolean, name: string, running?: boolean, isPlayerReady?: boolean
 },{}> {
+    constructor(props: any){
+        super(props);
+        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
+    }
 
     componentDidMount(){
         const {canvasSide, columns, blockSize} = this.props;
@@ -15,6 +19,25 @@ class MiniCanvas extends React.Component<{
             c3.height = blockSize * 2;
         }
         }
+        this.updateWindowDimensions();
+        window.addEventListener('resize', this.updateWindowDimensions);
+    }
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowDimensions);
+    }
+
+
+    updateWindowDimensions() {
+        const { canvasSide, columns, blockSize, running, isPlayerReady } = this.props;
+        if(!running && isPlayerReady){
+            if (canvasSide != null) {
+                let c3: any = canvasSide.current;
+                if(c3){
+                    c3.width = columns / 2 * blockSize;
+                    c3.height = blockSize * 2;
+                }
+                }
+    }
     }
     render() {
         const {canvasSide, rowScore, totalScore, blockSize, columns, showSide, name} = this.props;

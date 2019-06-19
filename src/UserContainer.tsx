@@ -76,8 +76,6 @@ class UserContainer extends React.Component<{
     }
 
     setSender = (sender: string) => {
-        const {isPlayer} = this.state;
-        const {user} = this.props;
         this.setState({ sender, reqSent: true })
        /* if(!isPlayer){
             const timeoutID = setTimeout(()=>{
