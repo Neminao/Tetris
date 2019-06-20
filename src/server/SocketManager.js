@@ -1,8 +1,10 @@
 const io = require('./server.js').io;
 
-const { GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
+const { HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
-const { createUser, generateShapes } = require('../factories')
+const { createUser, generateShapes } = require('../factories');
+
+const { con } = require("../database/MySQLConnection");
 
 let connectedUsers = {}
 
@@ -51,6 +53,8 @@ module.exports = function (socket) {
             io.emit(DISPLAY_GAMES, gamesInProgress);
         }
         console.log(connectedUsers);
+        showHighscores(socket, 'highscore');
+       // showHighscores(socket, 'highscoreeasy');
     })
     socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration, blockSize }) => {
         emitToAllRecievers({ matrix: matrix, shape: shape, score, totalScore, acceleration, sender, blockSize }, GAME_UPDATE, reciever, socket);
@@ -77,15 +81,15 @@ module.exports = function (socket) {
             gamesInProgress = removeGame(gamesInProgress, user);
             io.emit(DISPLAY_GAMES, gamesInProgress);
         }
-        io.emit(USER_CONNECTED, connectedUsers); 
+        io.emit(USER_CONNECTED, connectedUsers);
     })
 
     socket.on(USER_READY, ({ user, reqSender }) => {
         const sender = connectedUsers[reqSender];
         if (!sender.inGame) {
-            socket.to(sender.socketID).emit(USER_READY, {user, tf: true});
+            socket.to(sender.socketID).emit(USER_READY, { user, tf: true });
         }
-        else socket.emit(USER_READY, {user, tf: false});
+        else socket.emit(USER_READY, { user, tf: false });
     })
 
     socket.on(REQUEST_DENIED, ({ user, reqSender }) => {
@@ -97,7 +101,7 @@ module.exports = function (socket) {
         let rec;
         const generatedShapes = generateShapes(1000, difficulty);
         let tempArray;
-        gamesInProgress = addGame(gamesInProgress, sender, recievers);
+
         for (var i = 0; i < recievers.length; i++) {
             rec = connectedUsers[recievers[i]];
             if (rec) {
@@ -112,6 +116,8 @@ module.exports = function (socket) {
         s.inGame = true;
         socket.emit(INITIALIZE_GAME, { generatedShapes, recievers });
         io.emit(USER_CONNECTED, connectedUsers);
+        recievers.push(sender)
+        gamesInProgress = addGame(gamesInProgress, sender, recievers);
     })
 
     socket.on(GAME_START, ({ to, user }) => {
@@ -178,7 +184,7 @@ module.exports = function (socket) {
             socket.to(specID.socketID).emit(SEND_TO_SPECTATOR, { matrix, shape, user, totalScore, score, blockSize });
     })
 
-    socket.on(GAME_OVER, ({ user, recievers }) => {
+    socket.on(GAME_OVER, ({ user, recievers, score, totalScore, difficulty }) => {
         let reciever;
         recievers.forEach(name => {
             reciever = connectedUsers[name]
@@ -186,6 +192,21 @@ module.exports = function (socket) {
                 socket.to(reciever.socketID).emit(GAME_OVER, user);
             }
         })
+        if (difficulty == 7) {
+            var sql = "INSERT INTO highscore VALUES (null, '" + user + "', " + totalScore + ", " + score + ")";
+            con.query(sql, function (err, result) {
+                if (err) throw err;
+                console.log("1 record inserted");
+            });
+        }
+        else if (difficulty == 10) {
+            var sql = "INSERT INTO highscoreeasy VALUES (null, '" + user + "', " + totalScore + ", " + score + ")";
+            con.query(sql, function (err, result) {
+                if (err) throw err;
+                console.log("1 record inserted");
+            });
+        }
+
     })
 
     socket.on(GAME_SETUP, ({ master, recievers, invited }) => {
@@ -196,6 +217,7 @@ module.exports = function (socket) {
                 socket.to(rec.socketID).emit(GAME_SETUP, { master, recievers, invited });
         })
     })
+
 }
 
 function emitToAllRecievers(data, emitType, recievers, socket) {
@@ -225,13 +247,27 @@ function removeUser(userList, username) {
     return newList;
 }
 function addGame(userList, sender, recievers) {
+    let recieversStatus = recievers.map(name => {
+        return { name, iGame: true }
+    })
     let newList = Object.assign({}, userList);
-    newList[sender] = { sender, recievers };
+    newList[sender] = { sender, recievers, recieversStatus };
     return newList;
 }
 function removeGame(userList, sender) {
     let newList = Object.assign({}, userList);
     delete newList[sender];
     return newList;
+}
+
+function showHighscores(socket, tableName) {
+
+    con.query("SELECT * FROM " + tableName + " ORDER BY score DESC", function (err, result, fields) {
+        if (err) throw err;
+        console.log(result);
+        let name = (tableName == "highscore") ? "Highscore - Normal" : "Highscore - Easy";
+        socket.emit(HIGHSCORE, result);
+    });
+
 }
 

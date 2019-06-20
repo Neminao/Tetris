@@ -364,3 +364,14 @@ button {
   border-bottom: solid #f9ff8f 4px;
 }
 
+.highscore{
+  background-color: rgba(255, 255, 255, 0.918);
+  width: 300px;
+  float:right;
+  text-align: center;
+}
+
+.highscore td{
+ width:74px;
+}
+

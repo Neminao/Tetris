@@ -20,5 +20,6 @@ export const DISPLAY_GAMES = 'DISPLAY_GAMES';
 export const INITIALIZE_GAME = 'INITIALIZE_GAME';
 export const GAME_OVER = 'GAME_OVER';
 export const GAME_SETUP = 'GAME_SETUP';
+export const HIGHSCORE = 'HIGHSCORE';
 
 export default USER_CONNECTED

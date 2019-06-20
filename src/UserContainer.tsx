@@ -3,6 +3,7 @@ import { values } from 'lodash';
 import GameRequest from './GameRequest';
 import CM from './ClientManager';
 import GameSetupScreen from './GameSetupScreen';
+import Highscore from './Highscore';
 
 
 class UserContainer extends React.Component<{
@@ -28,6 +29,7 @@ class UserContainer extends React.Component<{
         isPlayer: boolean,
         gameMaster: string,
         timeoutID: any;
+        highscore: any[];
 
     }>{
     constructor(props: any) {
@@ -48,7 +50,8 @@ class UserContainer extends React.Component<{
             isGameMaster: false,
             isPlayer: false,
             gameMaster: '',
-            timeoutID: null
+            timeoutID: null,
+            highscore: []
         }
     }
     componentDidMount() {
@@ -58,7 +61,8 @@ class UserContainer extends React.Component<{
             this.showRequest, this.setSide,
             this.props.setRecievers, this.props.addSpectator,
             this.updateAvailableGames,
-            this.setInitBtn, this.updateGameSetupScreen, this.emitGameSetup, this.reset
+            this.setInitBtn, this.updateGameSetupScreen, this.emitGameSetup, 
+            this.reset, this.setHighscore
         )
     }
 
@@ -98,6 +102,12 @@ class UserContainer extends React.Component<{
             reqSent: false
         })
     }
+
+    setHighscore = (highscore: any[]) => {
+        console.log(highscore)
+        this.setState({highscore});
+    }
+
     accept = (tf: boolean) => {
         const { user, isSpectator, reciever, changeSpectatingStatus, setRecievers } = this.props;
         const { sender, timeoutID } = this.state;
@@ -172,6 +182,7 @@ class UserContainer extends React.Component<{
         this.setState({ showInitBtn });
     }
 
+
     displayUsers = (allUsers: any) => {
         const { user } = this.props;
 
@@ -239,7 +250,7 @@ class UserContainer extends React.Component<{
 
     render = () => {
         const { user, logout, isPlayerReady, running, reciever, initGame, denied, diffculty } = this.props;
-        const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers, isGameMaster, isPlayer, gameMaster } = this.state;
+        const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers, isGameMaster, isPlayer, gameMaster, highscore } = this.state;
         let displayRecievers = "";
         let displayGames = null;
         if (games && !running) {
@@ -281,7 +292,7 @@ class UserContainer extends React.Component<{
                 {(isPlayerReady && showStartBtn && isGameMaster) ? <div className='buttonsBlock'>
                     <button className={'startBtn'} onClick={this.startGame}>Start</button><br></br>
                 </div> : null}
-
+                {highscore != [] ? <Highscore scores={highscore} /> : null}
             </div>
         )
     }

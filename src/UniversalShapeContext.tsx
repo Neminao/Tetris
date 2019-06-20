@@ -174,7 +174,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     removeReciever = (reciever: string) => {
         let recs = this.state.recievers;
         const { running } = this.state;
-        let index = recs.indexOf(reciever)
+        let index = recs.indexOf(reciever);
+        console.log(running)
         if (index != -1 && !running) {
             recs.splice(index, 1);
             this.setState({
@@ -582,7 +583,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         const row = this.state.rows;
         const size = this.state.blockSize;
         console.log(size);
-        const { generatedShapes, nextShape, recievers, user, gameMode } = this.state;
+        const { generatedShapes, nextShape, recievers, user, gameMode, score, totalScore, difficulty } = this.state;
         let index = this.state.generatedShapesIndex;
         let acc = this.state.acceleration;
         if (index + 10 == generatedShapes.length) {
@@ -634,7 +635,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             });
             this.gameOver(c1);
             if (gameMode == 0)
-                CM.emitGameOver(user.name, recievers);
+                CM.emitGameOver(user.name, recievers, score, totalScore, difficulty);
         }
     }
     gameOver = (canvas: any) => {
