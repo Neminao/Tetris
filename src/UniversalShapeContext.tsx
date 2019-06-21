@@ -7,6 +7,7 @@ import Canvas from './Canvas';
 import MiniCanvas from './MiniCanvas';
 import CM from './ClientManager';
 import Popup from './Popup';
+import WinnerPopup from './WinnerPopup';
 const { generateShapes } = require('./Factories')
 
 interface MyState {
@@ -46,6 +47,7 @@ interface MyState {
     windowHeight: number;
     windowWidth: number;
     shapesCoords: any[];
+    winner: any;
 }
 
 class UniversalShapeContext extends React.Component<{}, MyState>{
@@ -94,7 +96,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             gameMode: 0,
             windowHeight: window.innerHeight,
             windowWidth: window.innerWidth,
-            shapesCoords: []
+            shapesCoords: [],
+            winner: null
         }
         this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
     }
@@ -154,11 +157,21 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             generatedShapes,
             nextShape: generatedShapes[0]
         });
-        CM.initMainTetrisContext(this.setGeneratedShapes, this.setReciever, this.addShapes, this.showAccepted, this.setRecievers, this.removeSpectator, this.opponentGameOver, this.removeReciever, this.setShapesCoords, this.setPlayerReady);
+        CM.initMainTetrisContext(this.setGeneratedShapes, this.setReciever, this.addShapes, this.showAccepted, this.setRecievers, this.removeSpectator, this.opponentGameOver, this.removeReciever, this.setShapesCoords, this.setPlayerReady, this.setDifficulty, this.displayWinner);
         CM.updateGame(this.updateSecondCanvas);
         CM.spectatingGames(this.updateSpectatingCanvas);
 
     }
+
+    displayWinner = (winnerData: any) => {
+        this.setState({
+            winner: <WinnerPopup winner={winnerData.winner} score ={winnerData.score} close={this.hideWinner}/>
+        })
+    }
+    hideWinner = () => {
+        this.setState({winner: null});
+    }
+
     setShapesCoords = (shapesCoords: any[]) => {
         this.setState({ shapesCoords })
     }
@@ -503,8 +516,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 if (!shape.areBlocksFreeToMoveDown(mat)) {
                     this.state.currentShape.moveBack()
                     this.state.currentShape.blocksArr.forEach((element: any) => {
-                        mat[Math.floor(element.top / size)][Math.floor(element.left / size)].status = true;
-                        mat[Math.floor(element.top / size)][Math.floor(element.left / size)].color = element.color;
+                        mat[Math.round(element.top / size)][Math.round(element.left / size)].status = true;
+                        mat[Math.round(element.top / size)][Math.round(element.left / size)].color = element.color;
                     });
                     this.setState({
                         matrix: mat
@@ -997,7 +1010,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             rows, blockSize, score,
             totalScore, user, recievers,
             isPlayerReady, running,
-            reqAccepted, denied, difficulty, gameMode, generatedShapes } = this.state;
+            reqAccepted, denied, difficulty, gameMode, winner } = this.state;
         const canvases = this.generateSpecCanvases();
         return (
             <div onKeyUp={this.onKeyUp} >
@@ -1049,6 +1062,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                             />
                         </div>
                         {canvases}
+                        {winner}
                     </div> : null}
                     {isSpectator ? <div>
                         <br></br>

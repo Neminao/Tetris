@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
+const { WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories');
 
@@ -53,11 +53,15 @@ module.exports = function (socket) {
             io.emit(DISPLAY_GAMES, gamesInProgress);
         }
         console.log(connectedUsers);
-        showHighscores(socket, 'highscore');
-       // showHighscores(socket, 'highscoreeasy');
+        showHighscores(socket);
     })
     socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration, blockSize }) => {
-        emitToAllRecievers({ matrix: matrix, shape: shape, score, totalScore, acceleration, sender, blockSize }, GAME_UPDATE, reciever, socket);
+
+        if (socket.user) {
+            let current = connectedUsers[socket.user.name];
+            current.score = totalScore;
+            emitToAllRecievers({ matrix: matrix, shape: shape, score, totalScore, acceleration, sender, blockSize }, GAME_UPDATE, reciever, socket);
+        }
     })
 
 
@@ -86,10 +90,11 @@ module.exports = function (socket) {
 
     socket.on(USER_READY, ({ user, reqSender }) => {
         const sender = connectedUsers[reqSender];
-        if (!sender.inGame) {
-            socket.to(sender.socketID).emit(USER_READY, { user, tf: true });
-        }
-        else socket.emit(USER_READY, { user, tf: false });
+        if (sender)
+            if (!sender.inGame) {
+                socket.to(sender.socketID).emit(USER_READY, { user, tf: true });
+            }
+            else socket.emit(USER_READY, { user, tf: false });
     })
 
     socket.on(REQUEST_DENIED, ({ user, reqSender }) => {
@@ -109,12 +114,12 @@ module.exports = function (socket) {
                 tempArray.splice(i, 1);
                 tempArray.push(sender);
                 rec.inGame = true;
-                socket.to(rec.socketID).emit(INITIALIZE_GAME, { generatedShapes, recievers: tempArray });
+                socket.to(rec.socketID).emit(INITIALIZE_GAME, { generatedShapes, recievers: tempArray, difficulty });
             }
         }
         let s = connectedUsers[sender];
         s.inGame = true;
-        socket.emit(INITIALIZE_GAME, { generatedShapes, recievers });
+        socket.emit(INITIALIZE_GAME, { generatedShapes, recievers, difficulty });
         io.emit(USER_CONNECTED, connectedUsers);
         recievers.push(sender)
         gamesInProgress = addGame(gamesInProgress, sender, recievers);
@@ -185,25 +190,37 @@ module.exports = function (socket) {
     })
 
     socket.on(GAME_OVER, ({ user, recievers, score, totalScore, difficulty }) => {
-        let reciever;
+        let reciever, sql;
         recievers.forEach(name => {
             reciever = connectedUsers[name]
             if (reciever) {
                 socket.to(reciever.socketID).emit(GAME_OVER, user);
+
             }
         })
+        changeUserStatus(user, recievers);
         if (difficulty == 7) {
-            var sql = "INSERT INTO highscore VALUES (null, '" + user + "', " + totalScore + ", " + score + ")";
+            sql = "INSERT INTO highscore VALUES (null, '" + user + "', " + totalScore + ", " + score + ")";
             con.query(sql, function (err, result) {
                 if (err) throw err;
-                console.log("1 record inserted");
+                console.log("1 record inserted into normal");
             });
         }
-        else if (difficulty == 10) {
-            var sql = "INSERT INTO highscoreeasy VALUES (null, '" + user + "', " + totalScore + ", " + score + ")";
+        else {
+            sql = "INSERT INTO highscoreeasy VALUES (null, '" + user + "', " + totalScore + ", " + score + ")";
             con.query(sql, function (err, result) {
                 if (err) throw err;
-                console.log("1 record inserted");
+                console.log("1 record inserted into easy");
+            });
+        }
+        if (isGameOver(user, recievers)) {
+            const winnerData = declareWinner(user, recievers);
+            socket.emit(WINNER, winnerData)
+            recievers.forEach(name => {
+                let rec = connectedUsers[name];
+                if (rec) {
+                    socket.to(rec.socketID).emit(WINNER, winnerData);
+                }
             });
         }
 
@@ -233,7 +250,7 @@ function emitToAllRecievers(data, emitType, recievers, socket) {
 }
 function isUser(userList, username) {
 
-    return username in userList || username == "Guest";
+    return username in userList || username === "Guest";
 }
 
 function addUser(userList, user) {
@@ -248,7 +265,7 @@ function removeUser(userList, username) {
 }
 function addGame(userList, sender, recievers) {
     let recieversStatus = recievers.map(name => {
-        return { name, iGame: true }
+        return { name, inGame: true }
     })
     let newList = Object.assign({}, userList);
     newList[sender] = { sender, recievers, recieversStatus };
@@ -260,14 +277,69 @@ function removeGame(userList, sender) {
     return newList;
 }
 
-function showHighscores(socket, tableName) {
-
-    con.query("SELECT * FROM " + tableName + " ORDER BY score DESC", function (err, result, fields) {
+function showHighscores(socket) {
+    con.query("SELECT * FROM highscore ORDER BY score DESC", function (err, result, fields) {
         if (err) throw err;
-        console.log(result);
-        let name = (tableName == "highscore") ? "Highscore - Normal" : "Highscore - Easy";
-        socket.emit(HIGHSCORE, result);
+        socket.emit(HIGHSCORE, { result, mode: 'normal' });
+    });
+    con.query("SELECT * FROM highscoreeasy ORDER BY score DESC", function (err, result, fields) {
+        if (err) throw err;
+        socket.emit(HIGHSCORE, { result, mode: 'easy' });
     });
 
+}
+
+function checkGame(recievers, user) {
+    let temp = "";
+    recievers.forEach(name => {
+        if (name in gamesInProgress) {
+            temp = name;
+        }
+    })
+    if (user in gamesInProgress) {
+        temp = user;
+    }
+    return temp;
+}
+
+function changeUserStatus(user, recievers) {
+    let game = checkGame(recievers, user)
+    let currentGame = gamesInProgress[game];
+    if (currentGame)
+        currentGame.recieversStatus.forEach(reciever => {
+            if (user === reciever.name) {
+                reciever.inGame = false;
+                console.log("Status changed: " + reciever.inGame);
+            }
+        })
+}
+
+function isGameOver(user, recievers) {
+    let game = checkGame(recievers, user)
+    let currentGame = gamesInProgress[game];
+    let temp = true;
+    currentGame.recieversStatus.forEach(reciever => {
+        if (reciever.inGame) {
+            temp = false
+        }
+    });
+    return temp;
+}
+
+function declareWinner(user, recievers) {
+    let temp = connectedUsers[user];
+    let winner = temp.name;
+    let score = temp.score;
+    recievers.forEach(reciever => {
+        temp = connectedUsers[reciever];
+        console.log(temp.score)
+        if (temp.score > score) {
+            score = temp.score;
+
+            winner = reciever;
+        }
+    })
+
+    return { winner, score };
 }
 

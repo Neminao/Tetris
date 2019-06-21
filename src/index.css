@@ -367,11 +367,29 @@ button {
 .highscore{
   background-color: rgba(255, 255, 255, 0.918);
   width: 300px;
-  float:right;
   text-align: center;
 }
 
 .highscore td{
  width:74px;
+}
+
+.highscoreWrapper {
+  float: right;
+}
+
+.winnerPopup {
+  margin-left: 5%;
+  background-color: rgba(255, 255, 255, 0.87);
+  z-index: 10000;
+  position: absolute;
+  height: 200px;
+  width: 200px;
+  border: solid 3px salmon;
+  text-align: center;
+}
+
+.winnerPopup button {
+  margin-left: 150px;
 }
 

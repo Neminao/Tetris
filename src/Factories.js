@@ -48,13 +48,14 @@ var colors = {
     9: 'green'
 
 }
-const createUser = ({name = "", socketID = null, inGame = false, isReady = false} = {})=>(
+const createUser = ({name = "", socketID = null, inGame = false, isReady = false, score = 0} = {})=>(
 	{
 		id:uuidv4(),
 		name,
 		socketID,
 		inGame,
-		isReady
+        isReady, 
+        score
 	}
 )
 

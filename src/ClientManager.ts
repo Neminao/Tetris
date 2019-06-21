@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
+import { WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://192.168.88.14:3231";
@@ -25,13 +25,17 @@ class ClientManager {
         return shapes;
     }
 
-    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any, removeReciever: any, setShapesCoords: any, setPlayerReady: any) => {
+    initMainTetrisContext = (setGeneratedShapes: any, setReciever: any, addShapes: any, showAccepted: any, setRecievers: any, removeSpectator: any, opponentGameOver: any, removeReciever: any, setShapesCoords: any, setPlayerReady: any, setDifficulty: any, displayWinner: any) => {
         this.socket.on(USER_READY, (obj: any) => {
             if (obj.tf) {
                 setReciever(obj.user);
                 showAccepted(obj.user, true);
             }
         });
+
+        this.socket.on(WINNER, (winnerData: any) => {
+            displayWinner(winnerData);
+        }) 
 
         this.socket.on(USER_DISCONNECTED, (obj: any) => {
             removeReciever(obj.name);
@@ -53,6 +57,7 @@ class ClientManager {
             setGeneratedShapes(obj.generatedShapes);
             setShapesCoords(obj.generatedShapes)
             setRecievers(obj.recievers);
+            setDifficulty(obj.difficulty);
             setPlayerReady(true);
         })
 
@@ -97,6 +102,7 @@ class ClientManager {
         })
 
         this.socket.on(HIGHSCORE, (result: any) => {
+            console.log(result);
             setHighscore(result);
         })
 

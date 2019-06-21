@@ -30,6 +30,7 @@ class UserContainer extends React.Component<{
         gameMaster: string,
         timeoutID: any;
         highscore: any[];
+        highscoreEasy: any[];
 
     }>{
     constructor(props: any) {
@@ -51,7 +52,8 @@ class UserContainer extends React.Component<{
             isPlayer: false,
             gameMaster: '',
             timeoutID: null,
-            highscore: []
+            highscore: [],
+            highscoreEasy: []
         }
     }
     componentDidMount() {
@@ -103,9 +105,8 @@ class UserContainer extends React.Component<{
         })
     }
 
-    setHighscore = (highscore: any[]) => {
-        console.log(highscore)
-        this.setState({highscore});
+    setHighscore = (highscore: any) => {
+        highscore.mode == 'normal' ? this.setState({highscore: highscore.result}) : this.setState({highscoreEasy: highscore.result});
     }
 
     accept = (tf: boolean) => {
@@ -250,7 +251,7 @@ class UserContainer extends React.Component<{
 
     render = () => {
         const { user, logout, isPlayerReady, running, reciever, initGame, denied, diffculty } = this.props;
-        const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers, isGameMaster, isPlayer, gameMaster, highscore } = this.state;
+        const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers, isGameMaster, isPlayer, gameMaster, highscore, highscoreEasy } = this.state;
         let displayRecievers = "";
         let displayGames = null;
         if (games && !running) {
@@ -292,7 +293,10 @@ class UserContainer extends React.Component<{
                 {(isPlayerReady && showStartBtn && isGameMaster) ? <div className='buttonsBlock'>
                     <button className={'startBtn'} onClick={this.startGame}>Start</button><br></br>
                 </div> : null}
-                {highscore != [] ? <Highscore scores={highscore} /> : null}
+                <div className="highscoreWrapper">
+                {highscore != [] ? <Highscore scores={highscore} title={"Normal"}/> : null}
+                {highscoreEasy != [] ? <Highscore scores={highscoreEasy} title={"Easy"}/> : null}
+                </div>
             </div>
         )
     }

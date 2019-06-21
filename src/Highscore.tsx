@@ -16,7 +16,7 @@ function Highscore(props: any) {
     }
     return (
         <div className="highscore">
-        Highscores
+        Highscores - {props.title}
         <table>
             <tbody>
                 
