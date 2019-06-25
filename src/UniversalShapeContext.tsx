@@ -116,6 +116,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.updateWindowDimensions);
+        CM.emitLogout(this.stopGame)
     }
 
 
@@ -482,7 +483,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             const row = this.state.rows;
             const size = this.state.blockSize;
             const acc = this.state.acceleration;
-            let delay = 25 - acc;
+            let score = this.state.totalScore;
+            let delay = 22 - acc;
 
             if (event.keyCode == 39 && shape.areBlocksFreeToMoveRight(mat)) {
                 shape.moveRight();
@@ -510,17 +512,22 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 })
             }
             if (event.keyCode == 32) {
+                let i = 0;
                 while (shape.areBlocksFreeToMoveDown(mat)) {
                     shape.moveDown();
+                    i += 1;
                 }
                 if (!shape.areBlocksFreeToMoveDown(mat)) {
                     this.state.currentShape.moveBack()
                     this.state.currentShape.blocksArr.forEach((element: any) => {
+                        if(element){
                         mat[Math.round(element.top / size)][Math.round(element.left / size)].status = true;
                         mat[Math.round(element.top / size)][Math.round(element.left / size)].color = element.color;
+                        }
                     });
                     this.setState({
-                        matrix: mat
+                        matrix: mat,
+                        totalScore: score + i
                     })
                     this.updateStateOfTheGame(shape);
                     clearInterval(this.state.counterId);
@@ -643,11 +650,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             })
         }
         else {
+            let totalScore = this.state.totalScore - 10;
             this.setState({
-                running: false
+                running: false, totalScore
             });
             this.gameOver(c1);
-            if (gameMode == 0)
+            
                 CM.emitGameOver(user.name, recievers, score, totalScore, difficulty);
         }
     }
@@ -999,9 +1007,10 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             generatedShapes: shapes,
             nextShape: shapes[0],
             gameMode: 1,
-            user: { name: 'Guest', socketID: NaN },
-            isPlayerReady: true
+            isPlayerReady: true,
+            
         })
+        CM.emitInitializeGame(this.state.user.name, [], this.state.difficulty)
 
     }
     render() {
@@ -1017,9 +1026,11 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                 <div>{
                     !user && gameMode == 0 ? <div>
                         <LoginForm setUser={this.setUser} />
-                        <button value={1} onClick={this.singlePlayer}>Single player</button>
+                        
                     </div> : <div>
                             {gameMode == 0 ?
+                                <div>
+                                    <button value={1} onClick={this.singlePlayer}>Single player</button>
                                 <UserContainer
                                     setGeneratedShapes={this.setGeneratedShapes}
                                     reciever={recievers} startGame={this.startGame}
@@ -1033,6 +1044,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                     denied={denied} diffculty={difficulty}
                                     setDifficulty={this.setDifficulty}
                                     isSpectator={isSpectator} />
+                                    </div>
                                 : null}
                         </div>}
 

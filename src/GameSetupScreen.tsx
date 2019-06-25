@@ -68,7 +68,7 @@ class GameSetupScreen extends React.Component<
                             </tr>
 
                         </tbody>
-                    </table> : null}
+                    </table> : <p>Select and invite players from left sidebar or wait for an invite to enter a game</p>}
                 {selectedPlayers.length > 0 ? <p>Selected players: {selected}</p> : null}
                 {invitedPlayers.length > 0 ? <p>Invited players: {invited}</p> : null}
                 {denied.length > 0 ? <p>Players who declined: {d}</p> : null}

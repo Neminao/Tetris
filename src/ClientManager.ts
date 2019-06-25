@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
+import { REGISTER, WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://192.168.88.14:3231";
@@ -35,7 +35,7 @@ class ClientManager {
 
         this.socket.on(WINNER, (winnerData: any) => {
             displayWinner(winnerData);
-        }) 
+        })
 
         this.socket.on(USER_DISCONNECTED, (obj: any) => {
             removeReciever(obj.name);
@@ -124,6 +124,19 @@ class ClientManager {
             else reset();
         })
     }
+
+    initRegister = (setError: any, setDisplay: any) => {
+        this.socket.on(REGISTER, (success: boolean) => {
+            if(success){
+                setDisplay(3);
+            }
+            else {
+                setError("User already exists!");
+            }
+        })
+    }
+
+
     emitGameUpdate = (matrix: any, shape: any, reciever: string[], sender: string, totalScore: number, score: number, acceleration: number, blockSize: number) => {
         this.socket.emit(GAME_UPDATE, { matrix, shape, reciever, sender, totalScore, score, acceleration, blockSize });
     }
@@ -146,8 +159,8 @@ class ClientManager {
     emitGameStart = (to: string[], user: string) => {
         this.socket.emit(GAME_START, { to, user });
     }
-    emitVerifyUser = (nickname: string, setUser: any) => {
-        this.socket.emit(VERIFY_USER, nickname, setUser);
+    emitVerifyUser = (nickname: string, password: string, setUser: any) => {
+        this.socket.emit(VERIFY_USER, nickname, password, setUser);
     }
     emitReset = (to: string[], user: string) => {
         this.socket.emit(RESET, { to, user });
@@ -172,6 +185,10 @@ class ClientManager {
     }
     emitGameSetup = (master: string, recievers: string[], invited: string[]) => {
         this.socket.emit(GAME_SETUP, { master, recievers, invited });
+    }
+
+    emitRegister = (name: string, password: string) => {
+        this.socket.emit(REGISTER, { name, password })
     }
 
 }

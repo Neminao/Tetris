@@ -1,27 +1,30 @@
 import React from 'react'
-import { VERIFY_USER } from './Events'
 import CM from './ClientManager'
 
-class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; error: string; }> {
+class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; error: string; password: string;}> {
 
     textInput: HTMLInputElement | null | undefined;
     constructor(props: any) {
         super(props);
         this.state = {
             nickname: "",
-            error: ""
+            error: "",
+            password: ""
         }
     }
     setError = (error: string) => {
         this.setState({ error: error })
     }
     setUser = ({ user, isUser }: any) => {
-        if (isUser) {
-            this.setError('Username taken');
+        if (isUser == 0) {
+            this.setError('User is already logged in!');
         }
-        else {
+        else if (isUser == 1) {
+            this.setError('Incorrect username or password!');
+        }
+        else if(isUser == 2){
             this.props.setUser(user);
-            this.setError('')
+            this.setError('');
         }
     }
     handleChange = (event: any) => {
@@ -30,10 +33,16 @@ class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; e
             nickname: value
         })
     }
+    handlePassword = (event: any) => {
+        const { value } = event.target
+        this.setState({
+            password: value
+        }) 
+    }
     handleSubmit = (event: any) => {
         event.preventDefault();
-        const { nickname } = this.state;
-        CM.emitVerifyUser(nickname, this.setUser);
+        const { nickname, password } = this.state;
+        CM.emitVerifyUser(nickname, password, this.setUser);
     }
 
     render() {
@@ -50,7 +59,17 @@ class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; e
                         onChange={this.handleChange}
                         maxLength={16}
                         placeholder={'username'}
+                        autoComplete={'off'}
                     />
+                    <input
+                        
+                        type='password'
+                        id='password'
+                        onChange={this.handlePassword}
+                        maxLength={16}
+                        placeholder={'password'}
+                    />
+                    <input type="submit" onClick={this.handleSubmit} value="Login"></input>
                     <div className="error">{error ? error : null}</div>
                 </form>
             </div>

@@ -22,5 +22,6 @@ export const GAME_OVER = 'GAME_OVER';
 export const GAME_SETUP = 'GAME_SETUP';
 export const HIGHSCORE = 'HIGHSCORE';
 export const WINNER = 'WINNER';
+export const REGISTER = 'REGISTER';
 
 export default USER_CONNECTED
