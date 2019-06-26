@@ -26,6 +26,7 @@ class Register extends React.Component<{setDisplay: any}, {
             console.log("Username: " + name);
             CM.emitRegister(name, password);
             this.setError("");
+            
         }
         else {
             this.setError("Password must contain at least 6 characters!");
@@ -48,10 +49,13 @@ class Register extends React.Component<{setDisplay: any}, {
     }
     render = () => {
         const { error } = this.state;
+        const {setDisplay } = this.props;
         return (
             <div className='loginForm'>
-                {error ? error : null}
+            New user registration<hr></hr>
+                <div className='error'>{error ? error : null}</div>
                 <form onSubmit={this.register}>
+                    
                     Enter username:
                     <input
                         onChange={this.changeName}
@@ -65,6 +69,8 @@ class Register extends React.Component<{setDisplay: any}, {
                         placeholder='password...'></input>
                     <input type='submit' value={'Submit'}></input>
                 </form>
+                <button value={0} onClick={setDisplay}>Back</button>
+                <button value={1} onClick={setDisplay}>Login</button>
             </div>
         )
     }

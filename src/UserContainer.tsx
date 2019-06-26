@@ -10,7 +10,8 @@ class UserContainer extends React.Component<{
     user: any, logout: any, setGeneratedShapes: any,
     setRecievers: any, reciever: string[], startGame: any, isPlayerReady: boolean,
     changeSpectatingStatus: any, running: boolean, reset: any,
-    addSpectator: any, initGame: any, denied: string[], diffculty: number, setDifficulty: any, isSpectator: boolean
+    addSpectator: any, initGame: any, denied: string[], diffculty: number, setDifficulty: any, 
+    isSpectator: boolean, singlePlayer: any
 },
     {
         users: any[],
@@ -250,7 +251,7 @@ class UserContainer extends React.Component<{
     }
 
     render = () => {
-        const { user, logout, isPlayerReady, running, reciever, initGame, denied, diffculty } = this.props;
+        const { user, logout, isPlayerReady, running, reciever, initGame, denied, diffculty, singlePlayer } = this.props;
         const { sender, reqSent, showReq, showSide, games, showInitBtn, showStartBtn, invitedPlayers, selectedPlayers, isGameMaster, isPlayer, gameMaster, highscore, highscoreEasy } = this.state;
         let displayRecievers = "";
         let displayGames = null;
@@ -272,7 +273,13 @@ class UserContainer extends React.Component<{
                     </div>
                     : null}
 
-                <div className={"userInfo"}>User: {user} {reciever.length > 0 && isPlayerReady ? 'Users in game: ' + displayRecievers : null}<button onClick={this.logout}>Logout</button><button className={'resetBtn'} onClick={this.reset}>Reset</button></div>
+                <div className={"userInfo"}>
+                User: {user} 
+                {reciever.length > 0 && isPlayerReady ? 'Users in game: ' + displayRecievers : null}
+                <button onClick={this.logout}>Logout</button>
+                <button className={'resetBtn'} onClick={this.reset}>Reset</button>
+                
+                </div>
 
 
                 {showInitBtn ?
@@ -287,6 +294,7 @@ class UserContainer extends React.Component<{
                         gameMaster = {gameMaster}
                         setDifficulty={this.props.setDifficulty}
                         showDifficultySelection={gameMaster==user}
+                        singlePlayer={singlePlayer}
                     /> : null}
 
                 {(reqSent && showReq) ? <GameRequest name={sender} accept={this.accept} /> : null}

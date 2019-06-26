@@ -12,7 +12,8 @@ class GameSetupScreen extends React.Component<
         isPlayer: boolean,
         gameMaster: string,
         setDifficulty: any,
-        showDifficultySelection: boolean
+        showDifficultySelection: boolean;
+        singlePlayer: any;
     },
     {}> {
 
@@ -30,7 +31,7 @@ class GameSetupScreen extends React.Component<
         this.props.setDifficulty(event.target.value);
     }
     render() {
-        const { selectedPlayers, recievers, user, initializeGame, denied, showInitBtn, invitedPlayers, isPlayer, gameMaster, showDifficultySelection } = this.props;
+        const { selectedPlayers, recievers, user, initializeGame, denied, showInitBtn, invitedPlayers, isPlayer, gameMaster, showDifficultySelection, singlePlayer } = this.props;
         let selected = '', recs = '', d = '', invited = '';
         selected = this.createStringFromArray(selectedPlayers, selected);
         recs = this.createStringFromArray(recievers, recs);
@@ -39,8 +40,9 @@ class GameSetupScreen extends React.Component<
 
         return (
             <div className={'gameSetup'}>
-                <p>Current user: {user}</p>
-                {gameMaster ? <p>Creating game: {gameMaster}</p> : null}
+                <p>Game Setup</p>
+                
+                {gameMaster ? <p>Creating game: {gameMaster}</p> : <p><button className={'singlePlayer'} value={1} onClick={singlePlayer}>Single player</button></p>}
                 {selected.length > 0 || invited.length > 0 ?
                     <table>
                         <tbody>
@@ -68,7 +70,7 @@ class GameSetupScreen extends React.Component<
                             </tr>
 
                         </tbody>
-                    </table> : <p>Select and invite players from left sidebar or wait for an invite to enter a game</p>}
+                    </table> : <p>Select players from left sidebar and then invite them or wait for an invite to enter a multiplayer game</p>}
                 {selectedPlayers.length > 0 ? <p>Selected players: {selected}</p> : null}
                 {invitedPlayers.length > 0 ? <p>Invited players: {invited}</p> : null}
                 {denied.length > 0 ? <p>Players who declined: {d}</p> : null}

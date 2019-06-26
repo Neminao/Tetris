@@ -1,7 +1,7 @@
 import React from 'react'
 import CM from './ClientManager'
 
-class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; error: string; password: string;}> {
+class LoginForm extends React.Component<{ setUser: any; setDisplay: any}, { nickname: string; error: string; password: string;}> {
 
     textInput: HTMLInputElement | null | undefined;
     constructor(props: any) {
@@ -46,10 +46,14 @@ class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; e
     }
 
     render() {
-        const { nickname, error } = this.state
+        const { nickname, error } = this.state;
+        const {setDisplay}= this.props;
         return (
             <div className={'loginForm'}>
+            Login
+            <hr></hr>
                 <form onSubmit={this.handleSubmit}>
+                <div className="error">{error ? error : null}</div>
                     <label htmlFor='nickname'>Enter your nickname:</label><br></br>
                     <input
                         ref={(input) => { this.textInput = input }}
@@ -70,8 +74,11 @@ class LoginForm extends React.Component<{ setUser: any; }, { nickname: string; e
                         placeholder={'password'}
                     />
                     <input type="submit" onClick={this.handleSubmit} value="Login"></input>
-                    <div className="error">{error ? error : null}</div>
+
+                    
                 </form>
+                <button value={0} onClick={setDisplay}>Back</button>
+                <button value={2} onClick={setDisplay}>Register</button>
             </div>
         )
     }

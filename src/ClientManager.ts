@@ -128,7 +128,7 @@ class ClientManager {
     initRegister = (setError: any, setDisplay: any) => {
         this.socket.on(REGISTER, (success: boolean) => {
             if(success){
-                setDisplay(3);
+                setDisplay({target: {value: 3}})
             }
             else {
                 setError("User already exists!");

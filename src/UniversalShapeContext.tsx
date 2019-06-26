@@ -50,7 +50,7 @@ interface MyState {
     winner: any;
 }
 
-class UniversalShapeContext extends React.Component<{}, MyState>{
+class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
     canvasSide = React.createRef<HTMLCanvasElement>();
@@ -58,7 +58,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
     canvasBack3 = React.createRef<HTMLCanvasElement>();
     canvasBack4 = React.createRef<HTMLCanvasElement>();
 
-    constructor(props: {}) {
+    constructor(props: any) {
         super(props);
         this.state = {
             currentShape: this.defaultShape(),
@@ -1013,6 +1013,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
         CM.emitInitializeGame(this.state.user.name, [], this.state.difficulty)
 
     }
+
+    
     render() {
         const {
             isSpectator, columns,
@@ -1025,12 +1027,12 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
             <div onKeyUp={this.onKeyUp} >
                 <div>{
                     !user && gameMode == 0 ? <div>
-                        <LoginForm setUser={this.setUser} />
+                        <LoginForm setUser={this.setUser} setDisplay={this.props.setDisplay} />
                         
                     </div> : <div>
                             {gameMode == 0 ?
                                 <div>
-                                    <button value={1} onClick={this.singlePlayer}>Single player</button>
+                                    
                                 <UserContainer
                                     setGeneratedShapes={this.setGeneratedShapes}
                                     reciever={recievers} startGame={this.startGame}
@@ -1043,7 +1045,8 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                     initGame={this.initGame}
                                     denied={denied} diffculty={difficulty}
                                     setDifficulty={this.setDifficulty}
-                                    isSpectator={isSpectator} />
+                                    isSpectator={isSpectator}
+                                    singlePlayer={this.singlePlayer} />
                                     </div>
                                 : null}
                         </div>}
@@ -1072,6 +1075,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                                 running={running}
                                 isPlayerReady={isPlayerReady}
                             />
+                            {gameMode == 1 ? <div><button className="startBtn" onClick={this.startGame}>Start</button></div> : null}
                         </div>
                         {canvases}
                         {winner}
@@ -1082,7 +1086,7 @@ class UniversalShapeContext extends React.Component<{}, MyState>{
                     </div> : null}
                 </div>
                 {reqAccepted}
-                {gameMode == 1 ? <div><button onClick={this.startGame}>Start</button></div> : null}
+                
             </div>
 
 

@@ -28,7 +28,7 @@ function Highscore(props: any) {
                 </tr>
                 {scores}
             </tbody>
-        </table></div>
+        </table>-----------</div>
     )
 }
 
