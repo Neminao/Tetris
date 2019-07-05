@@ -103,6 +103,52 @@ class UniversalShape {
         })
         return pom;
     }
+
+    areBlocksFreeToMoveDownNumber(matrix: any) {
+        let pom = 0;
+        this.blocksArr.forEach(elem => {
+            if (!elem.isBlockFreeToMoveDown(matrix)) {
+                pom += 1;
+            }
+        })
+        if(pom>0){
+            if (this.blocksArr[0].left == this.blocksArr[3].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[0].left == this.blocksArr[2].left){
+                pom == 4;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[3].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[0].top == this.blocksArr[2].top){
+                pom += 2;
+            }
+            else if (this.blocksArr[0].top == this.blocksArr[3].top && this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[0].left == this.blocksArr[2].left){
+                pom+=1;
+            }
+            else if (this.blocksArr[0].top == this.blocksArr[2].top && this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[2].left == this.blocksArr[3].left){
+                pom+=1;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[2].top == this.blocksArr[3].top){
+                pom+=2;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[1].top == this.blocksArr[3].top){
+                pom+=2;
+            }
+            else if (this.blocksArr[0].top == this.blocksArr[2].top && this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[1].left == this.blocksArr[3].left){
+                pom+=1;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[1].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[1].top){
+                pom+=2;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[1].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[1].top){
+                pom+=2;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[2].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[2].top){
+                pom+=2;
+            }
+            else if (this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[2].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[2].top){
+                pom+=2;
+            }
+        }
+        return pom;
+    }
+
     rotate() {
         let i = this.currentPosition;
         let blockStates = this.coordiantesArr

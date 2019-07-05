@@ -4,12 +4,12 @@ class Canvas extends React.Component<
     {
          rows: number,
         columns: number, blockSize: number, canvasFront: any,
-        canvasBack: any, running? : boolean, isPlayerReady?: boolean
+        canvasBack: any, running? : boolean, isPlayerReady?: boolean, fixed?: boolean
     },
     {}> {
     constructor(props: any) {
         super(props);
-        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
+       // this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
     } 
     componentDidMount() {
         const { canvasBack, canvasFront, rows, columns, blockSize } = this.props;
@@ -24,17 +24,19 @@ class Canvas extends React.Component<
             c1.width = columns * blockSize;
             c1.height = rows * blockSize;
         }
+       
         this.updateWindowDimensions();
         window.addEventListener('resize', this.updateWindowDimensions);
+        
     }
     componentWillUnmount() {
         window.removeEventListener('resize', this.updateWindowDimensions);
     }
 
 
-    updateWindowDimensions() {
-        const { canvasBack, canvasFront, rows, columns, blockSize, running, isPlayerReady } = this.props;
-        if(!running && isPlayerReady){
+    updateWindowDimensions = () => {
+        const { canvasBack, canvasFront, rows, columns, blockSize, running, isPlayerReady, fixed } = this.props;
+        if(!running && isPlayerReady && !fixed){
         if (canvasBack) {
             let c2: any = canvasBack.current;          
             c2.width = columns * blockSize;

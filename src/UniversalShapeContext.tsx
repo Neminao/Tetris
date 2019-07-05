@@ -8,6 +8,7 @@ import MiniCanvas from './MiniCanvas';
 import CM from './ClientManager';
 import Popup from './Popup';
 import WinnerPopup from './WinnerPopup';
+import AutoComplete from './AutoComplete';
 const { generateShapes } = require('./Factories')
 
 interface MyState {
@@ -50,7 +51,7 @@ interface MyState {
     winner: any;
 }
 
-class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
+class UniversalShapeContext extends React.Component<{ setDisplay: any }, MyState>{
     canvasBack = React.createRef<HTMLCanvasElement>();
     canvasFront = React.createRef<HTMLCanvasElement>();
     canvasSide = React.createRef<HTMLCanvasElement>();
@@ -104,7 +105,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
 
     componentDidMount() {
         this.setState({
-            matrix: this.createEmptyMatrix()
+            matrix: this.createEmptyMatrix(10, 20)
         })
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
@@ -166,11 +167,11 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
 
     displayWinner = (winnerData: any) => {
         this.setState({
-            winner: <WinnerPopup winner={winnerData.winner} score ={winnerData.score} close={this.hideWinner}/>
+            winner: <WinnerPopup winner={winnerData.winner} score={winnerData.score} close={this.hideWinner} />
         })
     }
     hideWinner = () => {
-        this.setState({winner: null});
+        this.setState({ winner: null });
     }
 
     setShapesCoords = (shapesCoords: any[]) => {
@@ -267,7 +268,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         this.setState({
             generatedShapes,
             nextShape: generatedShapes[0],
-            
+
         });
         return generatedShapes;
     }
@@ -307,15 +308,13 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
             generatedShapes: null,
             generatedShapesIndex: 0,
             isPlayerReady: false,
-            matrix: this.createEmptyMatrix(),
+            matrix: this.createEmptyMatrix(10, 20),
             nextShape: this.defaultShape(),
         })
     }
 
-    createEmptyMatrix = (): any[] => {
+    createEmptyMatrix = (col: number, row: number): any[] => {
         let arr: any[] = [];
-        const col = this.state.columns;
-        const row = this.state.rows;
         function sub(): any[] {
             let sub: any[] = [];
             for (let j = 0; j < col; j++) {
@@ -386,7 +385,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         ctx2.clearRect(0, 0, columns * blockSize / 2, rows * blockSize / 2);
         let shape = new UniversalShape(obj.shape.coordiantesArr, columns, rows, blockSize / 2, 'red');
         shape.defineNewProperties(obj.shape.blocksArr, 2, blockSize / obj.blockSize);
-        this.createGrid(ctx2, 0.5);
+        this.createGrid(ctx2,columns, rows, 0.5);
         shape.updateCanvas(ctx2)
 
         for (let i = 0; i < rows; i++) {
@@ -460,7 +459,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
             ctx2.clearRect(0, 0, columns * blockSize / 2, rows * blockSize / 2);
             let shape = new UniversalShape(obj.shape.coordiantesArr, columns, rows, blockSize / 2, 'red');
             shape.defineNewProperties(obj.shape.blocksArr, 2, blockSize / obj.blockSize);
-            this.createGrid(ctx2, 0.5);
+            this.createGrid(ctx2, columns, rows, 0.5);
             shape.updateCanvas(ctx2)
 
             for (let i = 0; i < rows; i++) {
@@ -520,9 +519,9 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
                 if (!shape.areBlocksFreeToMoveDown(mat)) {
                     this.state.currentShape.moveBack()
                     this.state.currentShape.blocksArr.forEach((element: any) => {
-                        if(element){
-                        mat[Math.round(element.top / size)][Math.round(element.left / size)].status = true;
-                        mat[Math.round(element.top / size)][Math.round(element.left / size)].color = element.color;
+                        if (element) {
+                            mat[Math.round(element.top / size)][Math.round(element.left / size)].status = true;
+                            mat[Math.round(element.top / size)][Math.round(element.left / size)].color = element.color;
                         }
                     });
                     this.setState({
@@ -547,9 +546,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         }
     }
 
-    createGrid = (ctx: any, scale?: number) => {
-        const col = this.state.columns;
-        const row = this.state.rows;
+    createGrid = (ctx: any, col:number, row: number, scale?: number) => {
         let size = this.state.blockSize;
         if (scale) size = size / 2;
         ctx.lineWidth = 1;
@@ -587,11 +584,11 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
             const ctx1: any = c1.getContext('2d');
             ctx1.clearRect(0, 0, col * size, row * size);
             this.setState({
-                matrix: this.createEmptyMatrix(),
+                matrix: this.createEmptyMatrix(col, row),
                 score: 0,
                 totalScore: 0
             })
-            this.createGrid(ctx1);
+            this.createGrid(ctx1, col, row);
         }
     }
 
@@ -602,6 +599,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
+        let arr = this.state.matrix
         console.log(size);
         const { generatedShapes, nextShape, recievers, user, gameMode, score, totalScore, difficulty } = this.state;
         let index = this.state.generatedShapesIndex;
@@ -638,12 +636,12 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
             currentShape: next,
             nextShape: shape
         })
-        if (this.isRowComplete().length > 0) {
-            this.isRowComplete().forEach(index => {
+        if (this.isRowComplete(col, row, arr).length > 0) {
+            this.isRowComplete(col, row, arr).forEach(index => {
                 this.clearRow(index);
             });
         }
-        if (!this.isGameOver(shape)) {
+        if (!this.isGameOver(shape, arr)) {
             let inter: any = setInterval(() => this.moveShape(next, inter), 50);
             this.setState({
                 counterId: inter,
@@ -655,8 +653,8 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
                 running: false, totalScore
             });
             this.gameOver(c1);
-            
-                CM.emitGameOver(user.name, recievers, score, totalScore, difficulty);
+
+            CM.emitGameOver(user.name, recievers, score, totalScore, difficulty);
         }
     }
     gameOver = (canvas: any) => {
@@ -729,25 +727,25 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
+        let mat = this.state.matrix;
         let c1: any = this.canvasBack.current;
         let total = this.state.totalScore;
         const ctx1: any = c1.getContext('2d');
-        if (this.isRowComplete().length > 0) {
-            switch (this.isRowComplete().length) {
+        if (this.isRowComplete(col, row, mat).length > 0) {
+            switch (this.isRowComplete(col, row, mat).length) {
                 case 1: total += 100; break;
                 case 2: total += 250; break;
                 case 3: total += 450; break;
                 case 4: total += 800; break;
             }
-            this.isRowComplete().forEach(index => {
+            this.isRowComplete(col, row, mat).forEach(index => {
                 this.clearRow(index);
             });
             ctx1.clearRect(0, 0, col * size, row * size);
-            this.createGrid(ctx1);
+            this.createGrid(ctx1, col, row);
         }
 
         const shape1 = new BaseBuildingSquare(0, 0, 'blue', size)
-        const mat = this.state.matrix;
         for (let i = 0; i < row; i++) {
             for (let j = 0; j < col; j++) {
                 if (mat[i][j].status) {
@@ -772,8 +770,8 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         }
     }
 
-    isGameOver = (shape: any) => {
-        return !shape.areBlocksFreeToMoveDown(this.state.matrix)
+    isGameOver = (shape: any, matrix: any[]) => {
+        return !shape.areBlocksFreeToMoveDown(matrix)
     }
 
     clearRow = (index: number) => {
@@ -797,10 +795,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         })
     }
 
-    isRowComplete = () => {
-        const col = this.state.columns;
-        const row = this.state.rows;
-        const arr = this.state.matrix;
+    isRowComplete = (col: number, row: number, arr: any[]) => {
         let numArr = []
         for (let i = 0; i < row; i++) {
             let counter = 0;
@@ -890,7 +885,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
             nextShape: this.defaultShape(),
             allBlocks: [],
             running: false,
-            matrix: this.createEmptyMatrix(),
+            matrix: this.createEmptyMatrix(10 , 20),
             score: 0,
             speed: 900,
             counterId: -1,
@@ -994,8 +989,8 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         this.setPlayerReady(true);
     }
 
-    setPlayerReady=(tf: boolean)=>{
-        this.setState({isPlayerReady: tf})
+    setPlayerReady = (tf: boolean) => {
+        this.setState({ isPlayerReady: tf })
     }
 
     singlePlayer = (event: any) => {
@@ -1008,13 +1003,13 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
             nextShape: shapes[0],
             gameMode: 1,
             isPlayerReady: true,
-            
+
         })
         CM.emitInitializeGame(this.state.user.name, [], this.state.difficulty)
 
     }
 
-    
+
     render() {
         const {
             isSpectator, columns,
@@ -1025,29 +1020,40 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
         const canvases = this.generateSpecCanvases();
         return (
             <div onKeyUp={this.onKeyUp} >
+
                 <div>{
                     !user && gameMode == 0 ? <div>
                         <LoginForm setUser={this.setUser} setDisplay={this.props.setDisplay} />
-                        
+
                     </div> : <div>
                             {gameMode == 0 ?
                                 <div>
-                                    
-                                <UserContainer
-                                    setGeneratedShapes={this.setGeneratedShapes}
-                                    reciever={recievers} startGame={this.startGame}
-                                    user={user.name} logout={this.logout}
-                                    setRecievers={this.setRecievers}
-                                    isPlayerReady={isPlayerReady}
-                                    changeSpectatingStatus={this.changeSpectatingStatus}
-                                    running={running} reset={this.reset}
-                                    addSpectator={this.addSpectator}
-                                    initGame={this.initGame}
-                                    denied={denied} diffculty={difficulty}
-                                    setDifficulty={this.setDifficulty}
-                                    isSpectator={isSpectator}
-                                    singlePlayer={this.singlePlayer} />
+
+                                    <UserContainer
+                                        setGeneratedShapes={this.setGeneratedShapes}
+                                        reciever={recievers} startGame={this.startGame}
+                                        user={user.name} logout={this.logout}
+                                        setRecievers={this.setRecievers}
+                                        isPlayerReady={isPlayerReady}
+                                        changeSpectatingStatus={this.changeSpectatingStatus}
+                                        running={running} reset={this.reset}
+                                        addSpectator={this.addSpectator}
+                                        initGame={this.initGame}
+                                        denied={denied} diffculty={difficulty}
+                                        setDifficulty={this.setDifficulty}
+                                        isSpectator={isSpectator}
+                                        singlePlayer={this.singlePlayer} />
+                                    <div className={'transparent'}>
+                                        <AutoComplete
+                                            rows={23}
+                                            columns={36}
+                                            blockSize={blockSize}
+                                            createEmptyMatrix={this.createEmptyMatrix}
+                                            isRowComplete={this.isRowComplete}
+                                            isGameOver={this.isGameOver}
+                                            createGrid={this.createGrid} />
                                     </div>
+                                </div>
                                 : null}
                         </div>}
 
@@ -1086,7 +1092,7 @@ class UniversalShapeContext extends React.Component<{setDisplay: any}, MyState>{
                     </div> : null}
                 </div>
                 {reqAccepted}
-                
+
             </div>
 
 

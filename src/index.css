@@ -141,14 +141,16 @@ button {
 
 
 .sideTab {
-  top: 0px;
-  left: 0px;
+  top: 50px;
+  
   height: 100%;
   width: 180px;
-  position: absolute;
+  position: fixed;
   background-color: rgba(255, 255, 255, 0.9); 
   border-right: solid 3px #a04dff;
   color: black;
+  z-index: 1000;
+  overflow-y: scroll;
 }
 .sideTab p {
   margin: 0px;
@@ -343,7 +345,7 @@ button {
   margin-left: -400px; 
   height: 600px;
   margin-top: 140px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.849);
   border: solid #f9ff8f 4px;
   border-radius: 3px;
   font-size: 22px;
@@ -383,7 +385,12 @@ button {
   background-color: rgba(255, 255, 255, 0.918);
   width: 300px;
   text-align: center;
+  z-index: 100;
+  position: relative;
+  height: 50%;
 }
+
+
 
 .highscore td{
  width:74px;
@@ -391,6 +398,7 @@ button {
 
 .highscoreWrapper {
   float: right;
+  height: 959px;
 }
 
 .winnerPopup {
@@ -445,6 +453,13 @@ button {
   font-size:15px;
   color: red;
   height: 25px;
+}
+
+.transparent {
+  opacity: 0.7;
+  z-index: 1;
+  position: absolute;
+  margin-left: 180px;
 }
 
 
