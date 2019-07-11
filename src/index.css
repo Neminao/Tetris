@@ -63,7 +63,7 @@ button {
 }
 
 .main {
-  margin-top: 30px;
+  margin-top: 60px;
  margin-left:10px;
  position: static;
  float: left;
@@ -118,9 +118,14 @@ button {
 .userInfo {
   height: 50px;
   font-size: 30px;
+  width: 100%;
   background-color: rgba(255, 255, 255, 0.938);
   padding-left: 100px;
-  position: static;
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin-left: -100px;
+  
 }
 
 .userInfo button {
@@ -141,13 +146,13 @@ button {
 
 
 .sideTab {
-  top: 50px;
-  
-  height: 100%;
-  width: 180px;
-  position: fixed;
+  top: 60px;
+  left: 5%;
+  height: 80%;
+  width: 400px;
+  position: absolute;
   background-color: rgba(255, 255, 255, 0.9); 
-  border-right: solid 3px #a04dff;
+  border: solid 3px #a04dff;
   color: black;
   z-index: 1000;
   overflow-y: scroll;
@@ -157,16 +162,34 @@ button {
 }
 
 .sideBtn {
-  width: 100%;
-  font-size: 17px;
-  text-align: center;
-  border: solid 2px #4dfff3;
+  width: 360px;
+  height: 40px;
+  font-size: 25px;
+  text-align: left;
+  
   background-color: white;
+  margin: 5px;
+  margin-left: 7px;
+  padding-left:5px;
 }
 
-.sideBtn:hover{
-  border: solid 2px salmon;
+.sideBtn button {
+  margin-top:5px; 
+  height: 30px;
+  width: 60px;
+  font-size:18px;
+  margin-right: 5px;
+  float:right;
+  background-color: #4dfff3;
+  border: none;
+  color: rgb(245, 245, 245);
 }
+
+.sideBtn button:hover {
+  box-shadow: 0 7px 15px rgba(136, 237, 255, 0.932);
+  color: white;
+}
+
 
 .sideBtnSmall {
   width: 100%;
@@ -178,20 +201,16 @@ button {
   background-color: white;
 }
 
-.sideBtnSmall:hover{
-  border: solid 2px salmon;
-}
-
-
 .request {
+  position: absolute;
  width:200px;
  height:100px; 
- margin-left: 40%;
- margin-top: 10px;
+ margin-left:30%;
+ margin-top: 100px;
  border: solid 3px #ffb236;
  border-radius: 3px;
  font-size: 14px;
- z-index: 2500;
+ z-index: 10000;
  background-color: rgba(255, 255, 255, 0.9);
 }
 .request button {
@@ -263,7 +282,7 @@ button {
   margin-top: 20px;
   border: solid #ff544b 3px;
   border-radius: 3px;
-  
+  z-index: 2000;
 }
 
 .popupOpen button {
@@ -339,32 +358,18 @@ button {
 }
 
 .gameSetup {
-  position: fixed;
-  width: 800px;
-  left: 50%;
+  position: absolute;
+  width: 720px;
+  left: 66%;
   margin-left: -400px; 
-  height: 600px;
+  height: 400px;
   margin-top: 140px;
   background-color: rgba(255, 255, 255, 0.849);
   border: solid #f9ff8f 4px;
-  border-radius: 3px;
+  border-radius: 1px;
   font-size: 22px;
   z-index: 100;
-  background-image: url('../src/img/computer-3163437.png');
   background-position: center;
-}
-
-.gameSetup button {
-  border: solid 3px rgb(245, 212, 140);
-  font-size: 22px;
-  background-color: #f9ff8f;
-  border-radius: 3px;
-  
-}
-
-
-.gameSetup button:hover {
-  background-color: salmon;
 }
 
 .gameSetup p {
@@ -376,29 +381,30 @@ button {
 
 .gameSetup table {
   background-color: rgba(255, 255, 255, 0.938);
-  width: 100%;
-  border-top: solid #f9ff8f 4px;
-  border-bottom: solid #f9ff8f 4px;
+  
+  
 }
 
 .highscore{
   background-color: rgba(255, 255, 255, 0.918);
-  width: 300px;
+  width: 400px;
   text-align: center;
   z-index: 100;
   position: relative;
-  height: 50%;
+  height: 45%;
 }
 
 
 
 .highscore td{
- width:74px;
+ width:100px;
 }
 
 .highscoreWrapper {
-  float: right;
-  height: 959px;
+  left: 20%;
+  width: 400px;
+  margin-left: -200px;
+  position: absolute;
 }
 
 .winnerPopup {
@@ -449,18 +455,134 @@ button {
   border-bottom: solid 2px lightblue;
 }
 
+.title2 {
+  font-size: 140px;
+  margin-top: 5%;
+  color: white;
+  position: absolute;
+  left: 56%;
+  font-weight: 900;
+}
+
 .error {
   font-size:15px;
   color: red;
   height: 25px;
 }
 
+
+
+.menuButtons {
+    height: 530px;
+    width: 610px;
+    left: 20%;
+    top: 20%;
+    margin-left: -305px;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.904);
+    border-radius: 3px;
+    overflow: clip;
+    z-index: 100;
+}
+
+.menuButtons p {
+  height: 70px;
+  width: 590px;
+  font-size: 30px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background-color: rgb(166, 230, 166);
+  border: none;
+  color: white;
+  margin-left: 10px;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+
+.menuButtons button{
+  height: 70px;
+  width: 590px;
+  font-size: 25px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background-color: rgb(102, 237, 255);
+  border: none;
+  color: rgb(238, 238, 238);
+}
+
+.menuButtons button:hover{
+  box-shadow: 0 7px 15px rgba(136, 237, 255, 0.932);
+  color: white;
+}
+.leftMenu {
+  width: 40%;
+  margin-top: 60px;
+  z-index: 100;
+}
+
 .transparent {
   opacity: 0.7;
   z-index: 1;
   position: absolute;
-  margin-left: 180px;
+  left: 40%; 
+  top: 60px;
+  width: 50%;
+  float: right;
 }
+
+.tableLeft {
+  width: 360px;
+  height: 120px;
+  position: absolute;
+  top: 100px;
+}
+
+.tableRight {
+  width: 360px;
+  height: 120px;
+  position: absolute;
+  margin-left: 360px;
+  top: 100px;
+}
+
+.roundBtn {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  top: 90px;
+  border-radius: 70px;
+  border: none;
+  left: 360px;
+  margin-left: -70px;
+  background-color:	#66FF66;
+  color: whitesmoke;
+  border: 5px solid white;
+}
+
+.roundBtn:hover {
+  box-shadow: 0 0 20px rgba(136, 255, 156, 0.932);
+  color: white;
+}
+
+.tdNarrow {
+  width: 100px;
+}
+.tdWide {
+  width: 300px;
+}
+
+#leftAlign {
+  text-align: left;
+  padding-left: 10px;
+  border-left: 1px solid;
+}
+#rightAlign {
+  text-align: right;
+  border-right: 1px solid;
+  padding-right: 10px;
+}
+
 
 
 

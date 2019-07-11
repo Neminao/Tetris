@@ -1,6 +1,6 @@
 const io = require('./server.js').io;
 
-const { REGISTER, WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
+const { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories');
 
@@ -18,17 +18,21 @@ module.exports = function (socket) {
             callback({ isUser: 0, user: null })
         }
         else {
-            con.query("SELECT * FROM user where name = '"+nickname+"' and password = '"+password+"'", function (err, result, fields) {
+
+            //enable and change to fit database
+
+
+         /*   con.query("SELECT * FROM user where name = '"+nickname+"' and password = '"+password+"'", function (err, result, fields) {
             if (err) throw err;
             if(result[0]){
-                console.log(2)
+                console.log(2)*/
             callback({ isUser: 2, user: createUser({ name: nickname, socketID: socket.id }) })
-            }
+           /* }
             else {
                 console.log(1)
             callback({ isUser: 1, user: null })
             }
-        });
+        });*/
     }
     })
     socket.on('disconnect', () => {
@@ -66,7 +70,11 @@ module.exports = function (socket) {
             io.emit(DISPLAY_GAMES, gamesInProgress);
         }
         console.log(connectedUsers);
-        showHighscores(socket);
+        showHighscores(socket); 
+    })
+    socket.on(LIST_UPDATE, ()=>{
+        socket.emit(USER_CONNECTED, connectedUsers);
+        socket.emit(DISPLAY_GAMES, gamesInProgress);
     })
     socket.on(GAME_UPDATE, ({ matrix, shape, reciever, sender, score, totalScore, acceleration, blockSize }) => {
 
@@ -136,6 +144,7 @@ module.exports = function (socket) {
             }
         }
         let s = connectedUsers[sender];
+        if(s)
         s.inGame = true;
         socket.emit(INITIALIZE_GAME, { generatedShapes, recievers, difficulty });
         io.emit(USER_CONNECTED, connectedUsers);
@@ -166,10 +175,10 @@ module.exports = function (socket) {
 
     socket.on(GAME_REQUEST, ({ sender, reciever }) => {
         let rec;
-        for (var i = 0; i < reciever.length; i++) {
-            rec = connectedUsers[reciever[i]];
+        
+            rec = connectedUsers[reciever];
             socket.to(rec.socketID).emit(GAME_REQUEST, { sender });
-        }
+        
     })
 
     socket.on(ADD_SHAPES, (reciever) => {
@@ -244,12 +253,13 @@ module.exports = function (socket) {
 
     })
 
-    socket.on(GAME_SETUP, ({ master, recievers, invited }) => {
+    socket.on(GAME_SETUP, ({ master, recievers }) => {
         let rec;
         recievers.forEach(name => {
+            console.log(rec);
             rec = connectedUsers[name];
             if (rec)
-                socket.to(rec.socketID).emit(GAME_SETUP, { master, recievers, invited });
+                socket.to(rec.socketID).emit(GAME_SETUP, { master, recievers });
         })
     })
 
@@ -323,7 +333,7 @@ function showHighscores(socket) {
         if (err) throw err;
         socket.emit(HIGHSCORE, { result, mode: 'easy' });
     });
-
+    console.log('highscores')
 }
 // provera da li je korisnik u nekoj od igara; vraca ime igre
 function checkGame(recievers, user) {

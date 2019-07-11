@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { REGISTER, WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
+import { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://192.168.88.14:3231";
@@ -77,16 +77,24 @@ class ClientManager {
         })
 
     }
+
+    initMenu = (setHighscore: any) => {
+        this.socket.on(HIGHSCORE, (result: any) => {
+            console.log(result);
+            setHighscore(result);
+        })
+    }
     initUserContainer = (displayUsers: any,
         setSender: any, setRequest: any, startGame: any, setSide: any, setRecievers: any,
         addSpectator: any, updateAvailableGames: any, setInitBtn: any, updateGameSetupScreen: any,
-        emitGameSetup: any, reset: any, setHighscore: any) => {
+        emitGameSetup: any, reset: any) => {
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
         this.socket.on(USER_DISCONNECTED, (obj: any) => {
             displayUsers(obj.allUsers);
         })
+
         this.socket.on(INITIALIZE_GAME, (obj: any) => {
             setSide(false);
             setInitBtn(false);
@@ -99,11 +107,6 @@ class ClientManager {
                 setRequest();
                 startGame();
             }
-        })
-
-        this.socket.on(HIGHSCORE, (result: any) => {
-            console.log(result);
-            setHighscore(result);
         })
 
         this.socket.on(SPECTATE, (spectator: string) => {
@@ -153,7 +156,7 @@ class ClientManager {
     emitUserReady = (user: string, reqSender: string) => {
         this.socket.emit(USER_READY, { user, reqSender });
     }
-    emitGameRequest = (sender: string, reciever: string[]) => {
+    emitGameRequest = (sender: string, reciever: string) => {
         this.socket.emit(GAME_REQUEST, { sender, reciever });
     }
     emitGameStart = (to: string[], user: string) => {
@@ -183,12 +186,16 @@ class ClientManager {
     emitGameOver = (user: string, recievers: string[], score: number, totalScore: number, difficulty: number) => {
         this.socket.emit(GAME_OVER, { user, recievers, score, totalScore, difficulty });
     }
-    emitGameSetup = (master: string, recievers: string[], invited: string[]) => {
-        this.socket.emit(GAME_SETUP, { master, recievers, invited });
+    emitGameSetup = (master: string, recievers: string[]) => {
+        this.socket.emit(GAME_SETUP, { master, recievers });
     }
 
     emitRegister = (name: string, password: string) => {
         this.socket.emit(REGISTER, { name, password })
+    }
+
+    emitListUpdate = () => {
+        this.socket.emit(LIST_UPDATE);
     }
 
 }

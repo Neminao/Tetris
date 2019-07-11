@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
-import UniversalShapeContext from './UniversalShapeContext';
 import Register from './Register';
+import LoginForm from './LoginForm';
+import CM from './ClientManager'
+import Menu from './Menu';
 
 
-class Main extends Component<{}, { display: number }> {
+class Main extends Component<{}, { display: number; user: any }> {
   constructor(props: any) {
     super(props);
     this.state = {
-      display: 0
+      display: 0,
+      user: null
     }
   }
   setDisplay = (display: number) => {
@@ -18,8 +21,12 @@ class Main extends Component<{}, { display: number }> {
   handleClick = (event: any) => {
     this.setState({ display: event.target.value });
   }
+  setUser = (user: any) => {
+    CM.emitUserConnected(user);
+    this.setState({ user, display: 4 })
+  }
   render() {
-    const { display } = this.state;
+    const { display, user } = this.state;
     return (
       <div >
 
@@ -29,12 +36,13 @@ class Main extends Component<{}, { display: number }> {
 
             <button onClick={this.handleClick} value={1}>Login</button>
             <button onClick={this.handleClick} value={2}>Register</button> </div> </div> : null}
-        {display == 1 ? <div><UniversalShapeContext setDisplay={this.handleClick} /> </div> : null}
+        {display == 1 ? <div><LoginForm setUser={this.setUser} setDisplay={this.handleClick} /> </div> : null}
         {display == 2 ? <div ><Register setDisplay={this.handleClick} /> </div> : null}
         {display == 3 ? <div className="register">
           Register Successful!
           <button onClick={this.handleClick} value={1}>Login</button>
         </div> : null}
+        {user ? <div ><Menu user={user} /> </div> : null}
       </div>
     );
   }

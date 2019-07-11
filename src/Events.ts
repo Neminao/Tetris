@@ -23,5 +23,6 @@ export const GAME_SETUP = 'GAME_SETUP';
 export const HIGHSCORE = 'HIGHSCORE';
 export const WINNER = 'WINNER';
 export const REGISTER = 'REGISTER';
+export const LIST_UPDATE = 'LIST_UPDATE';
 
 export default USER_CONNECTED

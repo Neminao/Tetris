@@ -115,8 +115,11 @@ class UniversalShape {
             if (this.blocksArr[0].left == this.blocksArr[3].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[0].left == this.blocksArr[2].left){
                 pom == 4;
             }
+            else if (this.blocksArr[0].top == this.blocksArr[3].top && this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[0].top == this.blocksArr[2].top){
+                
+            }
             else if (this.blocksArr[0].left == this.blocksArr[3].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[0].top == this.blocksArr[2].top){
-                pom += 2;
+                pom *= 2;
             }
             else if (this.blocksArr[0].top == this.blocksArr[3].top && this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[0].left == this.blocksArr[2].left){
                 pom+=1;
@@ -125,25 +128,25 @@ class UniversalShape {
                 pom+=1;
             }
             else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[2].top == this.blocksArr[3].top){
-                pom+=2;
+                pom*=2;
             }
             else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[1].top == this.blocksArr[3].top){
-                pom+=2;
+                pom*=2;
             }
             else if (this.blocksArr[0].top == this.blocksArr[2].top && this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[1].left == this.blocksArr[3].left){
                 pom+=1;
             }
             else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[1].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[1].top){
-                pom+=2;
+                pom*=2;
             }
-            else if (this.blocksArr[0].left == this.blocksArr[2].left && this.blocksArr[1].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[1].top){
-                pom+=2;
-            }
-            else if (this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[2].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[2].top){
-                pom+=2;
+            else if (this.blocksArr[0].top == this.blocksArr[2].top && this.blocksArr[1].top == this.blocksArr[3].top && this.blocksArr[0].left == this.blocksArr[1].left){
+                pom+=1;
             }
             else if (this.blocksArr[0].left == this.blocksArr[1].left && this.blocksArr[2].left == this.blocksArr[3].left && this.blocksArr[0].top == this.blocksArr[2].top){
-                pom+=2;
+                pom*=2;
+            }
+            else if (this.blocksArr[0].top == this.blocksArr[1].top && this.blocksArr[2].top == this.blocksArr[3].top && this.blocksArr[0].left == this.blocksArr[2].left){
+                pom+=1;
             }
         }
         return pom;

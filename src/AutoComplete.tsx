@@ -2,13 +2,14 @@ import React from 'react';
 import Canvas from './Canvas';
 import UniversalShape from './UniversalShape';
 import BaseBuildingSquare from './BaseBuildingSquare';
-const { generateShapes } = require('./Factories')
+const {createEmptyMatrix, isRowComplete, createGrid} = require('./TetrisHelper')
+const { generateShapes} = require('./Factories')
 
 interface AutoProps {
-    rows: number, columns: number, blockSize: number, createEmptyMatrix: any, isRowComplete: any, isGameOver: any; createGrid: any;
+    rows: number, columns: number, blockSize: number
 }
 interface AutoState {
-    index: number, moveCounter: number, matrix: any[], generatedShapes: any[]
+    index: number, moveCounter: number, matrix: any[], generatedShapes: any[], speed: number
 }
 
 class AutoComplete extends React.Component<AutoProps, AutoState> {
@@ -18,12 +19,13 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
     constructor(props: AutoProps) {
         super(props);
         let generatedShapes = this.setGeneratedShapes(generateShapes(1000, 7));
-        let matrix = this.props.createEmptyMatrix(props.columns, props.rows)
+        let matrix = createEmptyMatrix(props.columns, props.rows)
         this.state = {
             index: 0,
             moveCounter: 0,
             matrix,
-            generatedShapes
+            generatedShapes,
+            speed: 50
         }
     }
 
@@ -39,7 +41,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         const { columns, rows, blockSize } = this.props;
         generatedShapes = shapes.map((elem: any) => {
             const color = elem.color;
-            return new UniversalShape(elem.coords, columns, rows, 40, color);
+            return new UniversalShape(elem.coords, columns, rows, blockSize, color);
         });
         return generatedShapes;
     }
@@ -58,13 +60,9 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         return copy;
     }
 
-    isGameOver = (shape: any, matrix: any[]) => {
-        return !shape.areBlocksFreeToMoveDown(matrix)
-    }
-
     numberOfFilledFields = (matrix: any[], newMatrix: any[]) => {
         let counter = 0;
-        let max: number, maxNew: number;
+        let max: number, maxNew: number, maxi = 0;
         for (let i = 0; i < matrix.length - 1; i++) {
             max = 0;
             maxNew = 0;
@@ -76,6 +74,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
             })
             if (maxNew > max) {
                 counter = counter + (maxNew - max) * i;
+
             }
         }
         return counter;
@@ -100,8 +99,14 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
     }
 
     autoMove = () => {
-        const { index, matrix, generatedShapes } = this.state;
-        const { columns, rows, isRowComplete, createGrid } = this.props;
+        const { index, matrix, speed } = this.state;
+        let {generatedShapes} = this.state
+        const { columns, rows, blockSize } = this.props;
+        if(undefined == generatedShapes[index]){
+            let gen = this.setGeneratedShapes(generateShapes(1000, 7));            
+            generatedShapes = generatedShapes.concat(gen);
+            this.setState({generatedShapes})           
+        }       
         let shape: UniversalShape = generatedShapes[index];
         const bestShape = this.findBestPosition(shape);
         let rotation = 0;
@@ -154,19 +159,19 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
                                     this.clearRow(index);
                                     if (ctx2)
                                         ctx2.clearRect(0, 0, 2000, 2000)
-                                    createGrid(ctx2, columns, rows);
+                                    createGrid(ctx2, columns, rows, blockSize);
                                     this.fillCanvas(ctx2);
                                 });
                             }
                             if (ctx2)
                                 ctx2.clearRect(0, 0, 2000, 2000)
-                            createGrid(ctx2, columns, rows);
+                            createGrid(ctx2, columns, rows, blockSize);
                             this.fillCanvas(ctx2);
                             clearInterval(id);
                             this.autoMove();
                         }
                     }
-            }, 50)
+            }, speed)
         }
 
     }
@@ -186,7 +191,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
     }
 
     copyBlocks = (blocks: BaseBuildingSquare[]): BaseBuildingSquare[] => {
-        console.log(blocks)
+       // console.log(blocks)
         let topNegative = false;
         let leftNegative = false;
         for (let i = 0; i < 4; i++) {
@@ -200,12 +205,12 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
                 return new BaseBuildingSquare(block.left, block.top, block.color, block.size);
             else return new BaseBuildingSquare(0, 0, block.color, block.size);
         })
-        console.log(temp)
+       // console.log(temp)
         return temp
     }
 
     findBestPosition = (shape: UniversalShape) => {
-        const { rows, columns, blockSize, isRowComplete } = this.props;
+        const { rows, columns } = this.props;
         const { matrix } = this.state;
         let counter = columns;
         let max = 0;
@@ -218,122 +223,128 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         let rowCountSum: number = 0;
         let rowCountTemp: number = 0;
 
-        if(shape)
-        for (let j = 0; j < shape.coordiantesArr.length; j++) {
-            let temp: UniversalShape = this.tempShape(shape);
-            for (let i = 0; i < columns; i++) {
-                temp = this.tempShape(shape);
+        if (shape)
+            for (let j = 0; j < shape.coordiantesArr.length; j++) {
+                let temp: UniversalShape = this.tempShape(shape);
+                for (let i = 0; i < columns; i++) {
+                    temp = this.tempShape(shape);
 
-                //if (temp.areBlocksFreeToRotate(matrix))
+                    //if (temp.areBlocksFreeToRotate(matrix))
                     temp.setBlocks(shape.fillArr(shape.coordiantesArr[j], 40, columns));
-                if (temp.areBlocksFreeToMoveRight(matrix)) {
-                    while (temp.areBlockOutOfBoundsLeft()) temp.moveLeft();
-                    //if (i != 0) {
+                    if (temp.areBlocksFreeToMoveRight(matrix)) {
+                        while (temp.areBlockOutOfBoundsLeft()) temp.moveLeft();
+                        //if (i != 0) {
                         for (let k = 0; k < i; k++)
                             temp.moveRight();
-                   // }
-                    moved = 0;
-                    while (temp.areBlocksFreeToMoveDown(matrix)) {
-                        temp.moveDown();
+                        // }
+                        moved = 0;
+                        while (temp.areBlocksFreeToMoveDown(matrix)) {
+                            temp.moveDown();
+                            moved++;
+                        }
                         counter = temp.areBlocksFreeToMoveDownNumber(matrix);
-                        moved++;
+                        temp.moveBack();
 
-                    }
-                    temp.moveBack();
-
-                    arr = this.addShapeToMatrix(temp, arr);
-                    rowCountTemp = this.numberOfFilledFields(matrix, arr);
-                    console.log(rowCountTemp)
-                    rowNum = isRowComplete(columns, rows, arr).length
-                    if (this.isShapeAVerticalLine(temp)){
-                        counter = 4;
-                        console.log('vetical, counter: '+counter+" , rowNum:")
-                        console.log(temp)
-                    } 
-                    if (rowNum > 0 && counter == 4) {
-                        bestShape = temp;
-                        rotation = j;
-                        rowsToClean = rowNum;
-                        console.log("row found")
-                    }
-                    else if (counter == 4) {
-                        //if(!bestShape)
-                        if (rowCountSum <= rowCountTemp) {
-
-                            max = counter;
-
-                            rowCountSum = rowCountTemp;
-                            maxMoves = moved;
-                            rotation = j;
-                            bestShape = temp;
+                        arr = this.addShapeToMatrix(temp, arr);
+                        rowCountTemp = this.numberOfFilledFields(matrix, arr);
+                        // console.log(rowCountTemp)
+                        rowNum = isRowComplete(columns, rows, arr).length
+                        if (this.isShapeAVerticalLine(temp)) {
+                            counter = 4;
+                            max = 4;
+                            //console.log('vetical, counter: ' + counter + " , rowNum:")
+                            //  console.log(temp)
                         }
 
-                    }
-                    else if (max < counter) {
-
-                        if (rowCountSum <= rowCountTemp) {
-
+                        if (rowNum > 0 && counter == 4) {
                             max = counter;
-
-                            rowCountSum = rowCountTemp;
-                            maxMoves = moved;
-                            rotation = j;
-                            bestShape = temp;
-                        }
-                    }
-                    /*   else if (max < counter) {
-                           if (rowCountSum <= rowCountTemp) {
-   
-                               max = counter;
-   
-                               rowCountSum = rowCountTemp;
-                               maxMoves = moved;
-                               rotation = j;
-                               bestShape = temp;
-                           }
-                           else if (!bestShape) {
-                               bestShape = temp;
-                               rotation = j
-                           }
-                       }*/
-                    /* rowCountSum = rowCountTemp;
-                     bestShape = temp;
-                     rotation = j;
-                     }
-                 
-                else 
-               */
-                    /* if (rowNum > 0 && rowNum > rowsToClean) {
                             bestShape = temp;
                             rotation = j;
                             rowsToClean = rowNum;
                             console.log("row found")
+                            return { bestShape, rotation };
                         }
-                        else if(rowCountSum<rowCountTemp){
-                            rowCountSum = rowCountTemp;
-                        if ((max < counter || this.isShapeAVerticalLine(temp)) && rowsToClean == 0) {
-                            if (this.isShapeAVerticalLine(temp) && max != 4) counter == 4;
+                        //else if (counter == 4) {
+                        //if(!bestShape)
+                        else if (rowCountSum <= rowCountTemp && counter == 4) {
+
                             max = counter;
-                            
-                            if (maxMoves - 1 <= moved && moved > 4) {
+
+                            rowCountSum = rowCountTemp;
+                            maxMoves = moved;
+                            rotation = j;
+                            bestShape = temp;
+
+                        }
+
+                        //  }
+                        else if (max <= counter && max != 4) {
+
+                         //   if (rowCountSum < rowCountTemp) {
+
+                                max = counter;
+
+                                rowCountSum = rowCountTemp;
                                 maxMoves = moved;
                                 rotation = j;
                                 bestShape = temp;
-                            }
+                        //    }
                         }
-                            else if (!bestShape) {
+
+                        /*   else if (max < counter) {
+                               if (rowCountSum <= rowCountTemp) {
+       
+                                   max = counter;
+       
+                                   rowCountSum = rowCountTemp;
+                                   maxMoves = moved;
+                                   rotation = j;
+                                   bestShape = temp;
+                               }
+                               else if (!bestShape) {
+                                   bestShape = temp;
+                                   rotation = j
+                               }
+                           }*/
+                        /* rowCountSum = rowCountTemp;
+                         bestShape = temp;
+                         rotation = j;
+                         }
+                     
+                    else 
+                   */
+                        /* if (rowNum > 0 && rowNum > rowsToClean) {
                                 bestShape = temp;
-                                rotation = j
+                                rotation = j;
+                                rowsToClean = rowNum;
+                                console.log("row found")
                             }
-                        }*/
-                    if (!bestShape) bestShape = temp;
-                    arr = this.removeShapeFromMatrix(temp, arr);
+                            else if(rowCountSum<rowCountTemp){
+                                rowCountSum = rowCountTemp;
+                            if ((max < counter || this.isShapeAVerticalLine(temp)) && rowsToClean == 0) {
+                                if (this.isShapeAVerticalLine(temp) && max != 4) counter == 4;
+                                max = counter;
+                                
+                                if (maxMoves - 1 <= moved && moved > 4) {
+                                    maxMoves = moved;
+                                    rotation = j;
+                                    bestShape = temp;
+                                }
+                            }
+                                else if (!bestShape) {
+                                    bestShape = temp;
+                                    rotation = j
+                                }
+                            }*/
+                        else if (!bestShape) bestShape = temp;
+                        arr = this.removeShapeFromMatrix(temp, arr);
+                    }
                 }
+
+
             }
-
-
-        }
-
+     //   console.log('counter: ' + max + ", max: " + rowCountSum + ", rotation: " + rotation);
+     //   console.log(bestShape.blocksArr);
         return { bestShape, rotation }
     }
 
@@ -410,12 +421,22 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         return matrix;
     }
 
+    changeSpeed = (event: any) => {
+        let speed: number = this.state.speed;
+        speed += (event.target.value) * 1;
+        if (speed >= 10) {
+            this.setState({ speed });
+        }
+        console.log(speed)
+    }
+
     render() {
         const { rows, columns, blockSize } = this.props;
         return (
             <div>
-
+                
                 <Canvas rows={rows} columns={columns} blockSize={40} canvasBack={this.canvasBack} canvasFront={this.canvasFront} fixed={true} />
+                <button onClick={this.changeSpeed} value={-10}>Faster</button><button onClick={this.changeSpeed} value={10}>Slower</button>
             </div>
         )
     }
