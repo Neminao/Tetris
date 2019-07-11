@@ -4,7 +4,7 @@ const { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIAL
 
 const { createUser, generateShapes } = require('../factories');
 
-const { con } = require("../database/MySQLConnection");
+//const { con } = require("../database/MySQLConnection");
 
 let connectedUsers = {}
 
@@ -226,7 +226,7 @@ module.exports = function (socket) {
             }
         })
         changeUserStatus(user, recievers);
-        if (difficulty == 7) {
+     /*   if (difficulty == 7) {
             sql = "INSERT INTO highscore VALUES (null, '" + user + "', " + totalScore + ", " + score + ", 0)";
             con.query(sql, function (err, result) {
                 if (err) throw err;
@@ -239,7 +239,7 @@ module.exports = function (socket) {
                 if (err) throw err;
                 console.log("1 record inserted into easy");
             });
-        }
+        }*/
         if (isGameOver(user, recievers)) {
             const winnerData = declareWinner(user, recievers);
             socket.emit(WINNER, winnerData)
@@ -265,7 +265,7 @@ module.exports = function (socket) {
 
     socket.on(REGISTER, ({name, password})=> {
         let success = false;
-        con.query("SELECT * FROM user where name = '"+name+"'", function (err, result, fields) {
+      /*  con.query("SELECT * FROM user where name = '"+name+"'", function (err, result, fields) {
             if (err) throw err;
             if(result[0]){
                 console.log(result[0]);
@@ -276,7 +276,7 @@ module.exports = function (socket) {
                 success = true;
                 socket.emit(REGISTER, success)
             }
-        });
+        });*/
     })
 
 }
@@ -325,7 +325,7 @@ function removeGame(userList, sender) {
 }
 
 function showHighscores(socket) {
-    con.query("SELECT * FROM highscore where mode = 0 ORDER BY score DESC ", function (err, result, fields) {
+ /*   con.query("SELECT * FROM highscore where mode = 0 ORDER BY score DESC ", function (err, result, fields) {
         if (err) throw err;
         socket.emit(HIGHSCORE, { result, mode: 'normal' });
     });
@@ -333,7 +333,7 @@ function showHighscores(socket) {
         if (err) throw err;
         socket.emit(HIGHSCORE, { result, mode: 'easy' });
     });
-    console.log('highscores')
+    console.log('highscores')*/
 }
 // provera da li je korisnik u nekoj od igara; vraca ime igre
 function checkGame(recievers, user) {
