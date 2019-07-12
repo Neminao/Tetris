@@ -1039,7 +1039,6 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
                                 isPlayerReady={isPlayerReady}
                             />
                             {gameMode == 1 ? <div>
-                                <button className="startBtn" onClick={this.props.setDisplay} value={0}>Back</button>
                                 <button className="startBtn" onClick={this.startGame}>Start</button>
                             </div> : null}
                         </div>
