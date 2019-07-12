@@ -179,11 +179,11 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
     fillCanvas = (ctx: any) => {
         const { matrix } = this.state;
         const { columns, rows, blockSize } = this.props;
-        let temp: BaseBuildingSquare = new BaseBuildingSquare(0, 40, "red", 40)
+        let temp: BaseBuildingSquare = new BaseBuildingSquare(0, blockSize, "red", blockSize)
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 if (matrix[i][j].status) {
-                    temp.draw(j * 40, i * 40, ctx, matrix[i][j].color);
+                    temp.draw(j * blockSize, i * blockSize, ctx, matrix[i][j].color);
                 }
             }
         }
@@ -210,7 +210,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
     }
 
     findBestPosition = (shape: UniversalShape) => {
-        const { rows, columns } = this.props;
+        const { rows, columns, blockSize } = this.props;
         const { matrix } = this.state;
         let counter = columns;
         let max = 0;
@@ -230,7 +230,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
                     temp = this.tempShape(shape);
 
                     //if (temp.areBlocksFreeToRotate(matrix))
-                    temp.setBlocks(shape.fillArr(shape.coordiantesArr[j], 40, columns));
+                    temp.setBlocks(shape.fillArr(shape.coordiantesArr[j], blockSize, columns));
                     if (temp.areBlocksFreeToMoveRight(matrix)) {
                         while (temp.areBlockOutOfBoundsLeft()) temp.moveLeft();
                         //if (i != 0) {
@@ -435,7 +435,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         return (
             <div>
                 
-                <Canvas rows={rows} columns={columns} blockSize={40} canvasBack={this.canvasBack} canvasFront={this.canvasFront} fixed={true} />
+                <Canvas rows={rows} columns={columns} blockSize={blockSize} canvasBack={this.canvasBack} canvasFront={this.canvasFront} fixed={true} />
                 <button onClick={this.changeSpeed} value={-10}>Faster</button><button onClick={this.changeSpeed} value={10}>Slower</button>
             </div>
         )

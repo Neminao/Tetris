@@ -8,7 +8,6 @@ import CM from './ClientManager';
 import Popup from './Popup';
 import WinnerPopup from './WinnerPopup';
 import AutoComplete from './AutoComplete';
-import UserInfo from './UserInfo';
 const { generateShapes } = require('./Factories')
 const { createEmptyMatrix, isRowComplete, createGrid } = require('./TetrisHelper')
 
@@ -650,8 +649,9 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
         const { user, columns, rows, blockSize, totalScore, score, recievers, acceleration, spectators, gameMode } = this.state;
         let arr = this.state.matrix;
         if (user && shape) {
-            if (gameMode == 2)
+            if (gameMode == 2) {
                 CM.emitGameUpdate(arr, shape, recievers, user.name, totalScore, score, acceleration, blockSize);
+            }
 
         }
         if (spectators) {
@@ -985,8 +985,6 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
         const canvases = this.generateSpecCanvases();
         return (
             <div onKeyUp={this.onKeyUp} >
-                {gameMode == 1 ?
-                    <UserInfo user={user.name} logout={this.logout} reset={this.reset} /> : null}
                 <div>
                     {gameMode == 2 || gameMode == 3 ?
                         <div>
@@ -1005,7 +1003,7 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
                                 isSpectator={isSpectator}
                             />
                             <div className={'transparent'}>
-                                {!isPlayerReady ?
+                                {!isPlayerReady && !isSpectator?
                                     <AutoComplete
                                         rows={20}
                                         columns={25}

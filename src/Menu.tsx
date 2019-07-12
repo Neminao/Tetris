@@ -24,6 +24,7 @@ class Menu extends React.Component<{ user: any }, { display: number; difficulty:
         this.setState({
             display: event.target.value * 1
         })
+        console.log('clicked')
     }
 
     setHighscore = (highscore: any) => {
@@ -91,14 +92,17 @@ class Menu extends React.Component<{ user: any }, { display: number; difficulty:
                 </div>
                 </div>; break;
         }
+
+        let size = (Math.round(window.innerWidth /2 /22)) < (Math.round(window.innerHeight /2 /20)) ? (Math.round(window.innerWidth /2 /22)) : (Math.round(window.innerHeight/2 /20));
         return (
             <div>
-                <UserInfo user={user.name}/>
+                <UserInfo user={user.name} setDisplay={this.setDisplay}/>
                 {show}
-                {display == 0 || display == 4 || display == 5 ? <div className='transparent'> <AutoComplete
+                {display == 0 || display == 4 || display == 5 ? <div className='transparent'> 
+                <AutoComplete
                             rows={20}
-                            columns={Math.floor(window.innerWidth / 2 / 40)}
-                            blockSize={40}
+                            columns={20}
+                            blockSize={Math.round(window.innerWidth /2 /22)}
                         />
                         </div> : null}
             </div>

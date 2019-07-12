@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
 import UniversalShape from './UniversalShape';
 
-const socketUrl = "http://192.168.88.14:3231";
+const socketUrl = "http://localhost:3231"; // change to local ip with same port for testing // port must match port defined in socket
 
 class ClientManager {
     socket = io(socketUrl);

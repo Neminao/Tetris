@@ -36,7 +36,7 @@ class GameSetupScreen extends React.Component<
             <div className={'gameSetup'}>
                 <p>Game Setup</p>
 
-                {recievers.length > 0 ?
+                {invitedPlayers.length > 0 ?
                     <div>
                         <table className='tableLeft'>
                             <tbody>
@@ -54,7 +54,7 @@ class GameSetupScreen extends React.Component<
                                         Player 3
                             </td>
                                     <td className='tdWide' id='leftAlign'>
-                                        {recievers[1] ? recievers[1] : '  '}
+                                        {invitedPlayers[1] ? invitedPlayers[1] : '  '}
                                     </td>
 
                                 </tr>
@@ -65,7 +65,7 @@ class GameSetupScreen extends React.Component<
                             <tbody>
                                 <tr>
                                     <td className='tdWide' id='rightAlign'>
-                                        {recievers[0] ? recievers[0] : '  '}
+                                        {invitedPlayers[0] ? invitedPlayers[0] : '  '}
                                     </td>
                                     <td className='tdNarrow'>
                                         Player 2
@@ -75,7 +75,7 @@ class GameSetupScreen extends React.Component<
                                 <tr>
 
                                     <td className='tdWide' id='rightAlign'>
-                                        {recievers[2] ? recievers[2] : '  '}
+                                        {invitedPlayers[2] ? invitedPlayers[2] : '  '}
                                     </td>
                                     <td className='tdNarrow'>
                                         Player 4
@@ -87,10 +87,9 @@ class GameSetupScreen extends React.Component<
                     </div>
                     : <p>Select players from left sidebar and then invite them or wait for an invite to enter a multiplayer game</p>}
 
-                {invitedPlayers.length > 0 ? <p>Invited players: {invited}</p> : null}
-                {denied.length > 0 ? <p>Players who declined: {d}</p> : null}
-                {(recievers.length > 0 && showInitBtn) ? <button className="roundBtn" onClick={initializeGame} >Initialize Game with current players</button> : null}
-                {isPlayer ? <p>Waiting for other players to join...</p> : null}
+                
+                {(recievers.length > 0 && showInitBtn) ? <button className="roundBtn" onClick={initializeGame} >Initialize Game</button> : null}
+                {isPlayer ? <div className="roundDiv"><div className='innerRound'>Waiting for other players...</div></div> : null}
             </div>
         )
     }

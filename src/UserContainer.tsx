@@ -3,7 +3,6 @@ import { values } from 'lodash';
 import GameRequest from './GameRequest';
 import CM from './ClientManager';
 import GameSetupScreen from './GameSetupScreen';
-import UserInfo from './UserInfo';
 
 
 class UserContainer extends React.Component<{
@@ -67,10 +66,10 @@ class UserContainer extends React.Component<{
     }
 
     componentWillUpdate() {
-        const {reciever, user} = this.props;
-        const {invitedPlayers, gameMaster} = this.state;
+        const {reciever, user, isPlayerReady} = this.props;
+        const { gameMaster} = this.state;
         // needs a fix // temp fix
-        if(user == gameMaster){
+        if(user == gameMaster && !isPlayerReady){
             console.log('update')
             CM.emitGameSetup(user, reciever);
         }
@@ -81,7 +80,7 @@ class UserContainer extends React.Component<{
             invitedPlayers: obj.recievers,
             gameMaster: obj.master
         })
-        this.props.setRecievers(obj.recievers);
+        
     }
 
     finalizeStart = () => {
@@ -141,8 +140,7 @@ class UserContainer extends React.Component<{
     }
     emitGameSetup = () => {
         const { user, reciever } = this.props;
-        const { invitedPlayers } = this.state
-        console.log(reciever)
+        this.setState({invitedPlayers: reciever})
         CM.emitGameSetup(user, reciever);
     }
 
@@ -165,7 +163,7 @@ class UserContainer extends React.Component<{
                 event.target.innerHTML = "Invited";
                 event.target.disabled = true;
                 event.target.style.backgroundColor = "green";
-                this.setState({ invitedPlayers: players, isGameMaster: true, gameMaster: user });
+                this.setState({ isGameMaster: true, gameMaster: user });
                 CM.emitGameRequest(user, event.target.value);
             }
         }
@@ -297,7 +295,7 @@ class UserContainer extends React.Component<{
 
                 {showInitBtn ?
                     <div>
-                        <UserInfo user={user} logout={logout} reset={this.reset} />
+                        
                         <GameSetupScreen
                             user={user}
                             initializeGame={initGame}
