@@ -2,14 +2,14 @@ import React from 'react';
 import Canvas from './Canvas';
 import UniversalShape from './UniversalShape';
 import BaseBuildingSquare from './BaseBuildingSquare';
-const {createEmptyMatrix, isRowComplete, createGrid} = require('./TetrisHelper')
-const { generateShapes} = require('./Factories')
+const { createEmptyMatrix, isRowComplete, createGrid } = require('./TetrisHelper')
+const { generateShapes } = require('./Factories')
 
 interface AutoProps {
     rows: number, columns: number, blockSize: number
 }
 interface AutoState {
-    index: number, moveCounter: number, matrix: any[], generatedShapes: any[], speed: number
+    index: number, moveCounter: number, matrix: any[], generatedShapes: any[], speed: number, intervalId: any
 }
 
 class AutoComplete extends React.Component<AutoProps, AutoState> {
@@ -25,7 +25,8 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
             moveCounter: 0,
             matrix,
             generatedShapes,
-            speed: 50
+            speed: 50,
+            intervalId: null
         }
     }
 
@@ -34,6 +35,10 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         if (this.state.generatedShapes)
             this.autoMove();
 
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.state.intervalId)
     }
 
     setGeneratedShapes = (shapes: any) => {
@@ -100,13 +105,13 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
 
     autoMove = () => {
         const { index, matrix, speed } = this.state;
-        let {generatedShapes} = this.state
+        let { generatedShapes } = this.state
         const { columns, rows, blockSize } = this.props;
-        if(undefined == generatedShapes[index]){
-            let gen = this.setGeneratedShapes(generateShapes(1000, 7));            
+        if (undefined == generatedShapes[index]) {
+            let gen = this.setGeneratedShapes(generateShapes(1000, 7));
             generatedShapes = generatedShapes.concat(gen);
-            this.setState({generatedShapes})           
-        }       
+            this.setState({ generatedShapes })
+        }
         let shape: UniversalShape = generatedShapes[index];
         const bestShape = this.findBestPosition(shape);
         let rotation = 0;
@@ -116,6 +121,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
             let ctx = canvas.getContext('2d');
             let ctx2 = canvas2.getContext('2d');
             let id = setInterval(() => {
+                this.setState({ intervalId: id });
                 if (rotation < bestShape.rotation) {
                     shape.rotate();
                     rotation++;
@@ -191,11 +197,10 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
     }
 
     copyBlocks = (blocks: BaseBuildingSquare[]): BaseBuildingSquare[] => {
-       // console.log(blocks)
+
         let topNegative = false;
         let leftNegative = false;
         for (let i = 0; i < 4; i++) {
-            console.log(blocks[i])
             if (blocks[i].top < 0) topNegative = true;
             if (blocks[i].left < 0) leftNegative = true;
         }
@@ -205,7 +210,6 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
                 return new BaseBuildingSquare(block.left, block.top, block.color, block.size);
             else return new BaseBuildingSquare(0, 0, block.color, block.size);
         })
-       // console.log(temp)
         return temp
     }
 
@@ -247,13 +251,10 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
 
                         arr = this.addShapeToMatrix(temp, arr);
                         rowCountTemp = this.numberOfFilledFields(matrix, arr);
-                        // console.log(rowCountTemp)
                         rowNum = isRowComplete(columns, rows, arr).length
                         if (this.isShapeAVerticalLine(temp)) {
                             counter = 4;
                             max = 4;
-                            //console.log('vetical, counter: ' + counter + " , rowNum:")
-                            //  console.log(temp)
                         }
 
                         if (rowNum > 0 && counter == 4) {
@@ -261,11 +262,8 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
                             bestShape = temp;
                             rotation = j;
                             rowsToClean = rowNum;
-                            console.log("row found")
                             return { bestShape, rotation };
                         }
-                        //else if (counter == 4) {
-                        //if(!bestShape)
                         else if (rowCountSum <= rowCountTemp && counter == 4) {
 
                             max = counter;
@@ -277,18 +275,14 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
 
                         }
 
-                        //  }
                         else if (max <= counter && max != 4) {
 
-                         //   if (rowCountSum < rowCountTemp) {
+                            max = counter;
+                            rowCountSum = rowCountTemp;
+                            maxMoves = moved;
+                            rotation = j;
+                            bestShape = temp;
 
-                                max = counter;
-
-                                rowCountSum = rowCountTemp;
-                                maxMoves = moved;
-                                rotation = j;
-                                bestShape = temp;
-                        //    }
                         }
 
                         /*   else if (max < counter) {
@@ -317,7 +311,7 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
                                 bestShape = temp;
                                 rotation = j;
                                 rowsToClean = rowNum;
-                                console.log("row found")
+                                
                             }
                             else if(rowCountSum<rowCountTemp){
                                 rowCountSum = rowCountTemp;
@@ -343,8 +337,6 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
 
 
             }
-     //   console.log('counter: ' + max + ", max: " + rowCountSum + ", rotation: " + rotation);
-     //   console.log(bestShape.blocksArr);
         return { bestShape, rotation }
     }
 
@@ -427,14 +419,13 @@ class AutoComplete extends React.Component<AutoProps, AutoState> {
         if (speed >= 10) {
             this.setState({ speed });
         }
-        console.log(speed)
     }
 
     render() {
         const { rows, columns, blockSize } = this.props;
         return (
-            <div>
-                
+            <div className="transparent">
+
                 <Canvas rows={rows} columns={columns} blockSize={blockSize} canvasBack={this.canvasBack} canvasFront={this.canvasFront} fixed={true} />
                 <button onClick={this.changeSpeed} value={-10}>Faster</button><button onClick={this.changeSpeed} value={10}>Slower</button>
             </div>

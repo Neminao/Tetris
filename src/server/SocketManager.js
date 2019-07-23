@@ -1,20 +1,18 @@
 const io = require('./server.js').io;
 
-const { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
+const { MULTIPLAYER, LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
 
 const { createUser, generateShapes } = require('../factories');
 
-//const { con } = require("../database/MySQLConnection");
+const { con } = require("../database/MySQLConnection");
 
 let connectedUsers = {}
 
-let gamesInProgress = {};
+let gamesInProgress = {};  
 
 module.exports = function (socket) {
-    console.log(socket.id);
     socket.on(VERIFY_USER, (nickname, password, callback) => {
-        if (isUser(connectedUsers, nickname) ) {
-            console.log(0)
+        if (isUser(connectedUsers, nickname)) {
             callback({ isUser: 0, user: null })
         }
         else {
@@ -22,25 +20,26 @@ module.exports = function (socket) {
             //enable and change to fit database
 
 
-         /*   con.query("SELECT * FROM user where name = '"+nickname+"' and password = '"+password+"'", function (err, result, fields) {
-            if (err) throw err;
-            if(result[0]){
-                console.log(2)*/
+            /*   con.query("SELECT * FROM user where name = '"+nickname+"' and password = '"+password+"'", function (err, result, fields) {
+               if (err) throw err;
+               if(result[0]){
+                   */
             callback({ isUser: 2, user: createUser({ name: nickname, socketID: socket.id }) })
-           /* }
-            else {
-                console.log(1)
-            callback({ isUser: 1, user: null })
-            }
-        });*/
-    }
+            /* }
+             else {
+             callback({ isUser: 1, user: null })
+             }
+         });*/
+        }
     })
     socket.on('disconnect', () => {
         if ("user" in socket) {
             let name = socket.user.name;
-            console.log("disconnected: " + name)
             connectedUsers = removeUser(connectedUsers, name);
-            gamesInProgress = removeGame(gamesInProgress, name);
+            let game = gamesInProgress[checkGame([], name)];
+            if (game)
+                changeUserStatus(name, []);
+            //gamesInProgress = removeGame(gamesInProgress, name);
             io.emit(USER_DISCONNECTED, { allUsers: connectedUsers, name });
             if (gamesInProgress) {
                 io.emit(DISPLAY_GAMES, gamesInProgress)
@@ -48,16 +47,15 @@ module.exports = function (socket) {
         }
     })
     socket.on(LOGOUT, () => {
-        if(socket.user){
-        let name = socket.user.name;
-        console.log(name)
-        connectedUsers = removeUser(connectedUsers, socket.user.name);
-        //gamesInProgress = removeGame(gamesInProgress, name);
-        io.emit(USER_DISCONNECTED, { allUsers: connectedUsers, name });
-        if (gamesInProgress) {
-            io.emit(DISPLAY_GAMES, gamesInProgress);
+        if (socket.user) {
+            let name = socket.user.name;
+            connectedUsers = removeUser(connectedUsers, socket.user.name);
+            
+            io.emit(USER_DISCONNECTED, { allUsers: connectedUsers, name });
+            if (gamesInProgress) {
+                io.emit(DISPLAY_GAMES, gamesInProgress);
+            }
         }
-    }
     })
 
     socket.on(USER_CONNECTED, (user) => {
@@ -69,10 +67,9 @@ module.exports = function (socket) {
         if (gamesInProgress) {
             io.emit(DISPLAY_GAMES, gamesInProgress);
         }
-        console.log(connectedUsers);
-        showHighscores(socket); 
+        showHighscores(socket);
     })
-    socket.on(LIST_UPDATE, ()=>{
+    socket.on(LIST_UPDATE, () => {
         socket.emit(USER_CONNECTED, connectedUsers);
         socket.emit(DISPLAY_GAMES, gamesInProgress);
     })
@@ -82,12 +79,18 @@ module.exports = function (socket) {
             let current = connectedUsers[socket.user.name];
             current.score = totalScore;
             let game = gamesInProgress[checkGame(reciever, sender)]
-            if(game){
-            let recieversStatus = game.recieversStatus;
-            recieversStatus[socket.user.name].score = totalScore;
+            if (game) {
+                let recieversStatus = game.recieversStatus;
+                if (recieversStatus[socket.user.name])
+                    recieversStatus[socket.user.name].score = totalScore;
             }
             emitToAllRecievers({ matrix: matrix, shape: shape, score, totalScore, acceleration, sender, blockSize }, GAME_UPDATE, reciever, socket);
         }
+    })
+
+    socket.on(MULTIPLAYER, user => {
+        connectedUsers[user].gameMode = 1;
+        io.emit(USER_CONNECTED, connectedUsers);
     })
 
 
@@ -98,19 +101,20 @@ module.exports = function (socket) {
     socket.on(RESET, ({ to, user }) => {
         let rec;
         let current = connectedUsers[user];
-        if (current)
+        if (current) {
             current.inGame = false;
+            current.gameMode = 0;
+        }
         if (to)
             to.forEach(name => {
                 rec = connectedUsers[name];
                 if (rec)
                     socket.to(rec.socketID).emit(RESET, user);
             })
-        let game = gamesInProgress[user];
-        if (game) {
-            //gamesInProgress = removeGame(gamesInProgress, user);
-            io.emit(DISPLAY_GAMES, gamesInProgress);
-        }
+        let game = gamesInProgress[checkGame(to, user)];
+        if (game)
+            changeUserStatus(user, to); 
+        
         io.emit(USER_CONNECTED, connectedUsers);
     })
 
@@ -144,8 +148,8 @@ module.exports = function (socket) {
             }
         }
         let s = connectedUsers[sender];
-        if(s)
-        s.inGame = true;
+        if (s)
+            s.inGame = true;
         socket.emit(INITIALIZE_GAME, { generatedShapes, recievers, difficulty });
         io.emit(USER_CONNECTED, connectedUsers);
         recievers.push(sender)
@@ -175,10 +179,9 @@ module.exports = function (socket) {
 
     socket.on(GAME_REQUEST, ({ sender, reciever }) => {
         let rec;
-        
-            rec = connectedUsers[reciever];
-            socket.to(rec.socketID).emit(GAME_REQUEST, { sender });
-        
+        rec = connectedUsers[reciever];
+        socket.to(rec.socketID).emit(GAME_REQUEST, { sender });
+
     })
 
     socket.on(ADD_SHAPES, (reciever) => {
@@ -218,65 +221,75 @@ module.exports = function (socket) {
 
     socket.on(GAME_OVER, ({ user, recievers, score, totalScore, difficulty }) => {
         let reciever, sql;
-        recievers.forEach(name => {
-            reciever = connectedUsers[name]
-            if (reciever) {
-                socket.to(reciever.socketID).emit(GAME_OVER, user);
-
-            }
-        })
-        changeUserStatus(user, recievers);
-     /*   if (difficulty == 7) {
+        const game = checkGame(recievers, user);
+        if (gamesInProgress[game]) {
+            const currentRecievers = gamesInProgress[game].recieversStatus;
+            currentRecievers[user].gameOver = true; 
+            recievers.forEach(name => {
+                if(currentRecievers[name])  
+                if (currentRecievers[name].inGame) {
+                    reciever = connectedUsers[name]
+                    if (reciever) {
+                        socket.to(reciever.socketID).emit(GAME_OVER, user);
+                    }
+                }
+            })
+        }
+        //changeUserStatus(user, recievers);
+        if (difficulty == 7) {
             sql = "INSERT INTO highscore VALUES (null, '" + user + "', " + totalScore + ", " + score + ", 0)";
             con.query(sql, function (err, result) {
                 if (err) throw err;
-                console.log("1 record inserted into normal");
             });
         }
         else {
             sql = "INSERT INTO highscore VALUES (null, '" + user + "', " + totalScore + ", " + score + ", 1)";
             con.query(sql, function (err, result) {
                 if (err) throw err;
-                console.log("1 record inserted into easy");
             });
-        }*/
+        }
         if (isGameOver(user, recievers)) {
             const winnerData = declareWinner(user, recievers);
             socket.emit(WINNER, winnerData)
+            const game = checkGame(recievers, user);
+            const players = gamesInProgress[checkGame(recievers, user)].recieversStatus;
             recievers.forEach(name => {
+
                 let rec = connectedUsers[name];
-                if (rec) {
+                if (rec && players[name].inGame) {
                     socket.to(rec.socketID).emit(WINNER, winnerData);
                 }
+
             });
+            gamesInProgress = removeGame(gamesInProgress, game);
+            io.emit(DISPLAY_GAMES, gamesInProgress);
         }
+
 
     })
 
     socket.on(GAME_SETUP, ({ master, recievers }) => {
         let rec;
         recievers.forEach(name => {
-            console.log(rec);
             rec = connectedUsers[name];
             if (rec)
                 socket.to(rec.socketID).emit(GAME_SETUP, { master, recievers });
         })
     })
 
-    socket.on(REGISTER, ({name, password})=> {
+    socket.on(REGISTER, ({ name, password }) => {
         let success = false;
-      /*  con.query("SELECT * FROM user where name = '"+name+"'", function (err, result, fields) {
+        con.query("SELECT * FROM user where name = '" + name + "'", function (err, result, fields) {
             if (err) throw err;
-            if(result[0]){
-                console.log(result[0]);
+            if (result[0]) {
                 socket.emit(REGISTER, success)
             }
             else {
-                con.query("INSERT INTO user VALUES(null, '"+name+"', '"+password+"')");
+                con.query("INSERT INTO user VALUES(null, '" + name + "', '" + password + "')");
                 success = true;
                 socket.emit(REGISTER, success)
             }
-        });*/
+        });
     })
 
 }
@@ -309,9 +322,9 @@ function removeUser(userList, username) {
 }
 function addGame(userList, sender, recievers) {
     let recieversStatus;
-     recievers.forEach(name => {
+    recievers.forEach(name => {
         let rec = Object.assign({}, recieversStatus);
-        rec[name] = {name, gameOver: false, inGame: true, score: 0 }
+        rec[name] = { name, gameOver: false, inGame: true, score: 0 }
         recieversStatus = rec;
     })
     let newList = Object.assign({}, userList);
@@ -325,7 +338,7 @@ function removeGame(userList, sender) {
 }
 
 function showHighscores(socket) {
- /*   con.query("SELECT * FROM highscore where mode = 0 ORDER BY score DESC ", function (err, result, fields) {
+    con.query("SELECT * FROM highscore where mode = 0 ORDER BY score DESC ", function (err, result, fields) {
         if (err) throw err;
         socket.emit(HIGHSCORE, { result, mode: 'normal' });
     });
@@ -333,41 +346,45 @@ function showHighscores(socket) {
         if (err) throw err;
         socket.emit(HIGHSCORE, { result, mode: 'easy' });
     });
-    console.log('highscores')*/
 }
 // provera da li je korisnik u nekoj od igara; vraca ime igre
 function checkGame(recievers, user) {
     let temp = "";
-    if(recievers)
-    recievers.forEach(name => {
-        if (name in gamesInProgress) {
-            temp = name;
-        }
-    })
+    if (recievers)
+        recievers.forEach(name => {
+            if (name in gamesInProgress) {
+                temp = name;
+            }
+        })
     if (user in gamesInProgress) {
         temp = user;
     }
     return temp;
 }
 
-function changeUserStatus(user, recievers) {
+function changeUserStatus(user, recievers) { 
     let game = checkGame(recievers, user)
     let currentGame = gamesInProgress[game];
-    if (currentGame)
+    if (currentGame) {
+        if(currentGame.recieversStatus[user]){
         currentGame.recieversStatus[user].inGame = false;
+        currentGame.recieversStatus[user].gameOver = true;
+        }
+    }
 }
 
 function isGameOver(user, recievers) {
     let game = checkGame(recievers, user)
     let currentGame = gamesInProgress[game];
     let temp = true;
-    if(currentGame){
-    let currentRecievers = currentGame.recieversStatus;
-    recievers.forEach(reciever => {
-        if(currentRecievers[reciever].inGame && reciever in connectedUsers){
-            temp = false;
-        }      
-    })
+    if (currentGame) {
+        let currentRecievers = currentGame.recieversStatus;
+        recievers.forEach(reciever => {
+            if (!currentRecievers[reciever].gameOver && reciever in connectedUsers) {
+                temp = false;
+
+            }
+        })
     }
     return temp;
 }
@@ -378,7 +395,7 @@ function declareWinner(user, recievers) {
     let temp = currentPlayers[user];
     let winner = temp.name;
     let score = temp.score;
-    recievers.forEach(reciever => {   
+    recievers.forEach(reciever => {
         temp = currentPlayers[reciever];
         if (temp.score > score) {
             score = temp.score;

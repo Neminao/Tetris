@@ -128,13 +128,15 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
     }
 
     componentWillUnmount() {
+        clearInterval(this.state.counterId);
+        CM.emitReset(this.state.recievers, this.state.user.name);
+
         window.removeEventListener('resize', this.updateWindowDimensions);
         window.removeEventListener('keydown', this.handleKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
 
         //   CM.emitLogout(this.stopGame)
-        CM.emitReset([], this.state.user.name);
-        clearInterval(this.state.counterId);
+
     }
 
 
@@ -203,11 +205,10 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
         this.setState({ recievers });
     }
 
-    removeReciever = (reciever: string) => {
+    removeReciever = (reciever: string) => {        
         let recs = this.state.recievers;
         const { running } = this.state;
         let index = recs.indexOf(reciever);
-        console.log(running)
         if (index != -1 && !running) {
             recs.splice(index, 1);
             this.setState({
@@ -219,8 +220,10 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
     opponentGameOver = (user: string) => {
         const { recievers } = this.state;
         const index = recievers.indexOf(user);
+        if(index !=-1){
         let canvas = this.getCanvasBasedOnRecieverIndex(index);
         this.gameOver(canvas);
+        }
     }
 
     addShapes = (newCoords: any) => {
@@ -239,11 +242,15 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
 
     addSpectator = (spectator: string) => {
         let specs = this.state.spectators;
-        specs.push(spectator);
-        this.setState({
-            spectators: specs
-        })
+        let index = specs.indexOf(spectator);
+        if (index == -1) {
+            specs.push(spectator);
+            this.setState({
+                spectators: specs
+            })
+        }
     }
+
     removeSpectator = (spectator: string) => {
         let specs = this.state.spectators;
         let index = specs.indexOf(spectator)
@@ -303,7 +310,7 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
 
     logout = (e: any) => {
         e.preventDefault();
-        CM.emitLogout(this.stopGame);
+        CM.emitLogout();
         this.setState({
             currentShape: this.defaultShape(),
             allBlocks: [],
@@ -469,6 +476,7 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
     }
 
     handleKeyDown(event: any) {
+        event.preventDefault();
         if (this.state.running) {
             let c1: any = this.canvasFront.current;
             const ctx1: any = c1.getContext('2d');
@@ -534,6 +542,7 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
     }
 
     onKeyUp(event: any) {
+        event.preventDefault();
         if (event.keyCode == 40) {
             let acc = this.state.acceleration;
             this.setState({
@@ -558,14 +567,16 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
 
             this.run();
             let c1: any = this.canvasBack.current;
-            const ctx1: any = c1.getContext('2d');
-            ctx1.clearRect(0, 0, col * size, row * size);
-            this.setState({
-                matrix: createEmptyMatrix(col, row),
-                score: 0,
-                totalScore: 0
-            })
-            createGrid(ctx1, col, row, size);
+            if (c1) {
+                const ctx1: any = c1.getContext('2d');
+                ctx1.clearRect(0, 0, col * size, row * size);
+                this.setState({
+                    matrix: createEmptyMatrix(col, row),
+                    score: 0,
+                    totalScore: 0
+                })
+                createGrid(ctx1, col, row, size);
+            }
         }
     }
 
@@ -576,72 +587,75 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
         const col = this.state.columns;
         const row = this.state.rows;
         const size = this.state.blockSize;
-        let arr = this.state.matrix
-        console.log(size);
+        let arr = this.state.matrix;
         const { generatedShapes, nextShape, recievers, user, gameMode, score, totalScore, difficulty } = this.state;
         let index = this.state.generatedShapesIndex;
         let acc = this.state.acceleration;
-        if (index + 10 == generatedShapes.length) {
-            if (gameMode == 2)
-                CM.emitAddShapes(recievers);
-        }
+        if (generatedShapes)
+            if (index + 10 == generatedShapes.length) {
+                if (gameMode == 2)
+                    CM.emitAddShapes(recievers);
+            }
         this.setState({
             baseDelay: 20 - acc
         })
         let c1: any = this.canvasFront.current;
-        const ctx1: any = c1.getContext('2d');
-        index += 1;
-        this.setState({ generatedShapesIndex: index });
-        const shape = generatedShapes[index];
+        if (c1) {
+            const ctx1: any = c1.getContext('2d');
+            index += 1;
+            this.setState({ generatedShapesIndex: index });
+            const shape = generatedShapes[index];
 
-        const next: UniversalShape = this.deepCopyShape(nextShape);
-        ctx1.clearRect(0, 0, col * size, row * size);
-        const sidec: any = this.canvasSide.current;
-        const sidectx = sidec.getContext('2d');
-        sidectx.clearRect(0, 0, col * size, row * size);
-        if (nextShape != null) {
-            console.log(nextShape);
-            nextShape.updateCanvas(ctx1);
-        }
-        if (sidectx) {
-            let tempShape = this.deepCopyShape(shape);
-            tempShape.fitToSide(2.5);
-            tempShape.updateCanvas(sidectx);
-            tempShape.fitToSide(-2.5);
-        }
-        this.setState({
-            currentShape: next,
-            nextShape: shape
-        })
-        if (isRowComplete(col, row, arr).length > 0) {
-            isRowComplete(col, row, arr).forEach((index: number) => {
-                this.clearRow(index);
-            });
-        }
-        if (!this.isGameOver(shape, arr)) {
-            let inter: any = setInterval(() => this.moveShape(next, inter), 50);
+            const next: UniversalShape = this.deepCopyShape(nextShape);
+            ctx1.clearRect(0, 0, col * size, row * size);
+            const sidec: any = this.canvasSide.current;
+            const sidectx = sidec.getContext('2d');
+            sidectx.clearRect(0, 0, col * size, row * size);
+            if (nextShape != null) {
+                nextShape.updateCanvas(ctx1);
+            }
+            if (sidectx) {
+                let tempShape = this.deepCopyShape(shape);
+                tempShape.fitToSide(2.5);
+                tempShape.updateCanvas(sidectx);
+                tempShape.fitToSide(-2.5);
+            }
             this.setState({
-                counterId: inter,
+                currentShape: next,
+                nextShape: shape
             })
-        }
-        else {
-            let totalScore = this.state.totalScore - 10;
-            this.setState({
-                running: false, totalScore
-            });
-            this.gameOver(c1);
+            if (isRowComplete(col, row, arr).length > 0) {
+                isRowComplete(col, row, arr).forEach((index: number) => {
+                    this.clearRow(index);
+                });
+            }
+            if (!this.isGameOver(shape, arr)) {
+                let inter: any = setInterval(() => this.moveShape(next, inter), 50);
+                this.setState({
+                    counterId: inter,
+                })
+            }
+            else {
+                let totalScore = this.state.totalScore - 10;
+                this.setState({
+                    running: false, totalScore
+                });
+                this.gameOver(c1);
 
-            CM.emitGameOver(user.name, recievers, score, totalScore, difficulty);
+                CM.emitGameOver(user.name, recievers, score, totalScore, difficulty);
+            }
         }
     }
     gameOver = (canvas: any) => {
-        let ctx = canvas.getContext('2d');
-        let size = canvas.width / 10 + "px";
-        ctx.font = "bold " + size + " Verdana";
-        ctx.textAlign = "center";
-        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2)
-        ctx.strokeStyle = 'black';
-        ctx.strokeText("GAME OVER", canvas.width / 2, canvas.height / 2)
+        if (canvas) {
+            let ctx = canvas.getContext('2d');
+            let size = canvas.width / 10 + "px";
+            ctx.font = "bold " + size + " Verdana";
+            ctx.textAlign = "center";
+            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2)
+            ctx.strokeStyle = 'black';
+            ctx.strokeText("GAME OVER", canvas.width / 2, canvas.height / 2)
+        }
     }
     moveShape = (shape: any, inter: any) => {
         let delay = this.state.delay;
@@ -888,7 +902,7 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
         for (let i = 0; i < recievers.length; i++) {
             let info = this.generateCanvasData(i);
             if (info) {
-                let data = (recievers[i]) ? <div className={info.className}>
+                let data = (recievers[i]) ? <div key={'canvas'+i} className={info.className}>
                     <Canvas
                         rows={rows}
                         columns={columns}
@@ -960,7 +974,6 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
 
     singlePlayer = () => {
         const shapesCoords = generateShapes(1000, this.state.difficulty);
-        console.log(shapesCoords);
         const shapes = this.setGeneratedShapes(shapesCoords);
         this.setState({
             shapesCoords,
@@ -981,10 +994,10 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
             rows, blockSize, score,
             totalScore, user, recievers,
             isPlayerReady, running,
-            reqAccepted, denied, difficulty, gameMode, winner } = this.state;
+            reqAccepted, denied, gameMode, winner } = this.state;
         const canvases = this.generateSpecCanvases();
         return (
-            <div onKeyUp={this.onKeyUp} >
+            <div onKeyUp={this.onKeyUp} className='mainWrapper' >
                 <div>
                     {gameMode == 2 || gameMode == 3 ?
                         <div>
@@ -1002,19 +1015,23 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
                                 denied={denied}
                                 isSpectator={isSpectator}
                             />
-                            <div className={'transparent'}>
-                                {!isPlayerReady && !isSpectator?
+                           
+                                {!isPlayerReady && !isSpectator ?
+                                <div className="transparentCanvasBackground">
                                     <AutoComplete
                                         rows={20}
                                         columns={25}
                                         blockSize={40}
-                                    /> : null}
-                            </div>
+                                    /> 
+                                    </div>: null}
+                                
+                            
                         </div>
                         : null}
 
 
                     {(isPlayerReady) ? <div className={'main'}>
+                    <div className='mainCanvasWrapper'>
                         <div className='wrap'>
                             <Canvas
                                 rows={rows}
@@ -1042,10 +1059,11 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
                                 <button className="startBtn" onClick={this.startGame}>Start</button>
                             </div> : null}
                         </div>
+                        </div>
                         {canvases}
                         {winner}
                     </div> : null}
-                    {isSpectator ? <div>
+                    {isSpectator ? <div className='main'> 
                         <br></br>
                         {canvases}
                     </div> : null}

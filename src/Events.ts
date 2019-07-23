@@ -24,5 +24,6 @@ export const HIGHSCORE = 'HIGHSCORE';
 export const WINNER = 'WINNER';
 export const REGISTER = 'REGISTER';
 export const LIST_UPDATE = 'LIST_UPDATE';
+export const MULTIPLAYER = 'MULTIPLAYER';
 
 export default USER_CONNECTED

@@ -25,12 +25,9 @@ class GameSetupScreen extends React.Component<
     }
 
     render() {
-        const { selectedPlayers, recievers, user, initializeGame, denied, showInitBtn, invitedPlayers, isPlayer, gameMaster } = this.props;
-        let selected = '', recs = '', d = '', invited = '';
-       /* selected = this.createStringFromArray(selectedPlayers, selected);
-        recs = this.createStringFromArray(recievers, recs);
-        d = this.createStringFromArray(denied, d);*/
-        //invited = this.createStringFromArray(invitedPlayers, invited);
+        const { recievers, initializeGame, showInitBtn, invitedPlayers, isPlayer, gameMaster } = this.props;
+        
+      
 
         return (
             <div className={'gameSetup'}>

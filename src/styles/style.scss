@@ -1,0 +1,120 @@
+
+@import './variables/variables';
+@import './components/gamesetup';
+@import './components/usercontainer';
+@import './components/menu';
+@import './components/popups';
+@import './components/loginform';
+@import './components/userinfo';
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-content: center;
+
+}
+
+.title {
+    position: absolute;
+    top:30%;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.911);
+    font-size: 100px;
+    border-top: solid 2px lightblue;
+    border-bottom: solid 2px lightblue;
+    margin-top: 50px;
+    letter-spacing: 10px;
+    box-shadow: 0 0 15px white;
+    
+  }
+
+  @keyframes menuBtnAnimation {
+    from {
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0px);
+      opacity: 1;
+    }
+
+  }
+  
+  
+
+  .register {
+    position: absolute;
+    top: 0;
+    height: 70px;
+    width: 100%;
+    background-color: $mainPageGray;
+    letter-spacing: 1px;
+    button {
+      opacity: 0;
+        height: 100%;
+        font-size: 25px;
+        background-color:$mainPageGray;
+        
+        margin-left: 10px;
+        margin-right: 20px;
+        border: none;
+        letter-spacing: 1px;
+        animation: menuBtnAnimation 0.5s ease forwards;
+        transition: 0.2s;
+        &:hover {
+          color: rgb(91, 155, 75);
+          text-shadow: 0 0 4Spx rgb(160, 189, 152);
+          cursor: pointer;
+            }
+        }
+    
+    }
+    .mainLink {
+      margin-left: 20px;
+        margin-right: 20px;
+      display: inline-block;
+      height: 55px;
+        font-size: 25px;
+        padding-top: 10px;
+        padding-right: 10px;
+        text-decoration: none;
+        color: black;
+        margin-left:6px;
+        font-weight: 600;
+        opacity: 0;
+        animation: menuBtnAnimation 0.5s ease forwards;
+        transition: 0.2s;
+        &:hover {
+          color: rgb(91, 155, 75);
+          text-shadow: 0 0 3px rgb(160, 189, 152);
+        }
+    }
+
+    .mainCanvasWrapper {
+      display: flex;
+      justify-content: baseline;
+    }
+
+    @media screen and (max-width:440px){
+      .mainLink {
+        font-size: 15px;
+        margin-left: 5px;
+          margin-right: 5px;
+          padding-left: 5px;
+      }
+      .register {
+        width: 100vw;
+        button{
+          font-size: 15px;
+          width: 70px;
+          
+          margin-left: 0px;
+          margin-right: 5px;
+        }
+      }
+      .main {
+        flex-direction: column;
+      }
+    }
+    

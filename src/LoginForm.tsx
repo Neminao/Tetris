@@ -50,11 +50,12 @@ class LoginForm extends React.Component<{ setUser: any; setDisplay: any}, { nick
         const {setDisplay}= this.props;
         return (
             <div className={'loginForm'}>
+            <div className='loginFormTitle'>
             Login
-            <hr></hr>
+            </div>
                 <form onSubmit={this.handleSubmit}>
                 <div className="error">{error ? error : null}</div>
-                    <label htmlFor='nickname'>Enter your nickname:</label><br></br>
+                    <div className='loginFormText'>Username:</div>
                     <input
                         ref={(input) => { this.textInput = input }}
                         type='text'
@@ -65,6 +66,7 @@ class LoginForm extends React.Component<{ setUser: any; setDisplay: any}, { nick
                         placeholder={'username'}
                         autoComplete={'off'}
                     />
+                    <div className='loginFormText'>Password:</div>
                     <input
                         
                         type='password'
@@ -77,8 +79,10 @@ class LoginForm extends React.Component<{ setUser: any; setDisplay: any}, { nick
 
                     
                 </form>
+                <div>
                 <button value={0} onClick={setDisplay}>Back</button>
                 <button value={2} onClick={setDisplay}>Register</button>
+                </div>
             </div>
         )
     }

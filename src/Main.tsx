@@ -3,6 +3,9 @@ import Register from './Register';
 import LoginForm from './LoginForm';
 import CM from './ClientManager'
 import Menu from './Menu';
+import { Router, Link } from 'react-router-dom';
+import Nav from './Nav';
+
 
 
 class Main extends Component<{}, { display: number; user: any }> {
@@ -25,24 +28,41 @@ class Main extends Component<{}, { display: number; user: any }> {
     CM.emitUserConnected(user);
     this.setState({ user, display: 4 })
   }
+
+  logout = () => {
+    this.setState({
+      display: 0,
+      user: null
+    })
+  }
+
   render() {
     const { display, user } = this.state;
     return (
-      <div >
+      <div className='main-container'>
 
-        {display == 0 ? <div>
-          <p className='title'>TETRIS</p>
-          <div className="register">
 
-            <button onClick={this.handleClick} value={1}>Login</button>
-            <button onClick={this.handleClick} value={2}>Register</button> </div> </div> : null}
-        {display == 1 ? <div><LoginForm setUser={this.setUser} setDisplay={this.handleClick} /> </div> : null}
-        {display == 2 ? <div ><Register setDisplay={this.handleClick} /> </div> : null}
-        {display == 3 ? <div className="register">
-          Register Successful!
+
+        {user ? <div ><Menu user={user} logout={this.logout} /> </div> : <div>
+          
+          {display == 0 ? <div>
+            <nav>
+            <div className="register">
+              <button onClick={this.handleClick} value={1}>Login</button>
+              <button onClick={this.handleClick} value={2}>Register</button>
+              <Link className={'mainLink'} to="/about/">About</Link> 
+              <Link className={'mainLink'} to="/">Main</Link>
+            </div>
+            </nav>
+            <p className='title'>TETRIS</p>
+          </div> : null}
+          {display == 1 ? <div><LoginForm setUser={this.setUser} setDisplay={this.handleClick} /> </div> : null}
+          {display == 2 ? <div ><Register setDisplay={this.handleClick} /> </div> : null}
+          {display == 3 ? <div className="register">
+            Register Successful!
           <button onClick={this.handleClick} value={1}>Login</button>
-        </div> : null}
-        {user ? <div ><Menu user={user} /> </div> : null}
+          </div> : null}</div>}
+
       </div>
     );
   }

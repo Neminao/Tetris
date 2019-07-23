@@ -9,10 +9,14 @@ class GameRequest extends React.Component<{ name: string, accept: any }, {}> {
     }
     render() {
         return (
-            <div className={'request'}>{this.props.name} wants to play a game.
-            <br></br>
+            <div className={'request'}>
+            <p>
+            {this.props.name} wants to play a game.
+            </p>
+            <div>
                 <button onClick={this.accept} value={1}>Accept</button>
                 <button onClick={this.accept} value={0}>Decline</button>
+                </div>
             </div>
         )
     }

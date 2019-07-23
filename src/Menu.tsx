@@ -5,30 +5,36 @@ import CM from './ClientManager';
 import AutoComplete from './AutoComplete';
 import UserInfo from './UserInfo';
 
-class Menu extends React.Component<{ user: any }, { display: number; difficulty: number; highscore: any[], highscoreEasy: any[] }> {
+class Menu extends React.Component<{ user: any, logout: any }, { width: number, display: number; difficulty: number; highscore: any[], highscoreEasy: any[] }> {
     constructor(props: any) {
         super(props);
         this.state = {
             display: 0,
             difficulty: 7,
             highscore: [],
-            highscoreEasy: []
+            highscoreEasy: [],
+            width: window.innerWidth
         }
     }
     componentDidMount = () => {
-
+        this.setState({width: window.innerWidth})
         // change MySQL connetion first
-       // CM.initMenu(this.setHighscore)
+        CM.initMenu(this.setHighscore)
     }
     setDisplay = (event: any) => {
+        const value = event.target.value * 1
+        if (value == 2 || value == 3) {
+            CM.emitMultiplayer(this.props.user.name)
+        }
         this.setState({
             display: event.target.value * 1
         })
-        console.log('clicked')
+        
     }
 
     setHighscore = (highscore: any) => {
         highscore.mode == 'normal' ? this.setState({ highscore: highscore.result }) : this.setState({ highscoreEasy: highscore.result });
+        
     }
 
     setDifficulty = (event: any) => {
@@ -38,32 +44,37 @@ class Menu extends React.Component<{ user: any }, { display: number; difficulty:
         })
     }
 
+    logout = () => {
+        CM.emitLogout();
+        this.props.logout();
+    }
+
     render() {
-        const { display, difficulty, highscore, highscoreEasy } = this.state;
+        const { display, difficulty, highscore, highscoreEasy, width } = this.state;
         const { user } = this.props
         let show = <div></div>;
         switch (display) {
             case 0:
                 show =
-                    <div>
+                    
                         <div className="leftMenu">
-                        <p className='title2'>TETRIS</p>
-                        
-                        <div className="menuButtons">
+                            <p className='title2'>TETRIS</p>
 
-                            <p>Menu</p>
-                            <button onClick={this.setDisplay} value={1}>SINGLEPLAYER</button>
-                            <button onClick={this.setDisplay} value={2}>MULTIPLAYER</button>
-                            <button onClick={this.setDisplay} value={3}>SPECTATE</button>
-                            <button onClick={this.setDisplay} value={4}>SETTINGS</button>
-                            <button onClick={this.setDisplay} value={5}>HIGHSCORES</button>
+                            <div className="menuButtons">
+
+                                <p>Menu</p>
+                                <button onClick={this.setDisplay} value={1}>SINGLEPLAYER</button>
+                                <button onClick={this.setDisplay} value={2}>MULTIPLAYER</button>
+                                <button onClick={this.setDisplay} value={3}>SPECTATE</button>
+                                <button onClick={this.setDisplay} value={4}>SETTINGS</button>
+                                <button onClick={this.setDisplay} value={5}>HIGHSCORES</button>
+                            </div>
                         </div>
-                        </div>
-                        
-                    </div>; break;
+
+                    ; break;
             case 1:
                 show = <UniversalShapeContext setDisplay={this.setDisplay} difficulty={difficulty} user={user} mode={display} />;
-                console.log(1)
+                
                     ; break;
             case 2:
                 show = <UniversalShapeContext setDisplay={null} difficulty={difficulty} user={user} mode={display} />
@@ -74,7 +85,7 @@ class Menu extends React.Component<{ user: any }, { display: number; difficulty:
             case 4:
                 show =
                     <div className="leftMenu">
-                        
+                        <p className='title2'>TETRIS</p>
                         <div className="menuButtons">
                             <p>Select difficulty</p>
                             <button onClick={this.setDifficulty} value={7}>NORMAL</button>
@@ -85,7 +96,7 @@ class Menu extends React.Component<{ user: any }, { display: number; difficulty:
                     ; break;
             case 5:
                 show = <div className="leftMenu"><div className="highscoreWrapper">
-                    
+
                     {highscore != [] ? <Highscore scores={highscore} title={"Normal"} /> : null}
                     {highscoreEasy != [] ? <Highscore scores={highscoreEasy} title={"Easy"} /> : null}
                     <button onClick={this.setDisplay} value={0}>Back</button>
@@ -93,18 +104,19 @@ class Menu extends React.Component<{ user: any }, { display: number; difficulty:
                 </div>; break;
         }
 
-        let size = (Math.round(window.innerWidth /2 /22)) < (Math.round(window.innerHeight /2 /20)) ? (Math.round(window.innerWidth /2 /22)) : (Math.round(window.innerHeight/2 /20));
+
         return (
-            <div>
-                <UserInfo user={user.name} setDisplay={this.setDisplay}/>
-                {show}
-                {display == 0 || display == 4 || display == 5 ? <div className='transparent'> 
-                <AutoComplete
+            <div className='mainWrapper'>
+                <UserInfo user={user.name} logout={this.logout} setDisplay={this.setDisplay} gameMode={display} />
+                <div className='menuWrapper'>
+                    {show}
+                    {display == 0 || display == 4 || display == 5 ?
+                        <AutoComplete
                             rows={20}
                             columns={20}
-                            blockSize={Math.round(window.innerWidth /2 /22)}
-                        />
-                        </div> : null}
+                            blockSize={Math.round(width / 2 / 22)}
+                        /> : null}
+                </div>
             </div>
         )
     }

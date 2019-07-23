@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP } from './Events'
+import { LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_OVER, INITIALIZE_GAME, USER_CONNECTED, USER_DISCONNECTED, GAME_UPDATE, GAME_INIT, USER_READY, GAME_REQUEST, GAME_START, VERIFY_USER, LOGOUT, USER_IN_GAME, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SPECTATE_INFO, SEND_TO_SPECTATOR, DISPLAY_GAMES, GAME_SETUP, MULTIPLAYER } from './Events'
 import UniversalShape from './UniversalShape';
 
 const socketUrl = "http://localhost:3231"; // change to local ip with same port for testing // port must match port defined in socket
@@ -9,7 +9,6 @@ class ClientManager {
     initSocket = () => {
 
         this.socket.on('connect', () => {
-            console.log('connected')
         })
         return this.socket;
     }
@@ -80,14 +79,16 @@ class ClientManager {
 
     initMenu = (setHighscore: any) => {
         this.socket.on(HIGHSCORE, (result: any) => {
-            console.log(result);
             setHighscore(result);
         })
     }
     initUserContainer = (displayUsers: any,
         setSender: any, setRequest: any, startGame: any, setSide: any, setRecievers: any,
         addSpectator: any, updateAvailableGames: any, setInitBtn: any, updateGameSetupScreen: any,
-        emitGameSetup: any, reset: any) => {
+        emitGameSetup: any, reset: any, removeInvitedPlayer: any) => {
+        this.socket.on(RESET, (user: string) => {
+            removeInvitedPlayer(user);
+        })
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
         })
@@ -146,8 +147,7 @@ class ClientManager {
     emitUserInGame = (username: string) => {
         this.socket.emit(USER_IN_GAME, { username });
     }
-    emitLogout = (stopGame: any) => {
-        stopGame();
+    emitLogout = () => {
         this.socket.emit(LOGOUT);
     }
     emitUserConnected = (user: any) => {
@@ -196,6 +196,10 @@ class ClientManager {
 
     emitListUpdate = () => {
         this.socket.emit(LIST_UPDATE);
+    }
+
+    emitMultiplayer = (user: string) => {
+        this.socket.emit(MULTIPLAYER, user);
     }
 
 }

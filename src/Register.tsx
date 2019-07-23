@@ -2,7 +2,7 @@ import React from 'react';
 
 import CM from './ClientManager';
 
-class Register extends React.Component<{setDisplay: any}, {
+class Register extends React.Component<{ setDisplay: any }, {
     name: string, password: string, error: string;
 }> {
     constructor(props: any) {
@@ -23,10 +23,9 @@ class Register extends React.Component<{setDisplay: any}, {
         event.preventDefault();
         const { name, password } = this.state;
         if (password.length > 5) {
-            console.log("Username: " + name);
             CM.emitRegister(name, password);
             this.setError("");
-            
+
         }
         else {
             this.setError("Password must contain at least 6 characters!");
@@ -49,28 +48,36 @@ class Register extends React.Component<{setDisplay: any}, {
     }
     render = () => {
         const { error } = this.state;
-        const {setDisplay } = this.props;
+        const { setDisplay } = this.props;
         return (
             <div className='loginForm'>
-            New user registration<hr></hr>
+            <div className='loginFormTitle'>
+                        Registration
+            </div>
+            
                 <div className='error'>{error ? error : null}</div>
                 <form onSubmit={this.register}>
-                    
-                    Enter username:
+
+                    <div className='loginFormText'>
+                        Enter username:
+            </div>
                     <input
                         onChange={this.changeName}
                         type='text'
                         placeholder='username...'></input>
-                        <br></br>
-                    Enter password:
+                    <div className='loginFormText'>
+                        Enter password:
+            </div>
                     <input
                         onChange={this.changePass}
                         type='password'
                         placeholder='password...'></input>
                     <input type='submit' value={'Submit'}></input>
                 </form>
+                <div>
                 <button value={0} onClick={setDisplay}>Back</button>
                 <button value={1} onClick={setDisplay}>Login</button>
+                </div>
             </div>
         )
     }
