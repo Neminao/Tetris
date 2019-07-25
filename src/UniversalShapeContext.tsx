@@ -129,7 +129,7 @@ class UniversalShapeContext extends React.Component<USCProps, MyState>{
 
     componentWillUnmount() {
         clearInterval(this.state.counterId);
-        CM.emitReset(this.state.recievers, this.state.user.name);
+        CM.emitReset(this.state.recievers, this.state.user.name, false);
 
         window.removeEventListener('resize', this.updateWindowDimensions);
         window.removeEventListener('keydown', this.handleKeyDown);

@@ -98,12 +98,17 @@ module.exports = function (socket) {
         socket.emit(GAME_INIT, generateShapes(1000, 7));
     })
 
-    socket.on(RESET, ({ to, user }) => {
+    socket.on(RESET, ({ to, user, keepGameMode }) => {
         let rec;
         let current = connectedUsers[user];
         if (current) {
             current.inGame = false;
-            current.gameMode = 0;
+            if(keepGameMode){
+                current.gameMode = 1;
+            }
+            else current.gameMode = 0;
+            console.log('reset')
+            console.log(connectedUsers)
         }
         if (to)
             to.forEach(name => {

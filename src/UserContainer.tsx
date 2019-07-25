@@ -56,7 +56,7 @@ class UserContainer extends React.Component<{
             this.props.setRecievers, this.props.addSpectator,
             this.updateAvailableGames,
             this.setInitBtn, this.updateGameSetupScreen, this.emitGameSetup,
-            this.reset, this.removeInvitedPlayer
+            this.reset, this.removeInvitedPlayer, this.removeGameMaster
         )
         CM.emitListUpdate();
     }
@@ -66,10 +66,15 @@ class UserContainer extends React.Component<{
         const { gameMaster } = this.state;
         if (user == gameMaster && !isPlayerReady) {
             CM.emitGameSetup(user, reciever);
+            
         }
     }
     componentWillUnmount(){
-        CM.emitReset([this.state.gameMaster], this.props.user);
+        const {isGameMaster, gameMaster, invitedPlayers} = this.state;
+        if(isGameMaster){
+            CM.emitReset(invitedPlayers, this.props.user, false);
+        }
+        else CM.emitReset([gameMaster], this.props.user, false);
     }
 
     updateGameSetupScreen = (obj: any) => {
@@ -79,6 +84,14 @@ class UserContainer extends React.Component<{
             gameMaster: obj.master
         })
 
+    }
+
+    removeGameMaster = (user: string) => {
+        const {gameMaster} = this.state;
+        if(user == gameMaster) {
+            this.reset();
+            CM.emitReset([], this.props.user, true);
+        }
     }
 
     finalizeStart = () => {
@@ -110,7 +123,7 @@ class UserContainer extends React.Component<{
         if (tf) {
 
             if (isSpectator) {
-                CM.emitReset(reciever, user);
+                CM.emitReset(reciever, user, false);
                 changeSpectatingStatus(false);
                 setRecievers([]);
                 this.setInitBtn(true);
@@ -152,7 +165,7 @@ class UserContainer extends React.Component<{
         let index2 = invited.indexOf(event.target.value);
         if (!isPlayer) {
             if (isSpectator) {
-                CM.emitReset(reciever, user);
+                CM.emitReset(reciever, user, false);
                 changeSpectatingStatus(false);
                 setRecievers([]);
                 this.setInitBtn(true);
@@ -208,7 +221,7 @@ class UserContainer extends React.Component<{
         let recievers = this.props.reciever;
         if (this.state.gameMaster)
             recievers.push(this.state.gameMaster);
-        CM.emitReset(recievers, this.props.user);
+        CM.emitReset(recievers, this.props.user, true);
 
         this.props.reset();
         this.setState({

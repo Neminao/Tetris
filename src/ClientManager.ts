@@ -85,9 +85,10 @@ class ClientManager {
     initUserContainer = (displayUsers: any,
         setSender: any, setRequest: any, startGame: any, setSide: any, setRecievers: any,
         addSpectator: any, updateAvailableGames: any, setInitBtn: any, updateGameSetupScreen: any,
-        emitGameSetup: any, reset: any, removeInvitedPlayer: any) => {
+        emitGameSetup: any, reset: any, removeInvitedPlayer: any, removeGameMaster: any) => {
         this.socket.on(RESET, (user: string) => {
             removeInvitedPlayer(user);
+            removeGameMaster(user);
         })
         this.socket.on(USER_CONNECTED, (allUsers: any) => {
             displayUsers(allUsers);
@@ -165,8 +166,8 @@ class ClientManager {
     emitVerifyUser = (nickname: string, password: string, setUser: any) => {
         this.socket.emit(VERIFY_USER, nickname, password, setUser);
     }
-    emitReset = (to: string[], user: string) => {
-        this.socket.emit(RESET, { to, user });
+    emitReset = (to: string[], user: string, keepGameMode? : boolean) => {
+        this.socket.emit(RESET, { to, user, keepGameMode });
     }
     emitAddShapes = (reciever: string[]) => {
         this.socket.emit(ADD_SHAPES, reciever);

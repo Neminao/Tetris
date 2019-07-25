@@ -212,88 +212,6 @@
   color: white;
 }
 
-.sideTab {
-  height: 90%;
-  width: 400px;
-  margin-top: 25px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: none;
-  color: black;
-  z-index: 1000;
-  overflow-y: scroll;
-}
-
-.sideTab p {
-  margin: 0px;
-}
-
-.sideBtn {
-  width: 360px;
-  height: 40px;
-  font-size: 25px;
-  text-align: left;
-  width: 95%;
-  background-color: white;
-  margin: 5px;
-  padding-left: 10px;
-}
-
-.sideBtn button {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-item-align: baseline;
-      align-self: baseline;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  margin-top: 5px;
-  height: 30px;
-  width: 60px;
-  font-size: 18px;
-  margin-right: 5px;
-  float: right;
-  background-color: #004256;
-  border: none;
-  color: whitesmoke;
-}
-
-.sideBtn button:hover:enabled {
-  -webkit-box-shadow: 0 7px 15px #004256e5;
-          box-shadow: 0 7px 15px #004256e5;
-  color: white;
-}
-
-.sideBtnSmall {
-  width: 360px;
-  height: 40px;
-  font-size: 20px;
-  text-align: left;
-  width: 95%;
-  background-color: white;
-  margin: 5px;
-  padding-left: 10px;
-}
-
-.sideBtnSmall button {
-  -ms-flex-item-align: baseline;
-      align-self: baseline;
-  margin-top: 5px;
-  height: 30px;
-  width: 60px;
-  font-size: 18px;
-  margin-right: 5px;
-  background-color: #004256;
-  border: none;
-  color: whitesmoke;
-}
-
-.sideBtnSmall button:hover {
-  -webkit-box-shadow: 0 7px 15px #004256e5;
-          box-shadow: 0 7px 15px #004256e5;
-  color: white;
-}
-
 .menuButtons {
   height: 530px;
   width: 600px;
@@ -354,6 +272,7 @@
   font-weight: 900;
   margin: 0px;
   text-shadow: 0 0 15px white;
+  font-family: 'Righteous', cursive;
 }
 
 .leftMenu {
@@ -593,6 +512,12 @@
   letter-spacing: 10px;
   -webkit-box-shadow: 0 0 15px white;
           box-shadow: 0 0 15px white;
+  -ms-grid-column-align: center;
+      justify-self: center;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  font-family: 'Righteous', cursive;
 }
 
 @-webkit-keyframes menuBtnAnimation {

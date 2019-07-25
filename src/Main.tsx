@@ -4,17 +4,32 @@ import LoginForm from './LoginForm';
 import CM from './ClientManager'
 import Menu from './Menu';
 import { Router, Link } from 'react-router-dom';
-import Nav from './Nav';
+import {Timeline, TimelineLite, TimelineMax, Power2, TweenLite, TweenMax} from 'gsap';
 
 
 
 class Main extends Component<{}, { display: number; user: any }> {
+  title = React.createRef<HTMLDivElement>();
   constructor(props: any) {
     super(props);
     this.state = {
       display: 0,
       user: null
     }
+  }
+
+  componentDidMount(){
+    this.animate();
+  }
+  componentDidUpdate(){
+    if(this.state.display == 0) {
+      this.animate();
+    }
+  }
+  animate = () => {
+    let tl = new TimelineMax();   
+    tl.fromTo(this.title.current,1, {width: "0", left: '50%'}, {width: '100%',  left: '0%'})
+    .fromTo(this.title.current,1,{color: 'rgba(255, 255, 255, 0)'},{color: '#595959', ease: Power2.easeInOut, }, "-=0.5");
   }
   setDisplay = (display: number) => {
     this.setState({
@@ -54,7 +69,7 @@ class Main extends Component<{}, { display: number; user: any }> {
               <Link className={'mainLink'} to="/">Main</Link>
             </div>
             </nav>
-            <p className='title'>TETRIS</p>
+            <div className='title' ref={this.title}>TETRIS</div>
           </div> : null}
           {display == 1 ? <div><LoginForm setUser={this.setUser} setDisplay={this.handleClick} /> </div> : null}
           {display == 2 ? <div ><Register setDisplay={this.handleClick} /> </div> : null}
