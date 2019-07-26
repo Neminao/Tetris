@@ -1,3 +1,5 @@
+const values = require('lodash');
+
 const io = require('./server.js').io;
 
 const { MULTIPLAYER, LIST_UPDATE, REGISTER, WINNER, HIGHSCORE, GAME_SETUP, GAME_OVER, INITIALIZE_GAME, DISPLAY_GAMES, VERIFY_USER, USER_CONNECTED, LOGOUT, GAME_UPDATE, USER_DISCONNECTED, GAME_START, USER_READY, GAME_INIT, USER_IN_GAME, GAME_REQUEST, REQUEST_DENIED, RESET, ADD_SHAPES, SPECTATE, SEND_TO_SPECTATOR, SPECTATE_INFO } = require('../Events.js')
@@ -35,15 +37,19 @@ module.exports = function (socket) {
     socket.on('disconnect', () => {
         if ("user" in socket) {
             let name = socket.user.name;
-            connectedUsers = removeUser(connectedUsers, name);
-            let game = gamesInProgress[checkGame([], name)];
+            let game = gamesInProgress[connectedUsers[name].gameName];
+            
+            console.log(game)
             if (game)
                 changeUserStatus(name, []);
+            connectedUsers = removeUser(connectedUsers, name);
+            
             //gamesInProgress = removeGame(gamesInProgress, name);
             io.emit(USER_DISCONNECTED, { allUsers: connectedUsers, name });
             if (gamesInProgress) {
                 io.emit(DISPLAY_GAMES, gamesInProgress)
             }
+            checkAndRemoveGame(game)
         }
     })
     socket.on(LOGOUT, () => {
@@ -55,6 +61,7 @@ module.exports = function (socket) {
             if (gamesInProgress) {
                 io.emit(DISPLAY_GAMES, gamesInProgress);
             }
+            checkAndRemoveGame(socket.user.gameName)
         }
     })
 
@@ -101,25 +108,26 @@ module.exports = function (socket) {
     socket.on(RESET, ({ to, user, keepGameMode }) => {
         let rec;
         let current = connectedUsers[user];
+        let game = gamesInProgress[checkGame(to, user)];
+        if (game)
+            changeUserStatus(user, to); 
         if (current) {
             current.inGame = false;
             if(keepGameMode){
                 current.gameMode = 1;
             }
             else current.gameMode = 0;
-            console.log('reset')
-            console.log(connectedUsers)
+           
         }
         if (to)
             to.forEach(name => {
                 rec = connectedUsers[name];
                 if (rec)
+                 if(!rec.inGame)
                     socket.to(rec.socketID).emit(RESET, user);
             })
-        let game = gamesInProgress[checkGame(to, user)];
-        if (game)
-            changeUserStatus(user, to); 
         
+            checkAndRemoveGame(current.gameName)
         io.emit(USER_CONNECTED, connectedUsers);
     })
 
@@ -149,16 +157,20 @@ module.exports = function (socket) {
                 tempArray.splice(i, 1);
                 tempArray.push(sender);
                 rec.inGame = true;
+                rec.gameName = sender;
                 socket.to(rec.socketID).emit(INITIALIZE_GAME, { generatedShapes, recievers: tempArray, difficulty });
             }
         }
         let s = connectedUsers[sender];
-        if (s)
+        if (s) {
             s.inGame = true;
+            s.gameName = sender;
+        }
         socket.emit(INITIALIZE_GAME, { generatedShapes, recievers, difficulty });
         io.emit(USER_CONNECTED, connectedUsers);
         recievers.push(sender)
         gamesInProgress = addGame(gamesInProgress, sender, recievers);
+
     })
 
     socket.on(GAME_START, ({ to, user }) => {
@@ -253,6 +265,7 @@ module.exports = function (socket) {
                 if (err) throw err;
             });
         }
+
         if (isGameOver(user, recievers)) {
             const winnerData = declareWinner(user, recievers);
             socket.emit(WINNER, winnerData)
@@ -355,15 +368,15 @@ function showHighscores(socket) {
 // provera da li je korisnik u nekoj od igara; vraca ime igre
 function checkGame(recievers, user) {
     let temp = "";
-    if (recievers)
+    if (user in gamesInProgress) {
+        temp = user;
+    }
+    else if (recievers)
         recievers.forEach(name => {
             if (name in gamesInProgress) {
                 temp = name;
             }
-        })
-    if (user in gamesInProgress) {
-        temp = user;
-    }
+        })   
     return temp;
 }
 
@@ -376,6 +389,7 @@ function changeUserStatus(user, recievers) {
         currentGame.recieversStatus[user].gameOver = true;
         }
     }
+    console.log(currentGame.recieversStatus[user])
 }
 
 function isGameOver(user, recievers) {
@@ -384,13 +398,16 @@ function isGameOver(user, recievers) {
     let temp = true;
     if (currentGame) {
         let currentRecievers = currentGame.recieversStatus;
+        console.log(currentRecievers);
         recievers.forEach(reciever => {
             if (!currentRecievers[reciever].gameOver && reciever in connectedUsers) {
                 temp = false;
+                
 
             }
         })
     }
+    console.log('Is game over: '+temp);
     return temp;
 }
 
@@ -407,7 +424,27 @@ function declareWinner(user, recievers) {
             winner = reciever;
         }
     })
-
+    console.log(winner)
     return { winner, score };
+}
+
+function checkAndRemoveGame(gameName){
+    const game = gamesInProgress[gameName]
+    if(game){
+    const recs = values(game.recieversStatus)
+    let temp = false;
+    recs.forEach(rec => {
+        console.log(rec)
+        if(!rec.gameOver){
+            temp = true; 
+
+        }
+    })
+    console.log(temp)
+    if(!temp){
+        gamesInProgress = removeGame(gamesInProgress, gameName)
+        io.emit(DISPLAY_GAMES, gamesInProgress)
+    }
+}
 }
 
