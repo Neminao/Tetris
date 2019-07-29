@@ -39,7 +39,6 @@ module.exports = function (socket) {
             let name = socket.user.name;
             let game = gamesInProgress[connectedUsers[name].gameName];
             
-            console.log(game)
             if (game)
                 changeUserStatus(name, []);
             connectedUsers = removeUser(connectedUsers, name);
@@ -389,7 +388,6 @@ function changeUserStatus(user, recievers) {
         currentGame.recieversStatus[user].gameOver = true;
         }
     }
-    console.log(currentGame.recieversStatus[user])
 }
 
 function isGameOver(user, recievers) {
@@ -398,7 +396,6 @@ function isGameOver(user, recievers) {
     let temp = true;
     if (currentGame) {
         let currentRecievers = currentGame.recieversStatus;
-        console.log(currentRecievers);
         recievers.forEach(reciever => {
             if (!currentRecievers[reciever].gameOver && reciever in connectedUsers) {
                 temp = false;
@@ -407,7 +404,6 @@ function isGameOver(user, recievers) {
             }
         })
     }
-    console.log('Is game over: '+temp);
     return temp;
 }
 
@@ -424,7 +420,6 @@ function declareWinner(user, recievers) {
             winner = reciever;
         }
     })
-    console.log(winner)
     return { winner, score };
 }
 
@@ -434,13 +429,12 @@ function checkAndRemoveGame(gameName){
     const recs = values(game.recieversStatus)
     let temp = false;
     recs.forEach(rec => {
-        console.log(rec)
         if(!rec.gameOver){
             temp = true; 
 
         }
     })
-    console.log(temp)
+    
     if(!temp){
         gamesInProgress = removeGame(gamesInProgress, gameName)
         io.emit(DISPLAY_GAMES, gamesInProgress)
