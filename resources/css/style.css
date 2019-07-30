@@ -1,0 +1,635 @@
+.roundBtn {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  top: 90px;
+  border-radius: 70px;
+  left: 360px;
+  margin-left: -70px;
+  background-color: #66FF66;
+  color: whitesmoke;
+  font-size: 22px;
+  border: 5px solid white;
+}
+
+.roundBtn:hover {
+  -webkit-box-shadow: 0 0 20px rgba(136, 255, 156, 0.932);
+          box-shadow: 0 0 20px rgba(136, 255, 156, 0.932);
+  color: white;
+}
+
+.tableLeft {
+  width: 360px;
+  height: 120px;
+  position: absolute;
+  top: 100px;
+}
+
+.tableRight {
+  width: 360px;
+  height: 120px;
+  position: absolute;
+  margin-left: 360px;
+  top: 100px;
+}
+
+.tdNarrow {
+  width: 100px;
+}
+
+.tdWide {
+  width: 300px;
+  padding: 0px;
+}
+
+.tdWideSmall {
+  width: 300px;
+  padding: 0px;
+  font-size: 17px;
+}
+
+#leftAlign {
+  text-align: left;
+  padding-left: 10px;
+  border-left: 1px solid;
+}
+
+#rightAlign {
+  text-align: right;
+  border-right: 1px solid;
+  padding-right: 10px;
+}
+
+.roundDiv {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  top: 90px;
+  border-radius: 80px;
+  left: 360px;
+  margin-left: -70px;
+  background-color: #66FF66;
+  color: whitesmoke;
+  font-size: 22px;
+  border: 5px solid white;
+  text-align: center;
+  font-size: 20px;
+  -webkit-box-shadow: 0 0 20px rgba(136, 255, 156, 0.932);
+          box-shadow: 0 0 20px rgba(136, 255, 156, 0.932);
+  color: white;
+}
+
+.innerRound {
+  width: 80px;
+  margin-left: 25px;
+  margin-top: 17px;
+}
+
+.gameSetup {
+  position: absolute;
+  width: 720px;
+  left: 66%;
+  margin-left: -400px;
+  height: 400px;
+  margin-top: 140px;
+  background-color: rgba(255, 255, 255, 0.849);
+  border: none;
+  border-radius: 3px;
+  font-size: 22px;
+  z-index: 100;
+  background-position: center;
+}
+
+.gameSetup p {
+  background-color: rgba(255, 255, 255, 0.973);
+}
+
+.gameSetup table {
+  background-color: rgba(255, 255, 255, 0.938);
+}
+
+@media screen and (max-width: 1400px) {
+  .gameSetup {
+    left: 0;
+    margin-left: 510px;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .gameSetup {
+    position: absolute;
+    margin-left: 0px;
+    top: 0px;
+  }
+  .sideTab {
+    position: absolute;
+    top: 520px;
+    left: -100px;
+  }
+}
+
+.sideTab {
+  position: absolute;
+  margin-left: 100px;
+  height: 85vh;
+  width: 400px;
+  margin-top: 25px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: black;
+  z-index: 1000;
+  overflow-y: scroll;
+}
+
+.sideTab p {
+  margin: 0px;
+}
+
+.sideBtn {
+  width: 360px;
+  height: 40px;
+  font-size: 25px;
+  text-align: left;
+  width: 95%;
+  background-color: white;
+  margin: 5px;
+  padding-left: 10px;
+}
+
+.sideBtn button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-item-align: baseline;
+      align-self: baseline;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-top: 5px;
+  height: 30px;
+  width: 60px;
+  font-size: 18px;
+  margin-right: 5px;
+  float: right;
+  background-color: #004256;
+  border: none;
+  color: whitesmoke;
+}
+
+.sideBtn button:hover:enabled {
+  -webkit-box-shadow: 0 7px 15px #004256e5;
+          box-shadow: 0 7px 15px #004256e5;
+  color: white;
+}
+
+.sideBtnSmall {
+  width: 360px;
+  height: 40px;
+  font-size: 20px;
+  text-align: left;
+  width: 95%;
+  background-color: white;
+  margin: 5px;
+  padding-left: 10px;
+}
+
+.sideBtnSmall button {
+  -ms-flex-item-align: baseline;
+      align-self: baseline;
+  margin-top: 5px;
+  height: 30px;
+  width: 60px;
+  font-size: 18px;
+  margin-right: 5px;
+  background-color: #004256;
+  border: none;
+  color: whitesmoke;
+}
+
+.sideBtnSmall button:hover {
+  -webkit-box-shadow: 0 7px 15px #004256e5;
+          box-shadow: 0 7px 15px #004256e5;
+  color: white;
+}
+
+.menuButtons {
+  height: 530px;
+  width: 600px;
+  background-color: rgba(255, 255, 255, 0.904);
+  border-radius: 3px;
+  z-index: 100;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-shadow: 0 0 15px white;
+          box-shadow: 0 0 15px white;
+  margin: 0px;
+}
+
+.menuButtons p {
+  height: 70px;
+  width: 96%;
+  font-size: 30px;
+  border-radius: 3px;
+  background-color: #00563f;
+  border: none;
+  color: white;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 0px;
+  margin-top: 10px;
+}
+
+.menuButtons button {
+  height: 70px;
+  width: 96%;
+  font-size: 25px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background-color: #004256;
+  border: none;
+  color: #eeeeee;
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.menuButtons button:hover {
+  -webkit-box-shadow: 0 0 25px #004256e5;
+          box-shadow: 0 0 25px #004256e5;
+  color: white;
+}
+
+.title2 {
+  font-size: 140px;
+  color: white;
+  font-weight: 900;
+  margin: 0px;
+  text-shadow: 0 0 15px white;
+  font-family: 'Righteous', cursive;
+}
+
+.leftMenu {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -ms-flex-line-pack: center;
+      align-content: center;
+}
+
+@media screen and (max-width: 1200px) {
+  .menuButtons {
+    width: 400px;
+  }
+  .menuWrapper {
+    width: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -ms-flex-line-pack: end;
+        align-content: flex-end;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    margin-bottom: 20px;
+  }
+}
+
+.request {
+  position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 200px;
+  height: 100px;
+  left: 50%;
+  margin-left: -100px;
+  top: 100px;
+  border: solid 2px white;
+  border-radius: 3px;
+  font-size: 14px;
+  z-index: 10000;
+  background-color: rgba(201, 201, 201, 0.9);
+  padding: 0px;
+}
+
+.request button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  border: solid 3px #ff8036;
+  background-color: #ff8036;
+  border-radius: 3px;
+  height: 25px;
+  width: 70px;
+  margin: 2px;
+}
+
+.request button:hover {
+  -webkit-box-shadow: 0px 1px 10px #ff8036;
+          box-shadow: 0px 1px 10px #ff8036;
+}
+
+.request p {
+  margin: 0px;
+  padding: 10px;
+}
+
+.request div {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -ms-flex-line-pack: center;
+      align-content: center;
+}
+
+.loginForm {
+  position: absolute;
+  padding-top: 20px;
+  top: 40%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  margin: -150px 0 0 -200px;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgba(233, 233, 233, 0.979);
+  -webkit-box-shadow: 0px 0 20px white;
+          box-shadow: 0px 0 20px white;
+}
+
+.loginForm form {
+  margin: 5px;
+}
+
+.loginForm input {
+  margin: 5px;
+  background-color: rgba(240, 240, 240, 0.979);
+  border: solid 1px white;
+  width: 300px;
+  height: 35px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.loginForm input[type=submit] {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  border: none;
+  border: solid 3px #00563f;
+  background-color: #00563f;
+  width: 300px;
+  height: 35px;
+  font-size: 22px;
+  text-align: center;
+  color: #ebebeb;
+}
+
+.loginForm input[type=submit]:hover {
+  -webkit-box-shadow: 0 0 15px #00563f;
+          box-shadow: 0 0 15px #00563f;
+  color: white;
+}
+
+.loginForm .loginFormTitle {
+  font-size: 30px;
+}
+
+.loginForm .loginFormText {
+  font-size: 15px;
+  text-align: left;
+  margin-left: 50px;
+}
+
+.userInfo {
+  height: 50px;
+  z-index: 3000;
+  font-size: 30px;
+  width: 100%;
+  background-color: #e6e6e6;
+  padding-left: 100px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin-left: -100px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -ms-flex-line-pack: center;
+      align-content: center;
+}
+
+.userInfo button {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  font-size: 20px;
+  width: 120px;
+  background-color: #e4b6b6;
+  border: solid 3px #e4b6b6;
+  border-radius: 3px;
+  float: right;
+  margin-right: 10px;
+}
+
+.userInfo button:hover {
+  border: solid 3px red;
+}
+
+.userInfo .usernameDisplay {
+  width: 50%;
+}
+
+.userInfo .buttonDisplay {
+  width: 50%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.main-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -ms-flex-line-pack: center;
+      align-content: center;
+}
+
+.title {
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.911);
+  font-size: 100px;
+  border-top: solid 2px lightblue;
+  border-bottom: solid 2px lightblue;
+  margin-top: 50px;
+  letter-spacing: 10px;
+  -webkit-box-shadow: 0 0 15px white;
+          box-shadow: 0 0 15px white;
+  -ms-grid-column-align: center;
+      justify-self: center;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  font-family: 'Righteous', cursive;
+}
+
+@-webkit-keyframes menuBtnAnimation {
+  from {
+    -webkit-transform: translateY(-100px);
+            transform: translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translateY(0px);
+            transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+@keyframes menuBtnAnimation {
+  from {
+    -webkit-transform: translateY(-100px);
+            transform: translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translateY(0px);
+            transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+.register {
+  position: absolute;
+  top: 0;
+  height: 70px;
+  width: 100%;
+  background-color: #e6e6e6;
+  letter-spacing: 1px;
+}
+
+.register button {
+  opacity: 0;
+  height: 100%;
+  font-size: 25px;
+  background-color: #e6e6e6;
+  margin-left: 10px;
+  margin-right: 20px;
+  border: none;
+  letter-spacing: 1px;
+  -webkit-animation: menuBtnAnimation 0.5s ease forwards;
+          animation: menuBtnAnimation 0.5s ease forwards;
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.register button:hover {
+  color: #5b9b4b;
+  text-shadow: 0 0 4Spx #a0bd98;
+  cursor: pointer;
+}
+
+.mainLink {
+  margin-left: 20px;
+  margin-right: 20px;
+  display: inline-block;
+  height: 55px;
+  font-size: 25px;
+  padding-top: 10px;
+  padding-right: 10px;
+  text-decoration: none;
+  color: black;
+  margin-left: 6px;
+  font-weight: 600;
+  opacity: 0;
+  -webkit-animation: menuBtnAnimation 0.5s ease forwards;
+          animation: menuBtnAnimation 0.5s ease forwards;
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.mainLink:hover {
+  color: #5b9b4b;
+  text-shadow: 0 0 3px #a0bd98;
+}
+
+.mainCanvasWrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: baseline;
+      -ms-flex-pack: baseline;
+          justify-content: baseline;
+}
+
+@media screen and (max-width: 440px) {
+  .mainLink {
+    font-size: 15px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 5px;
+  }
+  .register {
+    width: 100vw;
+  }
+  .register button {
+    font-size: 15px;
+    width: 70px;
+    margin-left: 0px;
+    margin-right: 5px;
+  }
+  .main {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+}
+/*# sourceMappingURL=style.css.map */

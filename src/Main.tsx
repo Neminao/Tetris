@@ -3,7 +3,7 @@ import Register from './Register';
 import LoginForm from './LoginForm';
 import CM from './ClientManager'
 import Menu from './Menu';
-import { Router, Link } from 'react-router-dom';
+//import { Router, Link } from 'react-router-dom';
 import { Timeline, TimelineLite, TimelineMax, Power2, TweenLite, TweenMax } from 'gsap';
 
 
@@ -66,8 +66,7 @@ class Main extends Component<{}, { display: number; user: any }> {
               <div className="register">
                 <button onClick={this.handleClick} value={1}>Login</button>
                 <button onClick={this.handleClick} value={2}>Register</button>
-                <Link className={'mainLink'} to="/about/">About</Link>
-                <Link className={'mainLink'} to="/">Main</Link>
+                
               </div>
             </nav>
             <div className='title' id={'title'} ref={this.title}>TETRIS</div>

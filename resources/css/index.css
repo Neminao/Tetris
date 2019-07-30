@@ -1,6 +1,6 @@
 body {
   background-color: black;
-  background-image: url('img/computer-3163437.png');
+  background-image: url('../resources/img/computer-3163437.png');
   
   margin: 0;
   padding: 0;
@@ -108,6 +108,12 @@ button {
   background-color: yellow;
   border-radius: 3px; 
 }
+
+.canvas1 {
+  
+ }
+
+
 
 .popupOpen {
   position: fixed;
